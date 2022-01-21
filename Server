@@ -1,0 +1,216 @@
+shinyServer(function(input,output){
+  
+  # ############################################################ #
+  # INTRODUCTION
+  # ############################################################ #
+  
+  
+  
+  # ############################################################ #
+  # FIN INTRODUCTION
+  # ############################################################ #
+  # 
+  # 
+  # 
+  # 
+  # 
+  # 
+  # 
+  # 
+  # 
+  # 
+  # 
+  # ############################################################ #
+  # CARTOGRAPHIE
+  # ############################################################ #
+  
+  # ------------------------------------------------------------ #
+  # map_sondes : carte des sondes
+  output$map_sondes <- renderLeaflet({
+    
+    leaflet() %>%
+      addTiles() %>%
+      addAwesomeMarkers(data = SondesDreal2, layerId = SondesDreal2$Name, group="DREAL",
+                        icon=makeAwesomeIcon(icon='tint', library='glyphicon', 
+                                             iconColor = 'white', markerColor = 'blue')) #%>%
+      #addAwesomeMarkers(data = SondesOFB, layerId = SondesOFB$Name, group = "OFB") %>%
+      #addPopups(data = SondesDreal, group = "DREAL", popup=paste("Sonde ",SondesDreal2$Name)) %>%
+      #addPopupImages(img, group = "DREAL",width = 400, tooltip=F)
+    
+    
+  })
+  
+
+  observeEvent(input$OFB, {
+    proxy <- leafletProxy("map_sondes")
+    
+    proxy %>% clearGroup(group="OFB")
+
+    if(input$OFB){
+      proxy %>%
+        addAwesomeMarkers(data = SondesOFB, layerId = SondesOFB$Name, group = "OFB",
+                          icon = makeAwesomeIcon(icon = 'tint', library = 'glyphicon',
+                                                 iconColor = 'white', markerColor = 'gray',
+                                                 iconRotate = 10))
+    }
+
+  })
+
+  observeEvent(input$DREAL, {
+    proxy <- leafletProxy("map_sondes")
+    
+    proxy %>% clearGroup(group="DREAL")
+
+    if(input$DREAL){
+      proxy %>%
+        addAwesomeMarkers(data = SondesDreal2, layerId = SondesDreal2$Name, group = "DREAL",
+                          icon = makeAwesomeIcon(icon = 'tint', library = 'glyphicon',
+                                                 iconColor = 'white', markerColor = 'blue'))
+    }
+
+  })
+  
+  
+  id_sonde_reactive <- reactiveValues(
+    id_sonde_char = "817"
+  )
+  
+  sonde_df <- reactive({
+    as.data.frame(db[db$id_sonde==as.numeric(id_sonde_reactive$id_sonde_char),])
+  })
+  
+  
+  output$ID <- renderText({paste("DonnÃ©es de la sonde ",id_sonde_reactive$id_sonde_char,sep="")})
+  
+  output$temp_sonde <- renderDygraph({
+    sonde_data = xts(sonde_df()$Teau, order.by=sonde_df()$t)
+    dygraph(sonde_data, main = "Temp Eau")%>%
+      dyAxis("y", label = "Temp", valueRange = c(min(db$Teau)-1, max(db$Teau)+1)) %>%
+      dyRangeSelector()
+  })
+  
+  output$table_sonde <- renderTable({
+    sonde_table = sonde_df() %>%
+      group_by(id_sonde) %>%
+      mutate(Min=min(Teau),
+             Q1 = quantile(Teau,.25),
+             Median = median(Teau),
+             Moyenne = mean(Teau),
+             E_T = sd(Teau),
+             Q3 = quantile(Teau,.75),
+             Max = max(Teau))
+    
+    sonde_table = sonde_table[1, 7:ncol(sonde_table)]
+    sonde_table
+  })
+  
+  
+  
+  
+  observeEvent(input$map_sondes_marker_click, {
+    clic = input$map_sondes_marker_click
+    if(clic$group == "DREAL" & nchar(clic$id)==3){
+      id_sonde_reactive$id_sonde_char = clic$id
+      shinyjs::show(id = "panel_info_sondes")
+    }
+  })
+  
+  observeEvent(input$closeIP, {
+    shinyjs::hide(id = "panel_info_sondes")
+  })
+  
+  
+  # ------------------------------------------------------------ #
+  
+  
+  
+  # ------------------------------------------------------------ #
+  # map_BV : carte des bassins versants
+  
+  output$map_BV <- renderLeaflet({
+    leaflet() %>%
+      addTiles() %>%
+      addPolygons(data=BV1, weight=3, layerId = paste0("BV1_",1:nrow(BV1)), group = "BV1")
+  })
+  
+  
+  
+  observeEvent(input$BV1, {
+    proxy <- leafletProxy("map_BV")
+    
+    proxy %>% 
+      clearGroup(group="BV1")
+    
+    if(input$BV1){
+      proxy %>%
+        addPolygons(data=BV1, weight=3, layerId = paste0("BV1_",1:nrow(BV1)), group = "BV1")
+    }
+  })
+  
+  observeEvent(input$BV2, {
+    proxy <- leafletProxy("map_BV")
+    proxy %>% 
+      clearGroup(group="BV2")
+    
+    if(input$BV2){
+      proxy %>%
+        addPolygons(data=BV2, weight=2, layerId = paste0("BV2_",1:nrow(BV2)), color = "red", group="BV2")
+    }
+  })
+  
+  observeEvent(input$BV3, {
+    proxy <- leafletProxy("map_BV")
+    proxy %>% 
+      clearGroup(group="BV3")
+    
+    if(input$BV3){
+      proxy %>%
+        addPolygons(data=BV3, weight=1, layerId = paste0("BV3_",1:nrow(BV3)), color = "green", group = "BV3")
+    }
+  })
+  
+  
+  # ------------------------------------------------------------ #
+  
+  
+  
+  
+  # ------------------------------------------------------------ #
+  # map_eau : carte des cours d'eau
+  output$map_eau <- renderLeaflet({
+    leaflet() %>%
+      addTiles() %>%
+      addPolylines(data=coursEau, weight=1)
+  })
+  # ------------------------------------------------------------ #
+  
+  
+  # ############################################################ #
+  # FIN CARTOGRAPHIE
+  # ############################################################ #
+  # 
+  # 
+  # 
+  # 
+  # 
+  # 
+  # 
+  # 
+  # 
+  # 
+  # 
+  # ############################################################ #
+  # ANALYSE DES TEMPÃRATURES
+  # ############################################################ #
+  
+  
+  
+  # ############################################################ #
+  # FIN ANALYSE DES TEMPÃRATURES
+  # ############################################################ #
+
+  
+  
+  
+  
+}) # Fin shinyServer
