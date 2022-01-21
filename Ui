@@ -22,7 +22,7 @@
 
 
 dashboardPage(
-  # DÃ©but du Dashboard
+  # Début du Dashboard
   
   
   
@@ -32,10 +32,10 @@ dashboardPage(
   # ---------------------------------------------------------------------- #
   # ----------------------------- EN TÃTE -------------------------------- #
   # ---------------------------------------------------------------------- #
-  # En tÃªte du dashboard
+  # Entête du dashboard
   dashboardHeader(title = "Hydrologie des cours d'eau Normand",
                   titleWidth = 350),
-  # Fin en tÃªte du dashboard
+  # Fin entête du dashboard
   # ---------------------------------------------------------------------- #
 
 
@@ -47,9 +47,9 @@ dashboardPage(
   # ---------------------------------------------------------------------- #
   # --------------- BARRE LATÃRALE / MENU DE NAVIGATION ------------------ #
   # ---------------------------------------------------------------------- #
-  # Barre LatÃ©rale / Menu de navigation
+  # Barre Latérale / Menu de navigation
   dashboardSidebar(
-    # Barre latÃ©ral du dashboard
+    # Barre latéral du dashboard
 
     width=350,
     sidebarMenu(
@@ -63,8 +63,8 @@ dashboardPage(
         # premier menu : Introduction
 
         # les sub-menus
-        menuSubItem("Contexte de l'Ã©tude", tabName="sub_menu_contexte"),
-        menuSubItem("DonnÃ©es de l'Ã©tude", tabName="sub_menu_data"),
+        menuSubItem("Contexte de l'étude", tabName="sub_menu_contexte"),
+        menuSubItem("DonnÃ©es de l'étude", tabName="sub_menu_data"),
         menuSubItem("Lexique", tabName="sub_menu_lexique"),
         menuSubItem("Bibliographie", tabName = "sub_menu_biblio")
 
@@ -78,7 +78,7 @@ dashboardPage(
 
       # ------------------------------------------------------------ #
       menuItem("Cartographie", tabName = "menu_cartes", icon = icon("map"),
-        # deuxiÃ¨me menu : cartographie
+        # deuxième menu : cartographie
 
         # les sub-menus
         menuSubItem("Sondes thermiques", tabName="sub_menu_sondes"),
@@ -86,31 +86,31 @@ dashboardPage(
         menuSubItem("Cours d'eau", tabName="sub_menu_cours_eau")
 
 
-      ), # End deuxiÃ¨me menu cartographie
+      ), # End deuxième menu cartographie
       # ------------------------------------------------------------ #
 
 
       # ------------------------------------------------------------ #
-      menuItem("Analyse des tempÃ©ratures",tabName = "menu_stats",
+      menuItem("Analyse des températures",tabName = "menu_stats",
                icon = icon("stats", lib = "glyphicon"),
-        # troisiÃ¨me menu : Analyse des tempÃ©ratures
+        # troisiéme menu : Analyse des températures
 
 
         # les sub-menus
         menuSubItem("Touques", tabName="sub_menu_touques"),
         menuSubItem("Orne", tabName="sub_menu_orne"),
         menuSubItem("Odon", tabName="sub_menu_odon"),
-        menuSubItem("SÃ©lune", tabName="sub_menu_selune")
+        menuSubItem("Sélune", tabName="sub_menu_selune")
 
 
-      ) # End troisiÃ¨me menu stats
+      ) # End troisième menu stats
       # ------------------------------------------------------------ #
 
     ) # End sidebarMenu
   ), # End dashboardSidebar
 
 
-  # Fin barre LatÃ©rale / Menu de navigation
+  # Fin barre Latérale / Menu de navigation
   # ---------------------------------------------------------------------- #
   
   
@@ -167,9 +167,9 @@ dashboardPage(
 
       # -------------------------------------------------- #
       tabItem(tabName = "sub_menu_contexte",
-        # Premier onglet du Menu 1 Introduction : Contexte de l'Ã©tude
+        # Premier onglet du Menu 1 Introduction : Contexte de l'étude
 
-        h2("Contexte de l'Ã©tude des tempÃ©ratures des cours d'eau"),
+        h2("Contexte de l'étude des températures des cours d'eau"),
 
 
         fluidRow(
@@ -185,10 +185,10 @@ dashboardPage(
 
       # -------------------------------------------------- #
       tabItem(tabName = "sub_menu_data",
-        # Onglet 2 du Menu 1 Introduction : DonnÃ©es de l'Ã©tude
+        # Onglet 2 du Menu 1 Introduction : Données de l'étude
 
         
-        h2("DonnÃ©es de l'Ã©tude"),
+        h2("Données de l'étude"),
 
 
         tabsetPanel(
@@ -198,7 +198,7 @@ dashboardPage(
           # Panel 1
           # ------------------------------ #
           tabPanel(
-            "Provenance des donnÃ©es",
+            "Provenance des données",
 
             fluidRow(
 
@@ -277,7 +277,7 @@ dashboardPage(
          
     
       # ################################################## #
-      # DeuxiÃ¨me Menu : Cartographie
+      # Deuxième Menu : Cartographie
       # ################################################## #
 
 
@@ -312,7 +312,7 @@ dashboardPage(
               
               dygraphOutput("temp_sonde"),
               
-              h4("RÃ©sumÃ© statistique"),
+              h4("Résumé statistique"),
               tableOutput("table_sonde")
               
               
@@ -404,7 +404,7 @@ dashboardPage(
 
 
       # ################################################## #
-      # TroisiÃ¨me Menu : Analyse des tempÃ©ratures
+      # Troisiéme Menu : Analyse des températures
       # ################################################## #
       
 
@@ -414,7 +414,7 @@ dashboardPage(
         # touques
         
 
-        h2("Analyse des tempÃ©ratures de la Touques"),
+        h2("Analyse des températures de la Touques"),
 
         fluidRow(
 
@@ -433,7 +433,7 @@ dashboardPage(
         # orne
         
 
-        h2("Analyse des tempÃ©ratures de l'Orne"),
+        h2("Analyse des températures de l'Orne"),
 
         fluidRow(
 
@@ -450,7 +450,7 @@ dashboardPage(
         # odon
         
 
-        h2("Analyse des tempÃ©ratures de l'Odon"),
+        h2("Analyse des températures de l'Odon"),
 
         fluidRow(
 
@@ -465,7 +465,7 @@ dashboardPage(
       tabItem(tabName = "sub_menu_selune",
         # selune
 
-        h2("Analyse des tempÃ©ratures de la SÃ©lune"),
+        h2("Analyse des températures de la Sélune"),
 
         fluidRow(
 
@@ -477,7 +477,7 @@ dashboardPage(
       
       
       # ################################################## #
-      # Fin du Menu 3 : Analyse des tempÃ©ratures
+      # Fin du Menu 3 : Analyse des températures
       # ################################################## #
 
 
