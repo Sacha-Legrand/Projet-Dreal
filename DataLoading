@@ -7,7 +7,7 @@ pathimg = "/Library/Frameworks/R.framework/Versions/4.0/Resources/library/png/im
 setwd(path)
 
 # ###################################################################### #
-# COMENTAIRES ET CODE PROVISOIRE
+# COMMENTAIRES ET CODE PROVISOIRE
 # ###################################################################### #
 
 # mettre cette base dans le KMLs.RData Ã  la place de l'autre fichier kml sur les sondes DREAL
