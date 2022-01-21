@@ -1,0 +1,1376 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2" xmlns:gx="http://www.google.com/kml/ext/2.2" xmlns:kml="http://www.opengis.net/kml/2.2" xmlns:atom="http://www.w3.org/2005/Atom">
+<Document id="0E7FC6A8341F8291C5FA">
+	<name>Sondes T OFB</name>
+	<open>1</open>
+	<description>Prepared by geofree.fr
+1/11/2022 4:30:33 PM</description>
+	<gx:balloonVisibility>1</gx:balloonVisibility>
+	<Style id="msn_pt_label">
+		<IconStyle>
+			<color>66ffffff</color>
+			<scale>1.2</scale>
+			<Icon>
+			</Icon>
+		</IconStyle>
+		<LabelStyle>
+		</LabelStyle>
+	</Style>
+	<Style id="s_ylw-pushpin_hl_copy1">
+		<IconStyle>
+			<scale>1.2</scale>
+			<Icon>
+				<href>https://maps.google.com/mapfiles/kml/shapes/placemark_circle.png</href>
+			</Icon>
+		</IconStyle>
+		<LabelStyle>
+			<color>00ffffff</color>
+		</LabelStyle>
+	</Style>
+	<Style id="s_ylw-pushpin_copy1">
+		<IconStyle>
+			<Icon>
+				<href>https://maps.google.com/mapfiles/kml/shapes/placemark_circle.png</href>
+			</Icon>
+		</IconStyle>
+		<LabelStyle>
+			<color>00ffffff</color>
+		</LabelStyle>
+	</Style>
+	<StyleMap id="m_ylw-pushpin_copy2">
+		<Pair>
+			<key>normal</key>
+			<styleUrl>#s_ylw-pushpin_copy1</styleUrl>
+		</Pair>
+		<Pair>
+			<key>highlight</key>
+			<styleUrl>#s_ylw-pushpin_hl_copy1</styleUrl>
+		</Pair>
+	</StyleMap>
+	<Folder id="0F11F6A6B81F8291C5F8">
+		<name>Points</name>
+		<StyleMap id="m_ylw-pushpin_copy2">
+			<Pair>
+				<key>normal</key>
+				<styleUrl>#s_ylw-pushpin_copy1</styleUrl>
+			</Pair>
+			<Pair>
+				<key>highlight</key>
+				<styleUrl>#s_ylw-pushpin_hl_copy1</styleUrl>
+			</Pair>
+		</StyleMap>
+		<Placemark>
+			<name>3174000</name>
+			<open>1</open>
+			<description>point:1
+longitude:1.2366564
+latitude:49.3101441
+Code:3174000
+Nom:LA SEINE A POSES 2</description>
+			<styleUrl>#m_ylw-pushpin_copy2</styleUrl>
+			<Point>
+				<coordinates>1.23666,49.31014,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>3174695</name>
+			<open>1</open>
+			<description>point:2
+longitude:1.6867269
+latitude:49.5330339
+Code:3174695
+Nom:LA RIVIÈRE DE MÉSANGUEVILLE A DAMPIERRE-EN-BRAY 2</description>
+			<styleUrl>#m_ylw-pushpin_copy2</styleUrl>
+			<Point>
+				<coordinates>1.68673,49.53303,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>3178000</name>
+			<open>1</open>
+			<description>point:3
+longitude:1.6451226
+latitude:49.1199803
+Code:3178000
+Nom:L&apos;EPTE A FOURGES 1</description>
+			<styleUrl>#m_ylw-pushpin_copy2</styleUrl>
+			<Point>
+				<coordinates>1.64512,49.11998,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>3178692</name>
+			<open>1</open>
+			<description>point:4
+longitude:1.4052091
+latitude:49.4766501
+Code:3178692
+Nom:LE HÉRON A ELBEUF-SUR-ANDELLE 1</description>
+			<styleUrl>#m_ylw-pushpin_copy2</styleUrl>
+			<Point>
+				<coordinates>1.40521,49.47665,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>3178835</name>
+			<open>1</open>
+			<description>point:5
+longitude:1.3232728
+latitude:49.4894059
+Code:3178835
+Nom:LE CREVON A SAINT-AIGNAN-SUR-RY 1</description>
+			<styleUrl>#m_ylw-pushpin_copy2</styleUrl>
+			<Point>
+				<coordinates>1.32327,49.48941,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>3180100</name>
+			<open>1</open>
+			<description>point:6
+longitude:1.3252272
+latitude:49.3535191
+Code:3180100
+Nom:L&apos;ANDELLE A RADEPONT 1</description>
+			<styleUrl>#m_ylw-pushpin_copy2</styleUrl>
+			<Point>
+				<coordinates>1.32523,49.35352,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>3190300</name>
+			<open>1</open>
+			<description>point:7
+longitude:1.3805373
+latitude:48.8433163
+Code:3190300
+Nom:L&apos;EURE A CROTH 2</description>
+			<styleUrl>#m_ylw-pushpin_copy2</styleUrl>
+			<Point>
+				<coordinates>1.38054,48.84331999999999,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>3197000</name>
+			<open>1</open>
+			<description>point:8
+longitude:0.7617506
+latitude:48.7648131
+Code:3197000
+Nom:L&apos;ITON A CHAISE-DIEU-DU-THEIL 1</description>
+			<styleUrl>#m_ylw-pushpin_copy2</styleUrl>
+			<Point>
+				<coordinates>0.76175,48.76481,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>3202250</name>
+			<open>1</open>
+			<description>point:9
+longitude:1.036954
+latitude:49.5083998
+Code:3202250
+Nom:LE CAILLY A LE HOULME 1</description>
+			<styleUrl>#m_ylw-pushpin_copy2</styleUrl>
+			<Point>
+				<coordinates>1.03695,49.5084,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>3205000</name>
+			<open>1</open>
+			<description>point:10
+longitude:0.751065
+latitude:49.5238246
+Code:3205000
+Nom:LA RANÇON A SAINT-WANDRILLE-RANCON 2</description>
+			<styleUrl>#m_ylw-pushpin_copy2</styleUrl>
+			<Point>
+				<coordinates>0.75107,49.52381999999999,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>3207020</name>
+			<open>1</open>
+			<description>point:11
+longitude:0.5358923
+latitude:49.5062094
+Code:3207020
+Nom:LA RIVIERE DU COMMERCE A LILLEBONNE 3</description>
+			<styleUrl>#m_ylw-pushpin_copy2</styleUrl>
+			<Point>
+				<coordinates>0.53589,49.50621,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>3212090</name>
+			<open>1</open>
+			<description>point:12
+longitude:1.1388543
+latitude:49.88162
+Code:3212090
+Nom:LA BÉTHUNE A ARQUES-LA-BATAILLE 1</description>
+			<styleUrl>#m_ylw-pushpin_copy2</styleUrl>
+			<Point>
+				<coordinates>1.13885,49.88162000000001,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>3217400</name>
+			<open>1</open>
+			<description>point:13
+longitude:0.479316
+latitude:49.7439475
+Code:3217400
+Nom:LA VALMONT A COLLEVILLE 1</description>
+			<styleUrl>#m_ylw-pushpin_copy2</styleUrl>
+			<Point>
+				<coordinates>0.47932,49.74394999999999,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>3221500</name>
+			<open>1</open>
+			<description>point:14
+longitude:0.7293448
+latitude:49.1532363
+Code:3221500
+Nom:LA RISLE A FONTAINE-LA-SORET 2</description>
+			<styleUrl>#m_ylw-pushpin_copy2</styleUrl>
+			<Point>
+				<coordinates>0.72934,49.15323999999999,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>3222418</name>
+			<open>1</open>
+			<description>point:15
+longitude:0.4121726
+latitude:48.7766186
+Code:3222418
+Nom:LE TREMONT A SAINT-EVROULT-NOTRE-DAME-DU-BOIS 1</description>
+			<styleUrl>#m_ylw-pushpin_copy2</styleUrl>
+			<Point>
+				<coordinates>0.41217,48.77661999999999,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>3222780</name>
+			<open>1</open>
+			<description>point:16
+longitude:0.4569303
+latitude:48.9010867
+Code:3222780
+Nom:LA GUIEL A VERNEUSSES 1</description>
+			<styleUrl>#m_ylw-pushpin_copy2</styleUrl>
+			<Point>
+				<coordinates>0.45693,48.90109,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>3223200</name>
+			<open>1</open>
+			<description>point:17
+longitude:0.5534168
+latitude:49.0160324
+Code:3223200
+Nom:LA CHARENTONNE A FERRIERES-SAINT-HILAIRE 1</description>
+			<styleUrl>#m_ylw-pushpin_copy2</styleUrl>
+			<Point>
+				<coordinates>0.55342,49.01603000000001,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>3226300</name>
+			<open>1</open>
+			<description>point:18
+longitude:0.2165369
+latitude:49.10532
+Code:3226300
+Nom:LA TOUQUES A SAINT-MARTIN-DE-LA-LIEUE 1</description>
+			<styleUrl>#m_ylw-pushpin_copy2</styleUrl>
+			<Point>
+				<coordinates>0.21654,49.10532,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>3226640</name>
+			<open>1</open>
+			<description>point:19
+longitude:0.3363994
+latitude:49.1243633
+Code:3226640
+Nom:LA COURTONNE A COURTONNE-LA-MEURDRAC 2</description>
+			<styleUrl>#m_ylw-pushpin_copy2</styleUrl>
+			<Point>
+				<coordinates>0.3364,49.12436,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>3231065</name>
+			<open>1</open>
+			<description>point:20
+longitude:-0.1528674
+latitude:49.1111981
+Code:3231065
+Nom:LA MUANCE A MOULT 1</description>
+			<styleUrl>#m_ylw-pushpin_copy2</styleUrl>
+			<Point>
+				<coordinates>-0.15287,49.1112,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>3231740</name>
+			<open>1</open>
+			<description>point:21
+longitude:0.2121222
+latitude:48.9041218
+Code:3231740
+Nom:LA VIE A GUERQUESALLES 1</description>
+			<styleUrl>#m_ylw-pushpin_copy2</styleUrl>
+			<Point>
+				<coordinates>0.21212,48.90412000000001,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>3232080</name>
+			<open>1</open>
+			<description>point:22
+longitude:0.1191427
+latitude:48.9469318
+Code:3232080
+Nom:LA MONNE A LES AUTELS-SAINT-BAZILE 1</description>
+			<styleUrl>#m_ylw-pushpin_copy2</styleUrl>
+			<Point>
+				<coordinates>0.11914,48.94693,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>3232450</name>
+			<open>1</open>
+			<description>point:23
+longitude:0.114928
+latitude:49.0573349
+Code:3232450
+Nom:LA VIE A COUPESARTE 1</description>
+			<styleUrl>#m_ylw-pushpin_copy2</styleUrl>
+			<Point>
+				<coordinates>0.11493,49.05732999999999,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>3233980</name>
+			<open>1</open>
+			<description>point:24
+longitude:0.1003851
+latitude:48.7536598
+Code:3233980
+Nom:L&apos;URE A SILLY-EN-GOUFFERN 2</description>
+			<styleUrl>#m_ylw-pushpin_copy2</styleUrl>
+			<Point>
+				<coordinates>0.10039,48.75366,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>3234215</name>
+			<open>1</open>
+			<description>point:25
+longitude:-0.0613375
+latitude:48.7483613
+Code:3234215
+Nom:L&apos;HOUAY A MOULINS-SUR-ORNE 1</description>
+			<styleUrl>#m_ylw-pushpin_copy2</styleUrl>
+			<Point>
+				<coordinates>-0.06134000000000001,48.74835999999999,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>3234650</name>
+			<open>1</open>
+			<description>point:26
+longitude:-0.1738207
+latitude:48.7412012
+Code:3234650
+Nom:L&apos;ORNE A SERANS 1</description>
+			<styleUrl>#m_ylw-pushpin_copy2</styleUrl>
+			<Point>
+				<coordinates>-0.17382,48.7412,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>3234956</name>
+			<open>1</open>
+			<description>point:27
+longitude:-0.3099794
+latitude:48.7775061
+Code:3234956
+Nom:LA FONTAINE AU HÉRON A SAINT-AUBERT-SUR-ORNE 1</description>
+			<styleUrl>#m_ylw-pushpin_copy2</styleUrl>
+			<Point>
+				<coordinates>-0.30998,48.77750999999999,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>3236730</name>
+			<open>1</open>
+			<description>point:28
+longitude:-0.5573142
+latitude:48.9940147
+Code:3236730
+Nom:LE VIEUX RUISSEAU A CURCY-SUR-ORNE 1</description>
+			<styleUrl>#m_ylw-pushpin_copy2</styleUrl>
+			<Point>
+				<coordinates>-0.55731,48.99401,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>3237617</name>
+			<open>1</open>
+			<description>point:29
+longitude:-0.4046213
+latitude:49.0982655
+Code:3237617
+Nom:L&apos;ORNE A CLINCHAMPS-SUR-ORNE 1</description>
+			<styleUrl>#m_ylw-pushpin_copy2</styleUrl>
+			<Point>
+				<coordinates>-0.40462,49.09827,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>3240100</name>
+			<open>1</open>
+			<description>point:30
+longitude:-0.306888
+latitude:48.6703131
+Code:3240100
+Nom:LA ROUVRE A FAVEROLLES 2</description>
+			<styleUrl>#m_ylw-pushpin_copy2</styleUrl>
+			<Point>
+				<coordinates>-0.30689,48.67031,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>3241170</name>
+			<open>1</open>
+			<description>point:31
+longitude:-0.714544
+latitude:48.7673774
+Code:3241170
+Nom:LA DURANCE A TINCHEBRAY</description>
+			<styleUrl>#m_ylw-pushpin_copy2</styleUrl>
+			<Point>
+				<coordinates>-0.71454,48.76738,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>3241957</name>
+			<open>1</open>
+			<description>point:32
+longitude:-0.4830806
+latitude:48.8590038
+Code:3241957
+Nom:LE NOIREAU A BERJOU 1</description>
+			<styleUrl>#m_ylw-pushpin_copy2</styleUrl>
+			<Point>
+				<coordinates>-0.4830800000000001,48.859,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>3247210</name>
+			<open>1</open>
+			<description>point:33
+longitude:-0.8809062
+latitude:49.0905134
+Code:3247210
+Nom:LA DRÔME A LA VACQUERIE 1</description>
+			<styleUrl>#m_ylw-pushpin_copy2</styleUrl>
+			<Point>
+				<coordinates>-0.8809100000000001,49.09050999999999,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>3248401</name>
+			<open>1</open>
+			<description>point:34
+longitude:-0.828552
+latitude:48.7840708
+Code:3248401
+Nom:LA VIRE A TRUTTEMER-LE-GRAND 1</description>
+			<styleUrl>#m_ylw-pushpin_copy2</styleUrl>
+			<Point>
+				<coordinates>-0.82855,48.78406999999999,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>3250430</name>
+			<open>1</open>
+			<description>point:35
+longitude:-0.8889591
+latitude:48.9470458
+Code:3250430
+Nom:LA SOULEUVRE A CARVILLE 1</description>
+			<styleUrl>#m_ylw-pushpin_copy2</styleUrl>
+			<Point>
+				<coordinates>-0.88896,48.94705,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>3250475</name>
+			<open>1</open>
+			<description>point:36
+longitude:-0.9648543
+latitude:48.9361481
+Code:3250475
+Nom:LA VIRE A MALLOUE 1</description>
+			<styleUrl>#m_ylw-pushpin_copy2</styleUrl>
+			<Point>
+				<coordinates>-0.9648500000000001,48.93615,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>3250797</name>
+			<open>1</open>
+			<description>point:37
+longitude:-1.0627003
+latitude:48.9982391
+Code:3250797
+Nom:LA RIVIÈRE DE JACRE A DOMJEAN 2</description>
+			<styleUrl>#m_ylw-pushpin_copy2</styleUrl>
+			<Point>
+				<coordinates>-1.0627,48.99824000000001,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>3255580</name>
+			<open>1</open>
+			<description>point:38
+longitude:-1.2722827
+latitude:49.2208056
+Code:3255580
+Nom:LA TAUTE A SAINT-ANDRE-DE-BOHON 1</description>
+			<styleUrl>#m_ylw-pushpin_copy2</styleUrl>
+			<Point>
+				<coordinates>-1.27228,49.22081,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>3257800</name>
+			<open>1</open>
+			<description>point:39
+longitude:-1.4040764
+latitude:49.6134339
+Code:3257800
+Nom:LA SAIRE A BRILLEVAST 1</description>
+			<styleUrl>#m_ylw-pushpin_copy2</styleUrl>
+			<Point>
+				<coordinates>-1.40408,49.61343,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>3261600</name>
+			<open>1</open>
+			<description>point:40
+longitude:-1.8419674
+latitude:49.6377088
+Code:3261600
+Nom:LE RUISSEAU DE LA GRANDE VALLÉE A VAUVILLE 2</description>
+			<styleUrl>#m_ylw-pushpin_copy2</styleUrl>
+			<Point>
+				<coordinates>-1.84197,49.63771,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>3265600</name>
+			<open>1</open>
+			<description>point:41
+longitude:-1.2961043
+latitude:48.9347804
+Code:3265600
+Nom:LA SIENNE A LA BALEINE 1</description>
+			<styleUrl>#m_ylw-pushpin_copy2</styleUrl>
+			<Point>
+				<coordinates>-1.2961,48.93478,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>3265710</name>
+			<open>1</open>
+			<description>point:42
+longitude:-1.3485868
+latitude:48.9046058
+Code:3265710
+Nom:LA BERENCE A GAVRAY</description>
+			<styleUrl>#m_ylw-pushpin_copy2</styleUrl>
+			<Point>
+				<coordinates>-1.34859,48.90461,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>3265993</name>
+			<open>1</open>
+			<description>point:43
+longitude:-1.3877252
+latitude:48.8979171
+Code:3265993
+Nom:L&apos;AIROU A VER 2</description>
+			<styleUrl>#m_ylw-pushpin_copy2</styleUrl>
+			<Point>
+				<coordinates>-1.38773,48.89792,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>3269438</name>
+			<open>1</open>
+			<description>point:44
+longitude:-0.9016175
+latitude:48.7010557
+Code:3269438
+Nom:LA SÉE ROUSSE A SOURDEVAL 2</description>
+			<styleUrl>#m_ylw-pushpin_copy2</styleUrl>
+			<Point>
+				<coordinates>-0.9016199999999999,48.70105999999999,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>3270000</name>
+			<open>1</open>
+			<description>point:45
+longitude:-1.0199021
+latitude:48.7091751
+Code:3270000
+Nom:LA SÉE A CHERENCE-LE-ROUSSEL 1</description>
+			<styleUrl>#m_ylw-pushpin_copy2</styleUrl>
+			<Point>
+				<coordinates>-1.0199,48.70918,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>3270390</name>
+			<open>1</open>
+			<description>point:46
+longitude:-1.1032585
+latitude:48.7310576
+Code:3270390
+Nom:LE GLANON A CUVES 2</description>
+			<styleUrl>#m_ylw-pushpin_copy2</styleUrl>
+			<Point>
+				<coordinates>-1.10326,48.73106,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>3271000</name>
+			<open>1</open>
+			<description>point:47
+longitude:-1.2617817
+latitude:48.7090679
+Code:3271000
+Nom:LA SÉE A TIREPIED</description>
+			<styleUrl>#m_ylw-pushpin_copy2</styleUrl>
+			<Point>
+				<coordinates>-1.26178,48.70907,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>3271415</name>
+			<open>1</open>
+			<description>point:48
+longitude:-0.9412384
+latitude:48.6212292
+Code:3271415
+Nom:LA CANCE A ROMAGNY 1</description>
+			<styleUrl>#m_ylw-pushpin_copy2</styleUrl>
+			<Point>
+				<coordinates>-0.9412399999999999,48.62123,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>3272685</name>
+			<open>1</open>
+			<description>point:49
+longitude:-1.2927868
+latitude:48.5961826
+Code:3272685
+Nom:LA SÉLUNE A SAINT-AUBIN-DE-TERREGATTE 1</description>
+			<styleUrl>#m_ylw-pushpin_copy2</styleUrl>
+			<Point>
+				<coordinates>-1.29279,48.59617999999999,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>4110700</name>
+			<open>1</open>
+			<description>point:50
+longitude:0.4682993
+latitude:48.6314523
+Code:4110700
+Nom:SARTHE à MOULINS-LA-MARCHE</description>
+			<styleUrl>#m_ylw-pushpin_copy2</styleUrl>
+			<Point>
+				<coordinates>0.4683,48.63145,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>4111000</name>
+			<open>1</open>
+			<description>point:51
+longitude:0.1158126
+latitude:48.4353002
+Code:4111000
+Nom:SARTHE à ALENCON</description>
+			<styleUrl>#m_ylw-pushpin_copy2</styleUrl>
+			<Point>
+				<coordinates>0.11581,48.43529999999999,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>4115580</name>
+			<open>1</open>
+			<description>point:52
+longitude:0.8366261
+latitude:48.3854028
+Code:4115580
+Nom:HUISNE à CONDEAU</description>
+			<styleUrl>#m_ylw-pushpin_copy2</styleUrl>
+			<Point>
+				<coordinates>0.83663,48.3854,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>4115675</name>
+			<open>1</open>
+			<description>point:53
+longitude:0.8710774
+latitude:48.4038465
+Code:4115675
+Nom:CORBIONNE à BRETONCELLES</description>
+			<styleUrl>#m_ylw-pushpin_copy2</styleUrl>
+			<Point>
+				<coordinates>0.8710800000000001,48.40385,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>4123760</name>
+			<open>1</open>
+			<description>point:54
+longitude:-0.7440994
+latitude:48.6901241
+Code:4123760
+Nom:EGRENNE à BEAUCHENE</description>
+			<styleUrl>#m_ylw-pushpin_copy2</styleUrl>
+			<Point>
+				<coordinates>-0.7441000000000001,48.69012,0</coordinates>
+			</Point>
+		</Placemark>
+	</Folder>
+	<Folder id="1A4F74A95E1F8291C5F8">
+		<name>Labels</name>
+		<visibility>0</visibility>
+		<Style id="msn_pt_label">
+			<IconStyle>
+				<color>66ffffff</color>
+				<scale>1.2</scale>
+				<Icon>
+				</Icon>
+			</IconStyle>
+			<LabelStyle>
+				<color>ffffffff</color>
+				<scale>1</scale>
+			</LabelStyle>
+		</Style>
+		<Placemark>
+			<name>3174000</name>
+			<visibility>0</visibility>
+			<open>1</open>
+			<description>point:1
+Lon:1.23666 Lat:49.31014</description>
+			<styleUrl>#msn_pt_label</styleUrl>
+			<Point>
+				<coordinates>1.23666,49.31014,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>3174695</name>
+			<visibility>0</visibility>
+			<open>1</open>
+			<description>point:2
+Lon:1.68673 Lat:49.53303</description>
+			<styleUrl>#msn_pt_label</styleUrl>
+			<Point>
+				<coordinates>1.68673,49.53303,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>3178000</name>
+			<visibility>0</visibility>
+			<open>1</open>
+			<description>point:3
+Lon:1.64512 Lat:49.11998</description>
+			<styleUrl>#msn_pt_label</styleUrl>
+			<Point>
+				<coordinates>1.64512,49.11998,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>3178692</name>
+			<visibility>0</visibility>
+			<open>1</open>
+			<description>point:4
+Lon:1.40521 Lat:49.47665</description>
+			<styleUrl>#msn_pt_label</styleUrl>
+			<Point>
+				<coordinates>1.40521,49.47665,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>3178835</name>
+			<visibility>0</visibility>
+			<open>1</open>
+			<description>point:5
+Lon:1.32327 Lat:49.48941</description>
+			<styleUrl>#msn_pt_label</styleUrl>
+			<Point>
+				<coordinates>1.32327,49.48941,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>3180100</name>
+			<visibility>0</visibility>
+			<open>1</open>
+			<description>point:6
+Lon:1.32523 Lat:49.35352</description>
+			<styleUrl>#msn_pt_label</styleUrl>
+			<Point>
+				<coordinates>1.32523,49.35352,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>3190300</name>
+			<visibility>0</visibility>
+			<open>1</open>
+			<description>point:7
+Lon:1.38054 Lat:48.84332</description>
+			<styleUrl>#msn_pt_label</styleUrl>
+			<Point>
+				<coordinates>1.38054,48.84331999999999,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>3197000</name>
+			<visibility>0</visibility>
+			<open>1</open>
+			<description>point:8
+Lon:0.76175 Lat:48.76481</description>
+			<styleUrl>#msn_pt_label</styleUrl>
+			<Point>
+				<coordinates>0.76175,48.76481,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>3202250</name>
+			<visibility>0</visibility>
+			<open>1</open>
+			<description>point:9
+Lon:1.03695 Lat:49.50840</description>
+			<styleUrl>#msn_pt_label</styleUrl>
+			<Point>
+				<coordinates>1.03695,49.5084,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>3205000</name>
+			<visibility>0</visibility>
+			<open>1</open>
+			<description>point:10
+Lon:0.75107 Lat:49.52382</description>
+			<styleUrl>#msn_pt_label</styleUrl>
+			<Point>
+				<coordinates>0.75107,49.52381999999999,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>3207020</name>
+			<visibility>0</visibility>
+			<open>1</open>
+			<description>point:11
+Lon:0.53589 Lat:49.50621</description>
+			<styleUrl>#msn_pt_label</styleUrl>
+			<Point>
+				<coordinates>0.53589,49.50621,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>3212090</name>
+			<visibility>0</visibility>
+			<open>1</open>
+			<description>point:12
+Lon:1.13885 Lat:49.88162</description>
+			<styleUrl>#msn_pt_label</styleUrl>
+			<Point>
+				<coordinates>1.13885,49.88162000000001,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>3217400</name>
+			<visibility>0</visibility>
+			<open>1</open>
+			<description>point:13
+Lon:0.47932 Lat:49.74395</description>
+			<styleUrl>#msn_pt_label</styleUrl>
+			<Point>
+				<coordinates>0.47932,49.74394999999999,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>3221500</name>
+			<visibility>0</visibility>
+			<open>1</open>
+			<description>point:14
+Lon:0.72934 Lat:49.15324</description>
+			<styleUrl>#msn_pt_label</styleUrl>
+			<Point>
+				<coordinates>0.72934,49.15323999999999,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>3222418</name>
+			<visibility>0</visibility>
+			<open>1</open>
+			<description>point:15
+Lon:0.41217 Lat:48.77662</description>
+			<styleUrl>#msn_pt_label</styleUrl>
+			<Point>
+				<coordinates>0.41217,48.77661999999999,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>3222780</name>
+			<visibility>0</visibility>
+			<open>1</open>
+			<description>point:16
+Lon:0.45693 Lat:48.90109</description>
+			<styleUrl>#msn_pt_label</styleUrl>
+			<Point>
+				<coordinates>0.45693,48.90109,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>3223200</name>
+			<visibility>0</visibility>
+			<open>1</open>
+			<description>point:17
+Lon:0.55342 Lat:49.01603</description>
+			<styleUrl>#msn_pt_label</styleUrl>
+			<Point>
+				<coordinates>0.55342,49.01603000000001,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>3226300</name>
+			<visibility>0</visibility>
+			<open>1</open>
+			<description>point:18
+Lon:0.21654 Lat:49.10532</description>
+			<styleUrl>#msn_pt_label</styleUrl>
+			<Point>
+				<coordinates>0.21654,49.10532,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>3226640</name>
+			<visibility>0</visibility>
+			<open>1</open>
+			<description>point:19
+Lon:0.33640 Lat:49.12436</description>
+			<styleUrl>#msn_pt_label</styleUrl>
+			<Point>
+				<coordinates>0.3364,49.12436,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>3231065</name>
+			<visibility>0</visibility>
+			<open>1</open>
+			<description>point:20
+Lon:-0.15287 Lat:49.11120</description>
+			<styleUrl>#msn_pt_label</styleUrl>
+			<Point>
+				<coordinates>-0.15287,49.1112,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>3231740</name>
+			<visibility>0</visibility>
+			<open>1</open>
+			<description>point:21
+Lon:0.21212 Lat:48.90412</description>
+			<styleUrl>#msn_pt_label</styleUrl>
+			<Point>
+				<coordinates>0.21212,48.90412000000001,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>3232080</name>
+			<visibility>0</visibility>
+			<open>1</open>
+			<description>point:22
+Lon:0.11914 Lat:48.94693</description>
+			<styleUrl>#msn_pt_label</styleUrl>
+			<Point>
+				<coordinates>0.11914,48.94693,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>3232450</name>
+			<visibility>0</visibility>
+			<open>1</open>
+			<description>point:23
+Lon:0.11493 Lat:49.05733</description>
+			<styleUrl>#msn_pt_label</styleUrl>
+			<Point>
+				<coordinates>0.11493,49.05732999999999,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>3233980</name>
+			<visibility>0</visibility>
+			<open>1</open>
+			<description>point:24
+Lon:0.10039 Lat:48.75366</description>
+			<styleUrl>#msn_pt_label</styleUrl>
+			<Point>
+				<coordinates>0.10039,48.75366,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>3234215</name>
+			<visibility>0</visibility>
+			<open>1</open>
+			<description>point:25
+Lon:-0.06134 Lat:48.74836</description>
+			<styleUrl>#msn_pt_label</styleUrl>
+			<Point>
+				<coordinates>-0.06134000000000001,48.74835999999999,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>3234650</name>
+			<visibility>0</visibility>
+			<open>1</open>
+			<description>point:26
+Lon:-0.17382 Lat:48.74120</description>
+			<styleUrl>#msn_pt_label</styleUrl>
+			<Point>
+				<coordinates>-0.17382,48.7412,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>3234956</name>
+			<visibility>0</visibility>
+			<open>1</open>
+			<description>point:27
+Lon:-0.30998 Lat:48.77751</description>
+			<styleUrl>#msn_pt_label</styleUrl>
+			<Point>
+				<coordinates>-0.30998,48.77750999999999,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>3236730</name>
+			<visibility>0</visibility>
+			<open>1</open>
+			<description>point:28
+Lon:-0.55731 Lat:48.99401</description>
+			<styleUrl>#msn_pt_label</styleUrl>
+			<Point>
+				<coordinates>-0.55731,48.99401,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>3237617</name>
+			<visibility>0</visibility>
+			<open>1</open>
+			<description>point:29
+Lon:-0.40462 Lat:49.09827</description>
+			<styleUrl>#msn_pt_label</styleUrl>
+			<Point>
+				<coordinates>-0.40462,49.09827,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>3240100</name>
+			<visibility>0</visibility>
+			<open>1</open>
+			<description>point:30
+Lon:-0.30689 Lat:48.67031</description>
+			<styleUrl>#msn_pt_label</styleUrl>
+			<Point>
+				<coordinates>-0.30689,48.67031,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>3241170</name>
+			<visibility>0</visibility>
+			<open>1</open>
+			<description>point:31
+Lon:-0.71454 Lat:48.76738</description>
+			<styleUrl>#msn_pt_label</styleUrl>
+			<Point>
+				<coordinates>-0.71454,48.76738,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>3241957</name>
+			<visibility>0</visibility>
+			<open>1</open>
+			<description>point:32
+Lon:-0.48308 Lat:48.85900</description>
+			<styleUrl>#msn_pt_label</styleUrl>
+			<Point>
+				<coordinates>-0.4830800000000001,48.859,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>3247210</name>
+			<visibility>0</visibility>
+			<open>1</open>
+			<description>point:33
+Lon:-0.88091 Lat:49.09051</description>
+			<styleUrl>#msn_pt_label</styleUrl>
+			<Point>
+				<coordinates>-0.8809100000000001,49.09050999999999,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>3248401</name>
+			<visibility>0</visibility>
+			<open>1</open>
+			<description>point:34
+Lon:-0.82855 Lat:48.78407</description>
+			<styleUrl>#msn_pt_label</styleUrl>
+			<Point>
+				<coordinates>-0.82855,48.78406999999999,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>3250430</name>
+			<visibility>0</visibility>
+			<open>1</open>
+			<description>point:35
+Lon:-0.88896 Lat:48.94705</description>
+			<styleUrl>#msn_pt_label</styleUrl>
+			<Point>
+				<coordinates>-0.88896,48.94705,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>3250475</name>
+			<visibility>0</visibility>
+			<open>1</open>
+			<description>point:36
+Lon:-0.96485 Lat:48.93615</description>
+			<styleUrl>#msn_pt_label</styleUrl>
+			<Point>
+				<coordinates>-0.9648500000000001,48.93615,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>3250797</name>
+			<visibility>0</visibility>
+			<open>1</open>
+			<description>point:37
+Lon:-1.06270 Lat:48.99824</description>
+			<styleUrl>#msn_pt_label</styleUrl>
+			<Point>
+				<coordinates>-1.0627,48.99824000000001,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>3255580</name>
+			<visibility>0</visibility>
+			<open>1</open>
+			<description>point:38
+Lon:-1.27228 Lat:49.22081</description>
+			<styleUrl>#msn_pt_label</styleUrl>
+			<Point>
+				<coordinates>-1.27228,49.22081,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>3257800</name>
+			<visibility>0</visibility>
+			<open>1</open>
+			<description>point:39
+Lon:-1.40408 Lat:49.61343</description>
+			<styleUrl>#msn_pt_label</styleUrl>
+			<Point>
+				<coordinates>-1.40408,49.61343,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>3261600</name>
+			<visibility>0</visibility>
+			<open>1</open>
+			<description>point:40
+Lon:-1.84197 Lat:49.63771</description>
+			<styleUrl>#msn_pt_label</styleUrl>
+			<Point>
+				<coordinates>-1.84197,49.63771,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>3265600</name>
+			<visibility>0</visibility>
+			<open>1</open>
+			<description>point:41
+Lon:-1.29610 Lat:48.93478</description>
+			<styleUrl>#msn_pt_label</styleUrl>
+			<Point>
+				<coordinates>-1.2961,48.93478,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>3265710</name>
+			<visibility>0</visibility>
+			<open>1</open>
+			<description>point:42
+Lon:-1.34859 Lat:48.90461</description>
+			<styleUrl>#msn_pt_label</styleUrl>
+			<Point>
+				<coordinates>-1.34859,48.90461,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>3265993</name>
+			<visibility>0</visibility>
+			<open>1</open>
+			<description>point:43
+Lon:-1.38773 Lat:48.89792</description>
+			<styleUrl>#msn_pt_label</styleUrl>
+			<Point>
+				<coordinates>-1.38773,48.89792,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>3269438</name>
+			<visibility>0</visibility>
+			<open>1</open>
+			<description>point:44
+Lon:-0.90162 Lat:48.70106</description>
+			<styleUrl>#msn_pt_label</styleUrl>
+			<Point>
+				<coordinates>-0.9016199999999999,48.70105999999999,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>3270000</name>
+			<visibility>0</visibility>
+			<open>1</open>
+			<description>point:45
+Lon:-1.01990 Lat:48.70918</description>
+			<styleUrl>#msn_pt_label</styleUrl>
+			<Point>
+				<coordinates>-1.0199,48.70918,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>3270390</name>
+			<visibility>0</visibility>
+			<open>1</open>
+			<description>point:46
+Lon:-1.10326 Lat:48.73106</description>
+			<styleUrl>#msn_pt_label</styleUrl>
+			<Point>
+				<coordinates>-1.10326,48.73106,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>3271000</name>
+			<visibility>0</visibility>
+			<open>1</open>
+			<description>point:47
+Lon:-1.26178 Lat:48.70907</description>
+			<styleUrl>#msn_pt_label</styleUrl>
+			<Point>
+				<coordinates>-1.26178,48.70907,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>3271415</name>
+			<visibility>0</visibility>
+			<open>1</open>
+			<description>point:48
+Lon:-0.94124 Lat:48.62123</description>
+			<styleUrl>#msn_pt_label</styleUrl>
+			<Point>
+				<coordinates>-0.9412399999999999,48.62123,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>3272685</name>
+			<visibility>0</visibility>
+			<open>1</open>
+			<description>point:49
+Lon:-1.29279 Lat:48.59618</description>
+			<styleUrl>#msn_pt_label</styleUrl>
+			<Point>
+				<coordinates>-1.29279,48.59617999999999,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>4110700</name>
+			<visibility>0</visibility>
+			<open>1</open>
+			<description>point:50
+Lon:0.46830 Lat:48.63145</description>
+			<styleUrl>#msn_pt_label</styleUrl>
+			<Point>
+				<coordinates>0.4683,48.63145,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>4111000</name>
+			<visibility>0</visibility>
+			<open>1</open>
+			<description>point:51
+Lon:0.11581 Lat:48.43530</description>
+			<styleUrl>#msn_pt_label</styleUrl>
+			<Point>
+				<coordinates>0.11581,48.43529999999999,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>4115580</name>
+			<visibility>0</visibility>
+			<open>1</open>
+			<description>point:52
+Lon:0.83663 Lat:48.38540</description>
+			<styleUrl>#msn_pt_label</styleUrl>
+			<Point>
+				<coordinates>0.83663,48.3854,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>4115675</name>
+			<visibility>0</visibility>
+			<open>1</open>
+			<description>point:53
+Lon:0.87108 Lat:48.40385</description>
+			<styleUrl>#msn_pt_label</styleUrl>
+			<Point>
+				<coordinates>0.8710800000000001,48.40385,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>4123760</name>
+			<visibility>0</visibility>
+			<open>1</open>
+			<description>point:54
+Lon:-0.74410 Lat:48.69012</description>
+			<styleUrl>#msn_pt_label</styleUrl>
+			<Point>
+				<coordinates>-0.7441000000000001,48.69012,0</coordinates>
+			</Point>
+		</Placemark>
+	</Folder>
+</Document>
+</kml>
