@@ -1,0 +1,350 @@
+#path="D:/Users/Desktop/Cours/M2stat/Projet/" # path Lucie
+path = "/Users/julien/Desktop/projetM2/dashboard_propre" # path Julien
+# Si tu galÃ¨re
+system.file("img","Rlogo.png",package="png")
+#pathimg = "D:/Logiciels biostat/R-3.6.1/library/png/img/" # pathimg Lucie
+pathimg = "/Library/Frameworks/R.framework/Versions/4.0/Resources/library/png/img/" # pathimg Julien
+setwd(path)
+
+# ###################################################################### #
+# COMENTAIRES ET CODE PROVISOIRE
+# ###################################################################### #
+
+# mettre cette base dans le KMLs.RData Ã  la place de l'autre fichier kml sur les sondes DREAL
+# c'est avec le nouveau fichier kml que j'envoie
+SondesDreal2 = rgdal::readOGR("/Users/julien/Desktop/projetM2/datavizPM2/sondes_dreal_id.kml", "Points")
+
+# aussi j'ai des erreurs sur la derniÃ¨re base dbMM365, quand
+# dbMM365 <- dbMM[,c("id_sonde", "date","TeauMeanMM365")]
+# je crois qu'il n'y a pas de colonne date dans dbMM
+
+
+# aussi je crois qu'on a pas de donnÃ©es pour plusieurs sondes 
+# 826, 814, 148, 147, 829, 103
+
+
+# ###################################################################### #
+# FIN COMENTAIRES ET CODE PROVISOIRE
+# ###################################################################### #
+
+
+
+
+# temperature des cours d'eau
+#db<-read.csv2("projet.csv", sep=",")
+load("db.RData")
+str(db)
+
+# Documents KML : 
+load("KMLs.RData")
+
+
+
+s817 = db[db$id_sonde==817,]
+head(s817)
+
+ts817 = xts(db[db$id_sonde==817,]$Teau, order.by=db[db$id_sonde==817,]$t)
+ts.plot(ts817)
+
+dygraph(ts817)
+
+
+# coordonnÃ©es des sondes
+datacoord <- read.csv("https://www.data.gouv.fr/fr/datasets/r/4d471339-e7db-43af-aa65-883bb80a23dc",
+                      header = T,sep=",", encoding = "UTF-8")
+
+head(datacoord)
+tail(datacoord)
+datacoord
+datacoord <- datacoord[-(nrow(datacoord)),]
+
+datacoord2 <- datacoord[-c(1, 3, 4, 6, 7, 8, 9, 10, 11, 12, 14, 15, 17, 25, 29, 32),]
+points <- data.frame(name = datacoord2$id_sonde,
+                     x = datacoord2$lon_wgs84,
+                     y = datacoord2$lat_wgs84) %>%
+  st_as_sf(coords = c("x", "y"), crs = 4326)
+
+
+
+datacoord$img <- paste(pathimg,"Sonde",datacoord$id_sonde,".png",sep="")
+
+datacoord$lib <- paste(datacoord$TopoOH,": Sonde" ,datacoord$id_sonde)
+
+
+
+## local images -----
+img <- datacoord$img
+
+datacoord = st_as_sf(datacoord,
+                     coords = c("lon_wgs84", "lat_wgs84"), crs = 4326)
+
+pal <- colorFactor(palette = c("yellow","mediumblue","orange","#9bd650","gray","pink","darkgreen","#d05138","#c09b51", 
+                               "cyan","#4b393d","blueviolet", "red","pink",
+                               "darkorange","chartreuse","brown","black",
+                               "white")
+                   ,domain=(datacoord$TopoOH))
+
+str(db)
+
+
+
+################################################################################################
+# Moyennes mobiles Julien
+################################################################################################
+# temperature des cours d'eau
+db_bis<-db
+head(db_bis)
+table(db_bis$id_sonde)
+str(db_bis)
+
+
+
+db_bis$t <- ymd_hms(db_bis$t)
+
+str(db_bis)
+
+
+s825 = db_bis[which(db_bis$id_sonde==825),]
+s827 = db_bis[which(db_bis$id_sonde==827),]
+s828 = db_bis[which(db_bis$id_sonde==828),]
+s830 = db_bis[which(db_bis$id_sonde==830),]
+
+# 825
+s825_avg = aggregate(Teau~date, data=s825, FUN = mean)
+s825_min = aggregate(Teau~date, data=s825, FUN = min)
+s825_max = aggregate(Teau~date, data=s825, FUN = max)
+
+
+head(s825_avg)
+colnames(s825_avg) = c("date", "Teau_s825_avg")
+colnames(s825_min) = c("date", "Teau_s825_min")
+colnames(s825_max) = c("date", "Teau_s825_max")
+
+db_s825 = merge(x=s825_avg, y=s825_min)
+db_s825 = merge(db_s825, s825_max)
+
+head(db_s825)
+
+db_s825$MM30_s825_avg = stats::filter(db_s825$Teau_s825_avg,filter=c(1/(2*30),rep(1/30,29),1/(2*30)))
+db_s825$MM365_s825_avg = stats::filter(db_s825$Teau_s825_avg,filter=rep(1/365,365))
+
+db_s825$MM30_s825_min = stats::filter(db_s825$Teau_s825_min,filter=c(1/(2*30),rep(1/30,29),1/(2*30)))
+db_s825$MM365_s825_min = stats::filter(db_s825$Teau_s825_min,filter=rep(1/365,365))
+
+db_s825$MM30_s825_max = stats::filter(db_s825$Teau_s825_max,filter=c(1/(2*30),rep(1/30,29),1/(2*30)))
+db_s825$MM365_s825_max = stats::filter(db_s825$Teau_s825_max,filter=rep(1/365,365))
+
+
+#tail(db_s825, 50)
+
+
+# 827
+s827_avg = aggregate(Teau~date, data=s827, FUN = mean)
+s827_min = aggregate(Teau~date, data=s827, FUN = min)
+s827_max = aggregate(Teau~date, data=s827, FUN = max)
+
+head(s827_avg)
+colnames(s827_avg) = c("date", "Teau_s827_avg")
+colnames(s827_min) = c("date", "Teau_s827_min")
+colnames(s827_max) = c("date", "Teau_s827_max")
+
+
+db_s827 = merge(x=s827_avg, y=s827_min)
+db_s827 = merge(db_s827, s827_max)
+
+head(db_s827)
+
+
+db_s827$MM30_s827_avg = stats::filter(db_s827$Teau_s827_avg,filter=c(1/(2*30),rep(1/30,29),1/(2*30)))
+db_s827$MM365_s827_avg = stats::filter(db_s827$Teau_s827_avg,filter=rep(1/365,365))
+
+db_s827$MM30_s827_min = stats::filter(db_s827$Teau_s827_min,filter=c(1/(2*30),rep(1/30,29),1/(2*30)))
+db_s827$MM365_s827_min = stats::filter(db_s827$Teau_s827_min,filter=rep(1/365,365))
+
+db_s827$MM30_s827_max = stats::filter(db_s827$Teau_s827_max,filter=c(1/(2*30),rep(1/30,29),1/(2*30)))
+db_s827$MM365_s827_max = stats::filter(db_s827$Teau_s827_max,filter=rep(1/365,365))
+
+
+
+
+# 828
+s828_avg = aggregate(Teau~date, data=s828, FUN = mean)
+s828_min = aggregate(Teau~date, data=s828, FUN = min)
+s828_max = aggregate(Teau~date, data=s828, FUN = max)
+
+head(s828_avg)
+colnames(s828_avg) = c("date", "Teau_s828_avg")
+colnames(s828_min) = c("date", "Teau_s828_min")
+colnames(s828_max) = c("date", "Teau_s828_max")
+
+
+db_s828 = merge(x=s828_avg, y=s828_min)
+db_s828 = merge(db_s828, s828_max)
+
+head(db_s830)
+
+
+db_s828$MM30_s828_avg = stats::filter(db_s828$Teau_s828_avg,filter=c(1/(2*30),rep(1/30,29),1/(2*30)))
+db_s828$MM365_s828_avg = stats::filter(db_s828$Teau_s828_avg,filter=rep(1/365,365))
+
+db_s828$MM30_s828_min = stats::filter(db_s828$Teau_s828_min,filter=c(1/(2*30),rep(1/30,29),1/(2*30)))
+db_s828$MM365_s828_min = stats::filter(db_s828$Teau_s828_min,filter=rep(1/365,365))
+
+db_s828$MM30_s828_max = stats::filter(db_s828$Teau_s828_max,filter=c(1/(2*30),rep(1/30,29),1/(2*30)))
+db_s828$MM365_s828_max = stats::filter(db_s828$Teau_s828_max,filter=rep(1/365,365))
+
+# 830
+s830_avg = aggregate(Teau~date, data=s830, FUN = mean)
+s830_min = aggregate(Teau~date, data=s830, FUN = min)
+s830_max = aggregate(Teau~date, data=s830, FUN = max)
+
+head(s830_avg)
+colnames(s830_avg) = c("date", "Teau_s830_avg")
+colnames(s830_min) = c("date", "Teau_s830_min")
+colnames(s830_max) = c("date", "Teau_s830_max")
+
+
+db_s830 = merge(x=s830_avg, y=s830_min)
+db_s830 = merge(db_s830, s830_max)
+
+head(db_s830)
+     
+     
+     db_s830$MM30_s830_avg = stats::filter(db_s830$Teau_s830_avg,filter=c(1/(2*30),rep(1/30,29),1/(2*30)))
+     db_s830$MM365_s830_avg = stats::filter(db_s830$Teau_s830_avg,filter=rep(1/365,365))
+     
+     db_s830$MM30_s830_min = stats::filter(db_s830$Teau_s830_min,filter=c(1/(2*30),rep(1/30,29),1/(2*30)))
+     db_s830$MM365_s830_min = stats::filter(db_s830$Teau_s830_min,filter=rep(1/365,365))
+     
+     db_s830$MM30_s830_max = stats::filter(db_s830$Teau_s830_max,filter=c(1/(2*30),rep(1/30,29),1/(2*30)))
+     db_s830$MM365_s830_max = stats::filter(db_s830$Teau_s830_max,filter=rep(1/365,365))
+     
+     
+     
+     
+     # base Touques
+     
+     db_touques = merge(db_s825, db_s827)
+     db_touques = merge(db_touques, db_s828)
+     db_touques = merge(db_touques, db_s830)
+     head(db_touques)
+     
+
+################################################################################################
+# Moyennes mobiles
+################################################################################################
+db2 =db %>%
+  group_by(id_sonde,date)%>%
+  mutate(TeauMin = min(Teau),
+         TeauMax = max(Teau),
+         TeauMed = median(Teau),
+         TeauMoy = mean(Teau)
+         )
+
+db2 <- db2[,-c(1,3)]
+db2 = db2[which(duplicated(db2)==F),]
+
+dbMM = db2 %>%
+  group_by(id_sonde)%>%
+  mutate(TeauMinMM7 = stats::filter(TeauMin,filter=rep(1/7,7)),
+         TeauMinMM30 = stats::filter(TeauMin,filter=c(1/(2*30),rep(1/30,29),1/(2*30))),
+         TeauMinMM365 = stats::filter(TeauMin,filter=rep(1/365,365)),
+         TeauMaxMM7 = stats::filter(TeauMax,filter=rep(1/7,7)),
+         TeauMaxMM30 = stats::filter(TeauMax,filter=c(1/(2*30),rep(1/30,29),1/(2*30))),
+         TeauMaxMM365 = stats::filter(TeauMax,filter=rep(1/365,365)),
+         TeauMeanMM7 = stats::filter(TeauMoy,filter=rep(1/7,7)),
+         TeauMeanMM30 = stats::filter(TeauMoy,filter=c(1/(2*30),rep(1/30,29),1/(2*30))),
+         TeauMeanMM365 = stats::filter(TeauMoy,filter=rep(1/365,365)),
+         TeauMedMM7 = stats::filter(TeauMed,filter=rep(1/7,7)),
+         TeauMedMM30 = stats::filter(TeauMed,filter=c(1/(2*30),rep(1/30,29),1/(2*30))),
+         TeauMedMM365 = stats::filter(TeauMed,filter=rep(1/365,365))
+         )
+
+#dbMM <- dbMM[,-c(2,3)]
+
+
+dbMMGathered <- dbMM %>%
+  gather(key="DonneesTemp",value="Teau",c(3:ncol(dbMM))) %>%
+  convert_as_factor(DonneesTemp)
+
+
+
+
+dbmin <- dbMM[,c("date","id_sonde","TeauMin","TeauMinMM7","TeauMinMM30","TeauMinMM365")]
+dbmin <- dbmin %>%
+  gather(key="DonneesTempMin",value="Teau",c(3:6)) %>%
+  convert_as_factor(DonneesTempMin)
+
+
+
+dataSonde825Min <- dbmin[dbmin$id_sonde==825,] 
+dataSonde827Min <- dbmin[dbmin$id_sonde==827,]
+dataSonde828Min <- dbmin[dbmin$id_sonde==828,]
+dataSonde830Min <- dbmin[dbmin$id_sonde==830,]
+
+dbmax <- dbMM[,c("date","id_sonde","TeauMax","TeauMaxMM7","TeauMaxMM30","TeauMaxMM365")]
+dbmax <- dbmax %>%
+  gather(key="DonneesTempMax",value="Teau",c(3:6)) %>%
+  convert_as_factor(DonneesTempMax)
+
+
+
+
+
+
+
+dbTeauMinTouques <- dbMM[which(dbMM$id_sonde == 825 |
+                 dbMM$id_sonde == 827 | 
+                 dbMM$id_sonde == 828 |
+                 dbMM$id_sonde == 830 ),c("date","id_sonde","TeauMin")]
+
+
+dbTeauMinTouquesMM7 <- dbMM[which(dbMM$id_sonde == 825 |
+                                dbMM$id_sonde == 827 | 
+                                dbMM$id_sonde == 828 |
+                                dbMM$id_sonde == 830 ),c("date","id_sonde","TeauMinMM7")]
+
+
+dbTeauMinTouqueMM30 <- dbMM[which(dbMM$id_sonde == 825 |
+                                dbMM$id_sonde == 827 | 
+                                dbMM$id_sonde == 828 |
+                                dbMM$id_sonde == 830 ),c("date","id_sonde","TeauMinMM30")]
+
+
+dbTeauMinTouquesMM365 <- dbMM[which(dbMM$id_sonde == 825 |
+                                dbMM$id_sonde == 827 | 
+                                dbMM$id_sonde == 828 |
+                                dbMM$id_sonde == 830 ),c("date","id_sonde","TeauMinMM365")]
+
+
+
+# db2TeauMinTouquesMM365 <- dbTeauMinTouquesMM365[which(is.na(dbTeauMinTouquesMM365$TeauMinMM365)==F),]
+# db2TeauMinTouquesMM365$MD <- paste(month(db2TeauMinTouquesMM365$date),day(db2TeauMinTouquesMM365$date),sep="-")
+# 
+# 
+# db2TeauMinTouquesMM365 <- order(db2TeauMinTouquesMM365$id_sonde,"asc")
+# db2TeauMinTouquesMM365  = db2TeauMinTouquesMM365[order(db2TeauMinTouquesMM365$id_sonde, decreasing = FALSE),]
+# db2TeauMinTouquesMM365  = db2TeauMinTouquesMM365[order(db2TeauMinTouquesMM365$MD, decreasing = FALSE),]
+# 
+# db2TeauMinTouquesMM365$copteur = NA
+
+
+dbMM365 <- dbMM[,c("id_sonde", "date","TeauMeanMM365")]
+dbMM365 <- dbMM365[which(is.na(dbMM365$TeauMeanMM365)==F),]
+
+dbMM365 <- dbMM365 %>%
+  group_by(id_sonde)%>%
+  filter(date==min(date) | date == max(date))
+  
+
+dbMM365$Diff = NA
+for (i in 1:nrow(dbMM365)){
+  ifelse(dbMM365$id_sonde[i] == dbMM365$id_sonde[i+1],
+         dbMM365$Diff[i] <- dbMM365$TeauMeanMM365[i+1]-dbMM365$TeauMeanMM365[i],
+         dbMM365$Diff[i] <-NA
+         )
+
+}
+  
+mean(dbMM365$Diff, na.rm=T)
+  
