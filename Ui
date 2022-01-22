@@ -30,12 +30,12 @@ dashboardPage(
 
 
   # ---------------------------------------------------------------------- #
-  # ----------------------------- EN TÃTE -------------------------------- #
+  # ----------------------------- EN TÊTE -------------------------------- #
   # ---------------------------------------------------------------------- #
-  # Entête du dashboard
+  # En tête du dashboard
   dashboardHeader(title = "Hydrologie des cours d'eau Normand",
                   titleWidth = 350),
-  # Fin entête du dashboard
+  # Fin en tête du dashboard
   # ---------------------------------------------------------------------- #
 
 
@@ -45,7 +45,7 @@ dashboardPage(
 
 
   # ---------------------------------------------------------------------- #
-  # --------------- BARRE LATÃRALE / MENU DE NAVIGATION ------------------ #
+  # --------------- BARRE LATÉRALE / MENU DE NAVIGATION ------------------ #
   # ---------------------------------------------------------------------- #
   # Barre Latérale / Menu de navigation
   dashboardSidebar(
@@ -64,7 +64,7 @@ dashboardPage(
 
         # les sub-menus
         menuSubItem("Contexte de l'étude", tabName="sub_menu_contexte"),
-        menuSubItem("DonnÃ©es de l'étude", tabName="sub_menu_data"),
+        menuSubItem("Données de l'étude", tabName="sub_menu_data"),
         menuSubItem("Lexique", tabName="sub_menu_lexique"),
         menuSubItem("Bibliographie", tabName = "sub_menu_biblio")
 
@@ -93,14 +93,15 @@ dashboardPage(
       # ------------------------------------------------------------ #
       menuItem("Analyse des températures",tabName = "menu_stats",
                icon = icon("stats", lib = "glyphicon"),
-        # troisiéme menu : Analyse des températures
+        # troisième menu : Analyse des températures
 
 
         # les sub-menus
         menuSubItem("Touques", tabName="sub_menu_touques"),
         menuSubItem("Orne", tabName="sub_menu_orne"),
         menuSubItem("Odon", tabName="sub_menu_odon"),
-        menuSubItem("Sélune", tabName="sub_menu_selune")
+        menuSubItem("Sélune", tabName="sub_menu_selune"),
+        menuSubItem("Les Sondes", tabName = "sub_menu_sondes_synthese")
 
 
       ) # End troisième menu stats
@@ -146,6 +147,7 @@ dashboardPage(
       tags$style(
         HTML(
           '#map_sondes {width:100%;height:calc(85vh - 80px) !important;}',
+          '#map_BV {width:100%;height:calc(85vh - 80px) !important;}',
           '#panel_info_sondes {width:25%;height:calc(125vh - 125px) !important;}',
           '#myPannel2 {width:25%;height:calc(125vh - 125px) !important;}',
           '#ID{color: black;font-size: 20px;font-style: bold;}',
@@ -290,12 +292,40 @@ dashboardPage(
 
         
         h2("Sondes thermiques"),
+        
+        # # ---------------------------------------- #
+        # fluidRow(
+        #   #box(
+        #     width = 6,
+        #     column(
+        #       width=3,
+        #       checkboxInput(inputId = "DREAL", label = "Sondes DREAL", value=TRUE)
+        #     ),
+        #     
+        #     # marge
+        #     # column(
+        #     #   width=1
+        #     # ),
+        #     # 
+        #     
+        #     column(
+        #       width = 3,
+        #       checkboxInput(inputId = "OFB", label = "Sondes OFB")
+        #     )
+        #   #) # end box
+        # ),
+        # # ---------------------------------------- #
 
+        
+        
         # ---------------------------------------- #
         fluidRow(
           
           box(
-            widht = 12, height = "100%",
+            column(width = 2, checkboxInput(inputId = "DREAL", label = "Sondes DREAL", value=TRUE)),
+            column(width = 2, checkboxInput(inputId = "OFB", label = "Sondes OFB")),
+            
+            width = 12, height = "100%",
             leafletOutput("map_sondes")
           ), # End box
           
@@ -318,24 +348,14 @@ dashboardPage(
               
             ) # End absolutePanel
             
-          ), # End hidden
+          ) # End hidden
 
-        ), # End fluidRow
+        ) # End fluidRow
         # ---------------------------------------- #
 
 
 
 
-
-
-
-        # ---------------------------------------- #
-        box(
-          width = 5,
-          checkboxInput(inputId = "DREAL", label = "Sondes DREAL", value=TRUE),
-          checkboxInput(inputId = "OFB", label = "Sondes OFB")
-        ) # End box
-        # ---------------------------------------- #
 
 
       ), # End tabItem 1 (onglet 1 du menu 2)
@@ -355,16 +375,20 @@ dashboardPage(
         # ---------------------------------------- #
         fluidRow(
           box(
-            width = 8,
+            column(width = 2, checkboxInput(inputId = "BV1", label = "Grand BV", value=TRUE)),
+            column(width = 2, checkboxInput(inputId = "BV2", label = "Moyen BV")),
+            column(width = 2, checkboxInput(inputId = "BV3", label = "Petit BV")),
+            
+            width = 12, height = "100%",
             leafletOutput("map_BV")
-          ), # End box
-
-          box(
-            width = 4,
-            checkboxInput(inputId = "BV1", label = "Grand BV", value=TRUE),
-            checkboxInput(inputId = "BV2", label = "Moyen BV"),
-            checkboxInput(inputId = "BV3", label = "Petit BV")
           ) # End box
+
+          # box(
+          #   width = 4,
+          #   checkboxInput(inputId = "BV1", label = "Grand BV", value=TRUE),
+          #   checkboxInput(inputId = "BV2", label = "Moyen BV"),
+          #   checkboxInput(inputId = "BV3", label = "Petit BV")
+          # ) # End box
 
 
         ) # End fluidRow
@@ -404,7 +428,7 @@ dashboardPage(
 
 
       # ################################################## #
-      # Troisiéme Menu : Analyse des températures
+      # Troisième Menu : Analyse des températures
       # ################################################## #
       
 
@@ -417,6 +441,17 @@ dashboardPage(
         h2("Analyse des températures de la Touques"),
 
         fluidRow(
+          box(
+            width=8,
+            dygraphOutput("test")
+          ),
+          box(
+            width = 4,
+            checkboxInput(inputId = "test_Teau_min", label = "Teau min", value=TRUE),
+            checkboxInput(inputId = "test_Teau_max", label = "Teau max", value=TRUE),
+            checkboxInput(inputId = "test_Teau_med", label = "Teau mediane", value=FALSE),
+            checkboxInput(inputId = "test_Teau_moy", label = "Teau moyenne", value=FALSE)
+          )
 
         )
 
@@ -472,7 +507,84 @@ dashboardPage(
         )
 
 
-      ) # End tabItem 4
+      ), # End tabItem 4
+      # -------------------------------------------------- #
+      
+      
+      
+      
+      # -------------------------------------------------- #
+      tabItem(tabName = "sub_menu_sondes_synthese",
+              # fiche synthese par sonde
+              
+              
+              # En-tête
+              # ---------------------------------------- #
+              #h2("Analyse des sondes"),
+              
+              fluidRow(
+                selectInput("choix_sondes",
+                            label="Choisir une sonde",choices=list("817"=1),
+                            selected=1),
+                h2("Sondes n°817 : Orne (T1)")
+              ),
+              # ---------------------------------------- #
+              
+              
+              # premiere colonne
+              # ---------------------------------------- #
+              column(
+                width = 4,
+                fluidRow(
+                  h3("Description"),
+                  p("Débit :"),
+                  p("Distance à la source :"),
+                  p("longitude : , latitude : , altitude : "),
+                  p("dates début : , dates fin : ")
+                  
+                ),
+                fluidRow(
+                  h3("Emplacement"),
+                  leafletOutput("sonde_synthese_map", height = 250)
+                ),
+                fluidRow(
+                  actionLink(inputId = "return_to_sub_menu_map_sonde", label = "Voir la carte des sondes")
+                )
+              ),
+              # ---------------------------------------- #
+              
+              
+              # deuxieme colonne (marge)
+              # ---------------------------------------- #
+              column(
+                width=1
+              ),
+              # ---------------------------------------- #
+              
+              
+              
+              # troisieme colonne
+              # ---------------------------------------- #
+              column(
+                width = 7,
+                
+                fluidRow(
+                  h3("Quelques statistiques"),
+                  tableOutput(outputId = "tableau_stats_sonde_synthese"),
+                  p("Commentaires sur le résumé statistiques")
+                ),
+                
+                fluidRow(
+                  h3("Représentation de la série"),
+                  dygraphOutput(outputId = "graphe_sonde_synthese", width = "95%", height = 275),
+                  p("Commentaires sur le graphe")
+                )
+              ),
+              # ---------------------------------------- #
+              
+              
+              
+      ) # End tabItem 5
       # -------------------------------------------------- #
       
       
