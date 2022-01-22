@@ -80,7 +80,7 @@ shinyServer(function(input,output){
   })
   
   
-  output$ID <- renderText({paste("DonnÃ©es de la sonde ",id_sonde_reactive$id_sonde_char,sep="")})
+  output$ID <- renderText({paste("Données de la sonde ",id_sonde_reactive$id_sonde_char,sep="")})
   
   output$temp_sonde <- renderDygraph({
     sonde_data = xts(sonde_df()$Teau, order.by=sonde_df()$t)
@@ -100,7 +100,7 @@ shinyServer(function(input,output){
              Q3 = quantile(Teau,.75),
              Max = max(Teau))
     
-    sonde_table = sonde_table[1, 7:ncol(sonde_table)]
+    sonde_table = sonde_table[1, 5:ncol(sonde_table)]
     sonde_table
   })
   
@@ -200,13 +200,130 @@ shinyServer(function(input,output){
   # 
   # 
   # ############################################################ #
-  # ANALYSE DES TEMPÃRATURES
+  # ANALYSE DES TEMPÉRATURES
   # ############################################################ #
   
   
+  # ------------------------------------------------------------ #
+  
+  test_825 <- reactiveValues(
+    Teau_min = TRUE,
+    Teau_max = TRUE,
+    Teau_med = FALSE,
+    Teau_moy = FALSE
+  )
+  
+  # xts_test <- reactive({
+  #   if(test_825$Teau_min == FALSE & test_825$Teau_max == FALSE & test_825$Teau_med==FALSE & test_825$Teau_moy==FALSE){
+  #     serie_xts = xts(x = rep(NA, length(db2[which(db2$id_sonde==825),]$TeauMin)), 
+  #                     order.by = db2[which(db2$id_sonde==825),]$date)
+  #   }
+  #   else{
+  #     db15 = db2[which(db2$id_sonde==825),c(FALSE, FALSE, test_825$Teau_min, test_825$Teau_max, 
+  #                                           test_825$Teau_med, test_825$Teau_moy)]
+  #     db15_date = db2[which(db2$id_sonde==825),]$date
+  #     
+  #     serie_xts = xts(db15, order.by = db15_date)
+  #     
+  #   }
+  #   
+  #   serie_xts
+  # })
+  
+  output$test <- renderDygraph({
+    if(test_825$Teau_min == FALSE & test_825$Teau_max == FALSE & test_825$Teau_med==FALSE & test_825$Teau_moy==FALSE){
+      serie_xts = xts(x = rep(NA, length(db2[which(db2$id_sonde==825),]$TeauMin)), 
+                      order.by = db2[which(db2$id_sonde==825),]$date)
+    }
+    else{
+      db15 = db2[which(db2$id_sonde==825),c(FALSE, FALSE, test_825$Teau_min, test_825$Teau_max, 
+                                            test_825$Teau_med, test_825$Teau_moy)]
+      db15_date = db2[which(db2$id_sonde==825),]$date
+      
+      serie_xts = xts(db15, order.by = db15_date)
+      
+    }
+    
+    
+    
+    dygraph(serie_xts, main = "Temp Eau")%>%
+      dyAxis("y", label = "Temp", valueRange = c(0, 25)) %>%
+      dyRangeSelector()
+  })
+  
+  observeEvent(input$test_Teau_min, {
+    test_825$Teau_min = input$test_Teau_min
+  })
+  
+  observeEvent(input$test_Teau_max, {
+    test_825$Teau_max = input$test_Teau_max
+  })
+  
+  observeEvent(input$test_Teau_med, {
+    test_825$Teau_med = input$test_Teau_med
+  })
+  
+  observeEvent(input$test_Teau_moy, {
+    test_825$Teau_moy = input$test_Teau_moy
+  })
+  
+  
+  
+  
+  # ------------------------------------------------------------ #
+  
+  
+  
+  
+  
+  
+  # fiche synthese par sonde
+  # ------------------------------------------------------------ #
+  
+  
+  output$sonde_synthese_map <- renderLeaflet({
+    leaflet() %>%
+      addTiles() %>%
+      addMarkers(lat = 0, lng = 0)
+  })
+  
+  output$tableau_stats_sonde_synthese <- renderTable({
+    sonde_table = as.data.frame(db[db$id_sonde==817,]) %>%
+      group_by(id_sonde) %>%
+      mutate(Min=min(Teau),
+             Q1 = quantile(Teau,.25),
+             Median = median(Teau),
+             Moyenne = mean(Teau),
+             E_T = sd(Teau),
+             Q3 = quantile(Teau,.75),
+             Max = max(Teau))
+    
+    sonde_table = sonde_table[1, 5:ncol(sonde_table)]
+    sonde_table
+    
+  })
+  
+  output$graphe_sonde_synthese <- renderDygraph({
+    df_sonde = as.data.frame(db[db$id_sonde==817,])
+    sonde_data = xts(df_sonde$Teau, order.by=df_sonde$t)
+    dygraph(sonde_data, main = "Temp Eau")%>%
+      dyAxis("y", label = "Temp", valueRange = c(min(db$Teau)-1, max(db$Teau)+1)) %>%
+      dyRangeSelector()
+    
+  })
+  
+  
+  
+  
+  
+  # ------------------------------------------------------------ #
+  
+  
+  
+  
   
   # ############################################################ #
-  # FIN ANALYSE DES TEMPÃRATURES
+  # FIN ANALYSE DES TEMPÉRATURES
   # ############################################################ #
 
   
