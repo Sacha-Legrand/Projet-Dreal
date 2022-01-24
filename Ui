@@ -1442,9 +1442,15 @@ dashboardPage(
               
               fluidRow(
                 selectInput("choix_sondes",
-                            label="Choisir une sonde",choices=list("817"=1),
-                            selected=1),
-                h2("Sondes n°817 : Orne (T1)")
+                            label="Choisir une sonde",choices=list("104"="104", "105"="105", "108"="108", "109"="109", "300"="300", 
+                                                                "762"="762", "763"="763", "764"="764", "765"="765", "766"="766",
+                                                                "768"="768", "769"="769", "771"="771", "811"="811", "812"="812",
+                                                                "813"="813", "815"="815", "816"="816", "817"="817", "818"="818",
+                                                                "819"="819", "820"="820", "821"="821", "822"="822", "823"="823",
+                                                                "824"="824", "825"="825", "827"="827", "828"="828", "830"="830"),
+                            selected="817"),
+                #h2("Sondes n°817 : Orne (T1)")
+                textOutput("id_lab_txt")
               ),
               # ---------------------------------------- #
               
@@ -1455,10 +1461,16 @@ dashboardPage(
                 width = 4,
                 fluidRow(
                   h3("Description"),
-                  p("Débit :"),
-                  p("Distance à la source :"),
-                  p("longitude : , latitude : , altitude : "),
-                  p("dates début : , dates fin : ")
+                  #p("Débit :"),
+                  textOutput("debit_txt"),
+                  #p("Distance à la source :"),
+                  textOutput("dist_source_txt"),
+                  #p("longitude : , latitude : , altitude : "),
+                  textOutput("long_lat_txt"),
+                  #p("dates début : , dates fin : ")
+                  textOutput("deb_txt"),
+                  textOutput("fin_txt"),
+                  textOutput("nb_obs_txt")
                   
                 ),
                 fluidRow(
