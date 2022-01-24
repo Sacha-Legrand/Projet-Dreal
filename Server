@@ -2987,15 +2987,56 @@ shinyServer(function(input,output){
   # fiche synthese par sonde
   # ------------------------------------------------------------ #
   
+  sonde_synthese_reactive <- reactiveValues(
+    id_sonde_char = "817",
+    id_sonde_num = 817,
+    label_sonde = "Orne T1",
+    sonde_lat = "48.90405",
+    sonde_lng = "-0.45678",
+    sonde_db = as.data.frame(db[db$id_sonde==817,]),
+    sonde_deb = "2011-06-17",
+    sonde_fin = "2021-10-19",
+    sonde_nb_obs = 45330,
+    
+    sonde_debit = "0",
+    sonde_dist_source = "0",
+    sonde_alt = "1"
+  )
+  
+  
+  observeEvent(input$choix_sondes, {
+    id_sonde_synthese = as.numeric(input$choix_sondes)
+    sonde_info = db_sonde_synthese[which(db_sonde_synthese==id_sonde_synthese),]
+      
+    sonde_synthese_reactive$id_sonde_num = id_sonde_synthese
+    sonde_synthese_reactive$id_sonde_char = input$choix_sondes
+    sonde_synthese_reactive$label_sonde = sonde_info$label
+    
+    sonde_synthese_reactive$sonde_lat = sonde_info$latitude
+    sonde_synthese_reactive$sonde_lng = sonde_info$longitude
+    
+    
+    sonde_synthese_reactive$sonde_db = as.data.frame(db[db$id_sonde==id_sonde_synthese,])
+    
+    sonde_synthese_reactive$sonde_deb = sonde_info$date_deb
+    sonde_synthese_reactive$sonde_fin = sonde_info$date_fin
+    sonde_synthese_reactive$sonde_nb_obs = sonde_info$nb_obs
+      
+    
+    
+    
+  },ignoreInit = TRUE)
+  
   
   output$sonde_synthese_map <- renderLeaflet({
     leaflet() %>%
       addTiles() %>%
-      addMarkers(lat = 0, lng = 0)
+      addMarkers(lat = as.numeric(sonde_synthese_reactive$sonde_lat),
+                lng = as.numeric(sonde_synthese_reactive$sonde_lng), group = "sondes_synthese")
   })
   
   output$tableau_stats_sonde_synthese <- renderTable({
-    sonde_table = as.data.frame(db[db$id_sonde==817,]) %>%
+    sonde_table = sonde_synthese_reactive$sonde_db %>%
       group_by(id_sonde) %>%
       mutate(Min=min(Teau),
              Q1 = quantile(Teau,.25),
@@ -3011,13 +3052,46 @@ shinyServer(function(input,output){
   })
   
   output$graphe_sonde_synthese <- renderDygraph({
-    df_sonde = as.data.frame(db[db$id_sonde==817,])
+    df_sonde = sonde_synthese_reactive$sonde_db
     sonde_data = xts(df_sonde$Teau, order.by=df_sonde$t)
     dygraph(sonde_data, main = "Temp Eau")%>%
       dyAxis("y", label = "Temp", valueRange = c(min(db$Teau)-1, max(db$Teau)+1)) %>%
       dyRangeSelector()
     
   })
+  
+  
+  # textes
+  output$id_lab_txt <- renderText({
+    paste0("Sondes n°",sonde_synthese_reactive$id_sonde_char," : ",sonde_synthese_reactive$label_sonde)
+  })
+  
+  output$debit_txt <- renderText({
+    paste0("Débit : ", sonde_synthese_reactive$sonde_debit)
+  })
+  
+  output$dist_source_txt <- renderText({
+    paste0("Distance à la source : ", sonde_synthese_reactive$sonde_dist_source, " km")
+  })
+  
+  output$long_lat_txt <- renderText({
+    paste0("Longitude : ", sonde_synthese_reactive$sonde_lng,
+          ". Latitude : ", sonde_synthese_reactive$sonde_lat,
+          ". Altitude : ", sonde_synthese_reactive$sonde_alt,".")
+  })
+  
+  output$deb_txt <- renderText({
+    paste0("Première observation le ", sonde_synthese_reactive$sonde_deb,".")
+  })
+  
+  output$fin_txt <- renderText({
+    paste0("Dernière observation le ", sonde_synthese_reactive$sonde_fin,".")
+  })
+  
+  output$nb_obs_txt <- renderText({
+    paste0(as.character(sonde_synthese_reactive$sonde_nb_obs), " observations.")
+  })
+  
   
   
   
