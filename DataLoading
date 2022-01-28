@@ -1,8 +1,9 @@
 path="D:/Users/Desktop/Cours/M2stat/Projet" # path Lucie
 #path = "/Users/julien/Desktop/projetM2/dashboard_propre" # path Julien
 # Si tu galère
-system.file("img","Rlogo.png",package="png")
-pathimg = "D:/Logiciels biostat/R-3.6.1/library/png/img/" # pathimg Lucie
+pathimg = system.file("img",package="png") 
+#system.file("img","Rlogo.png",package="png")
+#pathimg = "D:/Logiciels biostat/R-3.6.1/library/png/img/" # pathimg Lucie
 #pathimg = "/Library/Frameworks/R.framework/Versions/4.0/Resources/library/png/img/" # pathimg Julien
 setwd(path)
 
