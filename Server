@@ -24,26 +24,28 @@ shinyServer(function(input,output){
   # CARTOGRAPHIE
   # ############################################################ #
   
-  # ------------------------------------------------------------ #
-  # map_sondes : carte des sondes
+ # ------------------------------------------------------------ #
+ # map_sondes : carte des sondes
   output$map_sondes <- renderLeaflet({
-    
+
     leaflet() %>%
       addTiles() %>%
-      addAwesomeMarkers(data = SondesDreal2, layerId = SondesDreal2$Name, group="DREAL",
-                        icon=makeAwesomeIcon(icon='tint', library='glyphicon', 
-                                             iconColor = 'white', markerColor = 'blue')) #%>%
+      addAwesomeMarkers(data = db_sonde_synthese, 
+                        lng=db_sonde_synthese$longitude,lat=db_sonde_synthese$latitude,
+                        layerId = db_sonde_synthese$id_sonde, group="DREAL",
+                        icon=makeAwesomeIcon(icon='tint', library='glyphicon',
+                                             iconColor = 'white', markerColor = 'blue')) %>%
       #addAwesomeMarkers(data = SondesOFB, layerId = SondesOFB$Name, group = "OFB") %>%
-      #addPopups(data = SondesDreal, group = "DREAL", popup=paste("Sonde ",SondesDreal2$Name)) %>%
-      #addPopupImages(img, group = "DREAL",width = 400, tooltip=F)
-    
-    
+      #addPopups(data = db_sonde_synthese, group = "DREAL", popup=paste("Sonde ",db_sonde_synthese$id_sonde)) %>%
+      addPopupImages(db_sonde_synthese$img, group = "DREAL",width = 400, tooltip=F)
+
+
   })
-  
+
 
   observeEvent(input$OFB, {
     proxy <- leafletProxy("map_sondes")
-    
+
     proxy %>% clearGroup(group="OFB")
 
     if(input$OFB){
@@ -58,55 +60,70 @@ shinyServer(function(input,output){
 
   observeEvent(input$DREAL, {
     proxy <- leafletProxy("map_sondes")
-    
+
     proxy %>% clearGroup(group="DREAL")
 
     if(input$DREAL){
       proxy %>%
-        addAwesomeMarkers(data = SondesDreal2, layerId = SondesDreal2$Name, group = "DREAL",
+        addAwesomeMarkers(data = db_sonde_synthese, 
+                          lng=db_sonde_synthese$longitude,lat=db_sonde_synthese$latitude,
+                          layerId = db_sonde_synthese$id_sonde, group = "DREAL",
                           icon = makeAwesomeIcon(icon = 'tint', library = 'glyphicon',
                                                  iconColor = 'white', markerColor = 'blue'))
     }
 
   })
   
-  
+  observeEvent(input$BV1, {
+    proxy <- leafletProxy("map_sondes")
+    
+    proxy %>% 
+      clearGroup(group="BV1")
+    
+    if(input$BV1){
+      proxy %>%
+        addPolygons(data=BV1, weight=3, layerId = paste0("BV1_",1:nrow(BV1)), group = "BV1",
+                    color="#31b94a")
+    }
+  })
+
+
   id_sonde_reactive <- reactiveValues(
     id_sonde_char = "817"
   )
-  
+
   sonde_df <- reactive({
     as.data.frame(db[db$id_sonde==as.numeric(id_sonde_reactive$id_sonde_char),])
   })
-  
-  
+
+
   output$ID <- renderText({paste("Données de la sonde ",id_sonde_reactive$id_sonde_char,sep="")})
-  
+
   output$temp_sonde <- renderDygraph({
     sonde_data = xts(sonde_df()$Teau, order.by=sonde_df()$t)
     dygraph(sonde_data, main = "Temp Eau")%>%
       dyAxis("y", label = "Temp", valueRange = c(min(db$Teau)-1, max(db$Teau)+1)) %>%
-      dyRangeSelector()
+      dyRangeSelector() %>%       dyLegend(show = "follow")
   })
-  
+
   output$table_sonde <- renderTable({
     sonde_table = sonde_df() %>%
       group_by(id_sonde) %>%
       mutate(Min=min(Teau),
-             Q1 = quantile(Teau,.25),
-             Median = median(Teau),
+             t25 = quantile(Teau,.25),
+             Mediane = median(Teau),
              Moyenne = mean(Teau),
-             E_T = sd(Teau),
-             Q3 = quantile(Teau,.75),
+             sd = sd(Teau),
+             t75 = quantile(Teau,.75),
              Max = max(Teau))
-    
+
     sonde_table = sonde_table[1, 5:ncol(sonde_table)]
     sonde_table
   })
-  
-  
-  
-  
+
+
+
+
   observeEvent(input$map_sondes_marker_click, {
     clic = input$map_sondes_marker_click
     if(clic$group == "DREAL" & nchar(clic$id)==3){
@@ -114,12 +131,12 @@ shinyServer(function(input,output){
       shinyjs::show(id = "panel_info_sondes")
     }
   })
-  
+
   observeEvent(input$closeIP, {
     shinyjs::hide(id = "panel_info_sondes")
   })
-  
-  
+
+
   # ------------------------------------------------------------ #
   
   
@@ -135,17 +152,17 @@ shinyServer(function(input,output){
   
   
   
-  observeEvent(input$BV1, {
-    proxy <- leafletProxy("map_BV")
-    
-    proxy %>% 
-      clearGroup(group="BV1")
-    
-    if(input$BV1){
-      proxy %>%
-        addPolygons(data=BV1, weight=3, layerId = paste0("BV1_",1:nrow(BV1)), group = "BV1")
-    }
-  })
+  # observeEvent(input$BV1, {
+  #   proxy <- leafletProxy("map_BV")
+  #   
+  #   proxy %>% 
+  #     clearGroup(group="BV1")
+  #   
+  #   if(input$BV1){
+  #     proxy %>%
+  #       addPolygons(data=BV1, weight=3, layerId = paste0("BV1_",1:nrow(BV1)), group = "BV1")
+  #   }
+  # })
   
   observeEvent(input$BV2, {
     proxy <- leafletProxy("map_BV")
@@ -226,8 +243,8 @@ shinyServer(function(input,output){
        varSelec825$TeauMoy== FALSE &
        varSelec825$TeauMax == FALSE & 
        varSelec825$TeauMinMM7 == FALSE & 
-       varSelec825$TeauMaxMM7 == FALSE & 
-       varSelec825$TeauMeanMM7 == FALSE
+       varSelec825$TeauMeanMM7 == FALSE &
+       varSelec825$TeauMaxMM7 == FALSE 
     )
     {
       serie_xts = xts(x = rep(NA, length(db2[which(db2$id_sonde==825),]$TeauMin)),
@@ -236,22 +253,29 @@ shinyServer(function(input,output){
     }
     else{
       serie_xts = db_xts_sonde825a[,c(varSelec825$TeauMin,varSelec825$TeauMoy,varSelec825$TeauMax,
-                                     varSelec825$TeauMinMM7,varSelec825$TeauMeanMM7,varSelec825$TeauMaxMM7)]
-     
+                                      varSelec825$TeauMinMM7,varSelec825$TeauMeanMM7,varSelec825$TeauMaxMM7)]
+      
     }
     
+    check <- as.data.frame(c(0.5,4.5,16.5,19.5,25.5))
     
-    
-    dygraph(serie_xts, main = "Température en °C")%>%
-
+    dygraph825 = dygraph(serie_xts, main = "")%>%
       dyAxis("y", label = "Température en °C", valueRange = c(0, 25)) %>%
-      # dygraph(lungDeaths) %>%
-      # dySeries("mdeaths", label = "Male") %>%
-      # dySeries("fdeaths", label = "Female") %>%
-      # dyOptions(stackedGraph = TRUE) %>%
-      # dyRangeSelector(height = 20)
-      dyRangeSelector()
+      dyRangeSelector() %>%       
+      dyLegend(show = "follow")
+    dygraph825
   })
+  
+  
+  
+  # observeEvent(input$LimiteTruite, {
+  #   dygraph825 = dygraph825 %>%
+  #     dyLimit(0.5,label = "Y-axis Limit",color = "red",strokePattern = "dashed")%>%
+  #     dyLimit(4.5,label = "Y-axis Limit2")
+  #   dygraph825
+  #  })
+  
+  
   
   observeEvent(input$Teau_min_825, {
     varSelec825$TeauMin = input$Teau_min_825
@@ -275,6 +299,27 @@ shinyServer(function(input,output){
     varSelec825$TeauMaxMM7 = input$Teau_max_825MM7
   })
   
+  # Histogramme sonde 825
+  colLimite = c("Critique" = "#e52613",
+                "DangJuv"="#eea11b",
+                "Létal"="#f9063e",
+                "Preferendumthermique"="#6dab1f")
+  
+  output$hist825 = renderPlotly({
+    
+   gghist825 <-  db2[db2$id_sonde == 825,] %>%
+     ggplot(aes(x=TeauMoy))+
+     geom_histogram(aes(fill=limiteTruite),binwidth = .1)+
+     scale_fill_manual(values =colLimite ) +
+     theme_minimal()+
+     theme(legend.title = element_blank())
+
+   gghist825 <- ggplotly(gghist825)
+  })
+  
+  
+  
+  
   # Sonde 827
   
   # Données moyenne journalière + MM7
@@ -292,8 +337,8 @@ shinyServer(function(input,output){
        varSelec827$TeauMoy== FALSE &
        varSelec827$TeauMax == FALSE & 
        varSelec827$TeauMinMM7 == FALSE & 
-       varSelec827$TeauMaxMM7 == FALSE & 
-       varSelec827$TeauMeanMM7 == FALSE
+       varSelec827$TeauMeanMM7 == FALSE &
+       varSelec827$TeauMaxMM7 == FALSE 
     )
     {
       serie_xts = xts(x = rep(NA, length(db2[which(db2$id_sonde==827),]$TeauMin)),
@@ -307,9 +352,9 @@ shinyServer(function(input,output){
     
     
     
-    dygraph(serie_xts, main = "Température en °C")%>%
+    dygraph(serie_xts, main = "")%>%
       dyAxis("y", label = "Température en °C", valueRange = c(0, 25)) %>%
-      dyRangeSelector()
+      dyRangeSelector() %>%       dyLegend(show = "follow")
   })
   
   observeEvent(input$Teau_min_827, {
@@ -353,8 +398,8 @@ shinyServer(function(input,output){
        varSelec828$TeauMoy== FALSE &
        varSelec828$TeauMax == FALSE & 
        varSelec828$TeauMinMM7 == FALSE & 
-       varSelec828$TeauMaxMM7 == FALSE & 
-       varSelec828$TeauMeanMM7 == FALSE
+       varSelec828$TeauMeanMM7 == FALSE &
+       varSelec828$TeauMaxMM7 == FALSE  
     )
     {
       serie_xts = xts(x = rep(NA, length(db2[which(db2$id_sonde==828),]$TeauMin)),
@@ -368,9 +413,10 @@ shinyServer(function(input,output){
     
     
     
-    dygraph(serie_xts, main = "Température en °C")%>%
+    dygraph(serie_xts, main = "")%>%
       dyAxis("y", label = "Température en °C", valueRange = c(0, 25)) %>%
-      dyRangeSelector()
+      dyRangeSelector() %>%       
+      dyLegend(show = "follow")
   })
   
   observeEvent(input$Teau_min_828, {
@@ -412,8 +458,9 @@ shinyServer(function(input,output){
        varSelec830$TeauMoy== FALSE &
        varSelec830$TeauMax == FALSE & 
        varSelec830$TeauMinMM7 == FALSE & 
-       varSelec830$TeauMaxMM7 == FALSE & 
-       varSelec830$TeauMeanMM7 == FALSE
+       varSelec830$TeauMeanMM7 == FALSE &
+       varSelec830$TeauMaxMM7 == FALSE  
+       
     )
     {
       serie_xts = xts(x = rep(NA, length(db2[which(db2$id_sonde==830),]$TeauMin)),
@@ -427,9 +474,11 @@ shinyServer(function(input,output){
     
     
     
-    dygraph(serie_xts, main = "Température en °C")%>%
+    dygraph(serie_xts, main = "")%>%
       dyAxis("y", label = "Température en °C", valueRange = c(0, 25)) %>%
-      dyRangeSelector()
+      dyRangeSelector() %>%      
+      dyLegend(show = "follow") %>%
+      dyLegend(show = "follow")
   })
   
   observeEvent(input$Teau_min_830, {
@@ -463,19 +512,19 @@ shinyServer(function(input,output){
   
   # Données moyenne journalière + MM7
   varSelec825MM30 <- reactiveValues(
-    TeauMinMM30MM30 = T,
+    TeauMinMM30 = T,
     TeauMeanMM30 = T,
-    TeauMaxMM30MM30 = T,
+    TeauMaxMM30 = T,
     regMinMM30 = F,
     regMaxMM30 = F
   )
   
   output$Sonde825MM30 <- renderDygraph({
-    if(varSelec825MM30$TeauMinMM30MM30 == FALSE & 
+    if(varSelec825MM30$TeauMinMM30 == FALSE & 
        varSelec825MM30$TeauMeanMM30== FALSE &
-       varSelec825MM30$TeauMaxMM30MM30 == FALSE & 
-       varSelec825MM30$regMinMM30 == FALSE & 
-       varSelec825MM30$regMaxMM30 == FALSE 
+       varSelec825MM30$TeauMaxMM30 == FALSE & 
+       varSelec825MM30$regMaxMM30 == FALSE &
+       varSelec825MM30$regMinMM30 == FALSE  
     )
     {
       serie_xts = xts(x = rep(NA, length(db2[which(db2$id_sonde==825),]$TeauMinMM30)),
@@ -491,7 +540,8 @@ shinyServer(function(input,output){
     
     dygraph(serie_xts, main = "")%>%
       dyAxis("y", label = "Température en °C", valueRange = c(0, 25)) %>%
-      dyRangeSelector()
+      dyRangeSelector() %>%       
+      dyLegend(show = "follow")
   })
   
   observeEvent(input$Teau_min_825MM30, {
@@ -519,17 +569,17 @@ shinyServer(function(input,output){
   
   # Données moyenne journalière + MM7
   varSelec827MM30 <- reactiveValues(
-    TeauMinMM30MM30 = T,
+    TeauMinMM30 = T,
     TeauMeanMM30 = T,
-    TeauMaxMM30MM30 = T,
+    TeauMaxMM30 = T,
     regMinMM30 = F,
     regMaxMM30 = F
   )
   
   output$Sonde827MM30 <- renderDygraph({
-    if(varSelec827MM30$TeauMinMM30MM30 == FALSE & 
+    if(varSelec827MM30$TeauMinMM30 == FALSE & 
        varSelec827MM30$TeauMeanMM30== FALSE &
-       varSelec827MM30$TeauMaxMM30MM30 == FALSE & 
+       varSelec827MM30$TeauMaxMM30 == FALSE & 
        varSelec827MM30$regMinMM30 == FALSE & 
        varSelec827MM30$regMaxMM30 == FALSE 
     )
@@ -547,7 +597,7 @@ shinyServer(function(input,output){
     
     dygraph(serie_xts, main = "")%>%
       dyAxis("y", label = "Température en °C", valueRange = c(0, 25)) %>%
-      dyRangeSelector()
+      dyRangeSelector() %>%       dyLegend(show = "follow")
   })
   
   observeEvent(input$Teau_min_827MM30, {
@@ -573,17 +623,17 @@ shinyServer(function(input,output){
   
   # Données moyenne journalière + MM7
   varSelec828MM30 <- reactiveValues(
-    TeauMinMM30MM30 = T,
+    TeauMinMM30 = T,
     TeauMeanMM30 = T,
-    TeauMaxMM30MM30 = T,
+    TeauMaxMM30 = T,
     regMinMM30 = F,
     regMaxMM30 = F
   )
   
   output$Sonde828MM30 <- renderDygraph({
-    if(varSelec828MM30$TeauMinMM30MM30 == FALSE & 
+    if(varSelec828MM30$TeauMinMM30 == FALSE & 
        varSelec828MM30$TeauMeanMM30== FALSE &
-       varSelec828MM30$TeauMaxMM30MM30 == FALSE & 
+       varSelec828MM30$TeauMaxMM30 == FALSE & 
        varSelec828MM30$regMinMM30 == FALSE & 
        varSelec828MM30$regMaxMM30 == FALSE 
     )
@@ -601,7 +651,7 @@ shinyServer(function(input,output){
     
     dygraph(serie_xts, main = "")%>%
       dyAxis("y", label = "Température en °C", valueRange = c(0, 25)) %>%
-      dyRangeSelector()
+      dyRangeSelector() %>%       dyLegend(show = "follow")
   })
   
   observeEvent(input$Teau_min_828MM30, {
@@ -627,17 +677,17 @@ shinyServer(function(input,output){
   
   # Données moyenne journalière + MM7
   varSelec830MM30 <- reactiveValues(
-    TeauMinMM30MM30 = T,
+    TeauMinMM30 = T,
     TeauMeanMM30 = T,
-    TeauMaxMM30MM30 = T,
+    TeauMaxMM30 = T,
     regMinMM30 = F,
     regMaxMM30 = F
   )
   
   output$Sonde830MM30 <- renderDygraph({
-    if(varSelec830MM30$TeauMinMM30MM30 == FALSE & 
+    if(varSelec830MM30$TeauMinMM30 == FALSE & 
        varSelec830MM30$TeauMeanMM30== FALSE &
-       varSelec830MM30$TeauMaxMM30MM30 == FALSE & 
+       varSelec830MM30$TeauMaxMM30 == FALSE & 
        varSelec830MM30$regMinMM30 == FALSE & 
        varSelec830MM30$regMaxMM30 == FALSE 
     )
@@ -655,7 +705,7 @@ shinyServer(function(input,output){
     
     dygraph(serie_xts, main = "")%>%
       dyAxis("y", label = "Température en °C", valueRange = c(0, 25)) %>%
-      dyRangeSelector()
+      dyRangeSelector() %>%       dyLegend(show = "follow")
   })
   
   observeEvent(input$Teau_min_830MM30, {
@@ -715,7 +765,7 @@ shinyServer(function(input,output){
     
     dygraph(serie_xts, main = "")%>%
       dyAxis("y", label = "Température en °C", valueRange = c(5, 15)) %>%
-      dyRangeSelector()
+      dyRangeSelector() %>%       dyLegend(show = "follow")
   })
   
   observeEvent(input$Teau_min_825MM365, {
@@ -771,7 +821,7 @@ shinyServer(function(input,output){
     
     dygraph(serie_xts, main = "")%>%
       dyAxis("y", label = "Température en °C", valueRange = c(5, 15)) %>%
-      dyRangeSelector()
+      dyRangeSelector() %>%       dyLegend(show = "follow")
   })
   
   observeEvent(input$Teau_min_827MM365, {
@@ -825,7 +875,7 @@ shinyServer(function(input,output){
     
     dygraph(serie_xts, main = "")%>%
       dyAxis("y", label = "Température en °C", valueRange = c(5, 15)) %>%
-      dyRangeSelector()
+      dyRangeSelector() %>%       dyLegend(show = "follow")
   })
   
   observeEvent(input$Teau_min_828MM365, {
@@ -879,7 +929,7 @@ shinyServer(function(input,output){
     
     dygraph(serie_xts, main = "")%>%
       dyAxis("y", label = "Température en °C", valueRange = c(5, 15)) %>%
-      dyRangeSelector()
+      dyRangeSelector() %>%       dyLegend(show = "follow")
   })
   
   observeEvent(input$Teau_min_830MM365, {
@@ -944,7 +994,7 @@ shinyServer(function(input,output){
     
     dygraph(serie_xts, main = "Température en °C")%>%
       dyAxis("y", label = "Température en °C", valueRange = c(0, 25)) %>%
-      dyRangeSelector()
+      dyRangeSelector() %>%       dyLegend(show = "follow")
   })
   
   observeEvent(input$Teau_min_817, {
@@ -1003,7 +1053,7 @@ shinyServer(function(input,output){
     
     dygraph(serie_xts, main = "Température en °C")%>%
       dyAxis("y", label = "Température en °C", valueRange = c(0, 25)) %>%
-      dyRangeSelector()
+      dyRangeSelector() %>%       dyLegend(show = "follow")
   })
   
   observeEvent(input$Teau_min_818, {
@@ -1064,7 +1114,7 @@ shinyServer(function(input,output){
     
     dygraph(serie_xts, main = "Température en °C")%>%
       dyAxis("y", label = "Température en °C", valueRange = c(0, 25)) %>%
-      dyRangeSelector()
+      dyRangeSelector() %>%       dyLegend(show = "follow")
   })
   
   observeEvent(input$Teau_min_819, {
@@ -1098,17 +1148,17 @@ shinyServer(function(input,output){
   
   # Données moyenne journalière + MM7
   varSelec817MM30 <- reactiveValues(
-    TeauMinMM30MM30 = T,
+    TeauMinMM30 = T,
     TeauMeanMM30 = T,
-    TeauMaxMM30MM30 = T,
+    TeauMaxMM30 = T,
     regMinMM30 = F,
     regMaxMM30 = F
   )
   
   output$Sonde817MM30 <- renderDygraph({
-    if(varSelec817MM30$TeauMinMM30MM30 == FALSE & 
+    if(varSelec817MM30$TeauMinMM30 == FALSE & 
        varSelec817MM30$TeauMeanMM30== FALSE &
-       varSelec817MM30$TeauMaxMM30MM30 == FALSE & 
+       varSelec817MM30$TeauMaxMM30 == FALSE & 
        varSelec817MM30$regMinMM30 == FALSE & 
        varSelec817MM30$regMaxMM30 == FALSE 
     )
@@ -1126,7 +1176,7 @@ shinyServer(function(input,output){
     
     dygraph(serie_xts, main = "")%>%
       dyAxis("y", label = "Température en °C", valueRange = c(0, 25)) %>%
-      dyRangeSelector()
+      dyRangeSelector() %>%       dyLegend(show = "follow")
   })
   
   observeEvent(input$Teau_min_817MM30, {
@@ -1154,17 +1204,17 @@ shinyServer(function(input,output){
   
   # Données moyenne journalière + MM7
   varSelec818MM30 <- reactiveValues(
-    TeauMinMM30MM30 = T,
+    TeauMinMM30 = T,
     TeauMeanMM30 = T,
-    TeauMaxMM30MM30 = T,
+    TeauMaxMM30 = T,
     regMinMM30 = F,
     regMaxMM30 = F
   )
   
   output$Sonde818MM30 <- renderDygraph({
-    if(varSelec818MM30$TeauMinMM30MM30 == FALSE & 
+    if(varSelec818MM30$TeauMinMM30 == FALSE & 
        varSelec818MM30$TeauMeanMM30== FALSE &
-       varSelec818MM30$TeauMaxMM30MM30 == FALSE & 
+       varSelec818MM30$TeauMaxMM30 == FALSE & 
        varSelec818MM30$regMinMM30 == FALSE & 
        varSelec818MM30$regMaxMM30 == FALSE 
     )
@@ -1182,7 +1232,7 @@ shinyServer(function(input,output){
     
     dygraph(serie_xts, main = "")%>%
       dyAxis("y", label = "Température en °C", valueRange = c(0, 25)) %>%
-      dyRangeSelector()
+      dyRangeSelector() %>%       dyLegend(show = "follow")
   })
   
   observeEvent(input$Teau_min_818MM30, {
@@ -1208,17 +1258,17 @@ shinyServer(function(input,output){
   
   # Données moyenne journalière + MM7
   varSelec819MM30 <- reactiveValues(
-    TeauMinMM30MM30 = T,
+    TeauMinMM30 = T,
     TeauMeanMM30 = T,
-    TeauMaxMM30MM30 = T,
+    TeauMaxMM30 = T,
     regMinMM30 = F,
     regMaxMM30 = F
   )
   
   output$Sonde819MM30 <- renderDygraph({
-    if(varSelec819MM30$TeauMinMM30MM30 == FALSE & 
+    if(varSelec819MM30$TeauMinMM30 == FALSE & 
        varSelec819MM30$TeauMeanMM30== FALSE &
-       varSelec819MM30$TeauMaxMM30MM30 == FALSE & 
+       varSelec819MM30$TeauMaxMM30 == FALSE & 
        varSelec819MM30$regMinMM30 == FALSE & 
        varSelec819MM30$regMaxMM30 == FALSE 
     )
@@ -1236,7 +1286,7 @@ shinyServer(function(input,output){
     
     dygraph(serie_xts, main = "")%>%
       dyAxis("y", label = "Température en °C", valueRange = c(0, 25)) %>%
-      dyRangeSelector()
+      dyRangeSelector() %>%       dyLegend(show = "follow")
   })
   
   observeEvent(input$Teau_min_819MM30, {
@@ -1297,7 +1347,7 @@ shinyServer(function(input,output){
     
     dygraph(serie_xts, main = "")%>%
       dyAxis("y", label = "Température en °C", valueRange = c(8, 17)) %>%
-      dyRangeSelector()
+      dyRangeSelector() %>%       dyLegend(show = "follow")
   })
   
   observeEvent(input$Teau_min_817MM365, {
@@ -1353,7 +1403,7 @@ shinyServer(function(input,output){
     
     dygraph(serie_xts, main = "")%>%
       dyAxis("y", label = "Température en °C", valueRange = c(8, 17)) %>%
-      dyRangeSelector()
+      dyRangeSelector() %>%       dyLegend(show = "follow")
   })
   
   observeEvent(input$Teau_min_818MM365, {
@@ -1407,7 +1457,7 @@ shinyServer(function(input,output){
     
     dygraph(serie_xts, main = "")%>%
       dyAxis("y", label = "Température en °C", valueRange = c(8, 17)) %>%
-      dyRangeSelector()
+      dyRangeSelector() %>%       dyLegend(show = "follow")
   })
   
   observeEvent(input$Teau_min_819MM365, {
@@ -1469,7 +1519,7 @@ shinyServer(function(input,output){
     
     dygraph(serie_xts, main = "Température en °C")%>%
       dyAxis("y", label = "Température en °C", valueRange = c(0, 25)) %>%
-      dyRangeSelector()
+      dyRangeSelector() %>%       dyLegend(show = "follow")
   })
   
   observeEvent(input$Teau_min_812, {
@@ -1528,7 +1578,7 @@ shinyServer(function(input,output){
     
     dygraph(serie_xts, main = "Température en °C")%>%
       dyAxis("y", label = "Température en °C", valueRange = c(0, 25)) %>%
-      dyRangeSelector()
+      dyRangeSelector() %>%       dyLegend(show = "follow")
   })
   
   observeEvent(input$Teau_min_813, {
@@ -1589,7 +1639,7 @@ shinyServer(function(input,output){
     
     dygraph(serie_xts, main = "Température en °C")%>%
       dyAxis("y", label = "Température en °C", valueRange = c(0, 25)) %>%
-      dyRangeSelector()
+      dyRangeSelector() %>%       dyLegend(show = "follow")
   })
   
   observeEvent(input$Teau_min_815, {
@@ -1648,7 +1698,7 @@ shinyServer(function(input,output){
     
     dygraph(serie_xts, main = "Température en °C")%>%
       dyAxis("y", label = "Température en °C", valueRange = c(0, 25)) %>%
-      dyRangeSelector()
+      dyRangeSelector() %>%       dyLegend(show = "follow")
   })
   
   observeEvent(input$Teau_min_816, {
@@ -1682,17 +1732,17 @@ shinyServer(function(input,output){
   
   # Données moyenne journalière + MM7
   varSelec812MM30 <- reactiveValues(
-    TeauMinMM30MM30 = T,
+    TeauMinMM30 = T,
     TeauMeanMM30 = T,
-    TeauMaxMM30MM30 = T,
+    TeauMaxMM30 = T,
     regMinMM30 = F,
     regMaxMM30 = F
   )
   
   output$Sonde812MM30 <- renderDygraph({
-    if(varSelec812MM30$TeauMinMM30MM30 == FALSE & 
+    if(varSelec812MM30$TeauMinMM30 == FALSE & 
        varSelec812MM30$TeauMeanMM30== FALSE &
-       varSelec812MM30$TeauMaxMM30MM30 == FALSE & 
+       varSelec812MM30$TeauMaxMM30 == FALSE & 
        varSelec812MM30$regMinMM30 == FALSE & 
        varSelec812MM30$regMaxMM30 == FALSE 
     )
@@ -1710,7 +1760,7 @@ shinyServer(function(input,output){
     
     dygraph(serie_xts, main = "")%>%
       dyAxis("y", label = "Température en °C", valueRange = c(0, 25)) %>%
-      dyRangeSelector()
+      dyRangeSelector() %>%       dyLegend(show = "follow")
   })
   
   observeEvent(input$Teau_min_812MM30, {
@@ -1738,17 +1788,17 @@ shinyServer(function(input,output){
   
   # Données moyenne journalière + MM7
   varSelec813MM30 <- reactiveValues(
-    TeauMinMM30MM30 = T,
+    TeauMinMM30 = T,
     TeauMeanMM30 = T,
-    TeauMaxMM30MM30 = T,
+    TeauMaxMM30 = T,
     regMinMM30 = F,
     regMaxMM30 = F
   )
   
   output$Sonde813MM30 <- renderDygraph({
-    if(varSelec813MM30$TeauMinMM30MM30 == FALSE & 
+    if(varSelec813MM30$TeauMinMM30 == FALSE & 
        varSelec813MM30$TeauMeanMM30== FALSE &
-       varSelec813MM30$TeauMaxMM30MM30 == FALSE & 
+       varSelec813MM30$TeauMaxMM30 == FALSE & 
        varSelec813MM30$regMinMM30 == FALSE & 
        varSelec813MM30$regMaxMM30 == FALSE 
     )
@@ -1766,7 +1816,7 @@ shinyServer(function(input,output){
     
     dygraph(serie_xts, main = "")%>%
       dyAxis("y", label = "Température en °C", valueRange = c(0, 25)) %>%
-      dyRangeSelector()
+      dyRangeSelector() %>%       dyLegend(show = "follow")
   })
   
   observeEvent(input$Teau_min_813MM30, {
@@ -1792,17 +1842,17 @@ shinyServer(function(input,output){
   
   # Données moyenne journalière + MM7
   varSelec815MM30 <- reactiveValues(
-    TeauMinMM30MM30 = T,
+    TeauMinMM30 = T,
     TeauMeanMM30 = T,
-    TeauMaxMM30MM30 = T,
+    TeauMaxMM30 = T,
     regMinMM30 = F,
     regMaxMM30 = F
   )
   
   output$Sonde815MM30 <- renderDygraph({
-    if(varSelec815MM30$TeauMinMM30MM30 == FALSE & 
+    if(varSelec815MM30$TeauMinMM30 == FALSE & 
        varSelec815MM30$TeauMeanMM30== FALSE &
-       varSelec815MM30$TeauMaxMM30MM30 == FALSE & 
+       varSelec815MM30$TeauMaxMM30 == FALSE & 
        varSelec815MM30$regMinMM30 == FALSE & 
        varSelec815MM30$regMaxMM30 == FALSE 
     )
@@ -1820,7 +1870,7 @@ shinyServer(function(input,output){
     
     dygraph(serie_xts, main = "")%>%
       dyAxis("y", label = "Température en °C", valueRange = c(0, 25)) %>%
-      dyRangeSelector()
+      dyRangeSelector() %>%       dyLegend(show = "follow")
   })
   
   observeEvent(input$Teau_min_815MM30, {
@@ -1846,17 +1896,17 @@ shinyServer(function(input,output){
   
   # Données moyenne journalière + MM7
   varSelec816MM30 <- reactiveValues(
-    TeauMinMM30MM30 = T,
+    TeauMinMM30 = T,
     TeauMeanMM30 = T,
-    TeauMaxMM30MM30 = T,
+    TeauMaxMM30 = T,
     regMinMM30 = F,
     regMaxMM30 = F
   )
   
   output$Sonde816MM30 <- renderDygraph({
-    if(varSelec816MM30$TeauMinMM30MM30 == FALSE & 
+    if(varSelec816MM30$TeauMinMM30 == FALSE & 
        varSelec816MM30$TeauMeanMM30== FALSE &
-       varSelec816MM30$TeauMaxMM30MM30 == FALSE & 
+       varSelec816MM30$TeauMaxMM30 == FALSE & 
        varSelec816MM30$regMinMM30 == FALSE & 
        varSelec816MM30$regMaxMM30 == FALSE 
     )
@@ -1874,7 +1924,7 @@ shinyServer(function(input,output){
     
     dygraph(serie_xts, main = "")%>%
       dyAxis("y", label = "Température en °C", valueRange = c(0, 25)) %>%
-      dyRangeSelector()
+      dyRangeSelector() %>%       dyLegend(show = "follow")
   })
   
   observeEvent(input$Teau_min_816MM30, {
@@ -1934,7 +1984,7 @@ shinyServer(function(input,output){
     
     dygraph(serie_xts, main = "")%>%
       dyAxis("y", label = "Température en °C", valueRange = c(5, 15)) %>%
-      dyRangeSelector()
+      dyRangeSelector() %>%       dyLegend(show = "follow")
   })
   
   observeEvent(input$Teau_min_812MM365, {
@@ -1990,7 +2040,7 @@ shinyServer(function(input,output){
     
     dygraph(serie_xts, main = "")%>%
       dyAxis("y", label = "Température en °C", valueRange = c(5, 15)) %>%
-      dyRangeSelector()
+      dyRangeSelector() %>%       dyLegend(show = "follow")
   })
   
   observeEvent(input$Teau_min_813MM365, {
@@ -2044,7 +2094,7 @@ shinyServer(function(input,output){
     
     dygraph(serie_xts, main = "")%>%
       dyAxis("y", label = "Température en °C", valueRange = c(5, 15)) %>%
-      dyRangeSelector()
+      dyRangeSelector() %>%       dyLegend(show = "follow")
   })
   
   observeEvent(input$Teau_min_815MM365, {
@@ -2098,7 +2148,7 @@ shinyServer(function(input,output){
     
     dygraph(serie_xts, main = "")%>%
       dyAxis("y", label = "Température en °C", valueRange = c(5, 15)) %>%
-      dyRangeSelector()
+      dyRangeSelector() %>%       dyLegend(show = "follow")
   })
   
   observeEvent(input$Teau_min_816MM365, {
@@ -2161,7 +2211,7 @@ shinyServer(function(input,output){
     
     dygraph(serie_xts, main = "Température en °C")%>%
       dyAxis("y", label = "Température en °C", valueRange = c(0, 25)) %>%
-      dyRangeSelector()
+      dyRangeSelector() %>%       dyLegend(show = "follow")
   })
   
   observeEvent(input$Teau_min_824, {
@@ -2220,7 +2270,7 @@ shinyServer(function(input,output){
     
     dygraph(serie_xts, main = "Température en °C")%>%
       dyAxis("y", label = "Température en °C", valueRange = c(0, 25)) %>%
-      dyRangeSelector()
+      dyRangeSelector() %>%       dyLegend(show = "follow")
   })
   
   observeEvent(input$Teau_min_821, {
@@ -2281,7 +2331,7 @@ shinyServer(function(input,output){
     
     dygraph(serie_xts, main = "Température en °C")%>%
       dyAxis("y", label = "Température en °C", valueRange = c(0, 25)) %>%
-      dyRangeSelector()
+      dyRangeSelector() %>%       dyLegend(show = "follow")
   })
   
   observeEvent(input$Teau_min_822, {
@@ -2340,7 +2390,7 @@ shinyServer(function(input,output){
     
     dygraph(serie_xts, main = "Température en °C")%>%
       dyAxis("y", label = "Température en °C", valueRange = c(0, 25)) %>%
-      dyRangeSelector()
+      dyRangeSelector() %>%       dyLegend(show = "follow")
   })
   
   observeEvent(input$Teau_min_820, {
@@ -2400,7 +2450,7 @@ shinyServer(function(input,output){
     
     dygraph(serie_xts, main = "Température en °C")%>%
       dyAxis("y", label = "Température en °C", valueRange = c(0, 25)) %>%
-      dyRangeSelector()
+      dyRangeSelector() %>%       dyLegend(show = "follow")
   })
   
   observeEvent(input$Teau_min_823, {
@@ -2434,17 +2484,17 @@ shinyServer(function(input,output){
   
   # Données moyenne journalière + MM7
   varSelec824MM30 <- reactiveValues(
-    TeauMinMM30MM30 = T,
+    TeauMinMM30 = T,
     TeauMeanMM30 = T,
-    TeauMaxMM30MM30 = T,
+    TeauMaxMM30 = T,
     regMinMM30 = F,
     regMaxMM30 = F
   )
   
   output$Sonde824MM30 <- renderDygraph({
-    if(varSelec824MM30$TeauMinMM30MM30 == FALSE & 
+    if(varSelec824MM30$TeauMinMM30 == FALSE & 
        varSelec824MM30$TeauMeanMM30== FALSE &
-       varSelec824MM30$TeauMaxMM30MM30 == FALSE & 
+       varSelec824MM30$TeauMaxMM30 == FALSE & 
        varSelec824MM30$regMinMM30 == FALSE & 
        varSelec824MM30$regMaxMM30 == FALSE 
     )
@@ -2462,7 +2512,7 @@ shinyServer(function(input,output){
     
     dygraph(serie_xts, main = "")%>%
       dyAxis("y", label = "Température en °C", valueRange = c(0, 25)) %>%
-      dyRangeSelector()
+      dyRangeSelector() %>%       dyLegend(show = "follow")
   })
   
   observeEvent(input$Teau_min_824MM30, {
@@ -2490,17 +2540,17 @@ shinyServer(function(input,output){
   
   # Données moyenne journalière + MM7
   varSelec821MM30 <- reactiveValues(
-    TeauMinMM30MM30 = T,
+    TeauMinMM30 = T,
     TeauMeanMM30 = T,
-    TeauMaxMM30MM30 = T,
+    TeauMaxMM30 = T,
     regMinMM30 = F,
     regMaxMM30 = F
   )
   
   output$Sonde821MM30 <- renderDygraph({
-    if(varSelec821MM30$TeauMinMM30MM30 == FALSE & 
+    if(varSelec821MM30$TeauMinMM30 == FALSE & 
        varSelec821MM30$TeauMeanMM30== FALSE &
-       varSelec821MM30$TeauMaxMM30MM30 == FALSE & 
+       varSelec821MM30$TeauMaxMM30 == FALSE & 
        varSelec821MM30$regMinMM30 == FALSE & 
        varSelec821MM30$regMaxMM30 == FALSE 
     )
@@ -2518,7 +2568,7 @@ shinyServer(function(input,output){
     
     dygraph(serie_xts, main = "")%>%
       dyAxis("y", label = "Température en °C", valueRange = c(0, 25)) %>%
-      dyRangeSelector()
+      dyRangeSelector() %>%       dyLegend(show = "follow")
   })
   
   observeEvent(input$Teau_min_821MM30, {
@@ -2544,17 +2594,17 @@ shinyServer(function(input,output){
   
   # Données moyenne journalière + MM7
   varSelec822MM30 <- reactiveValues(
-    TeauMinMM30MM30 = T,
+    TeauMinMM30 = T,
     TeauMeanMM30 = T,
-    TeauMaxMM30MM30 = T,
+    TeauMaxMM30 = T,
     regMinMM30 = F,
     regMaxMM30 = F
   )
   
   output$Sonde822MM30 <- renderDygraph({
-    if(varSelec822MM30$TeauMinMM30MM30 == FALSE & 
+    if(varSelec822MM30$TeauMinMM30 == FALSE & 
        varSelec822MM30$TeauMeanMM30== FALSE &
-       varSelec822MM30$TeauMaxMM30MM30 == FALSE & 
+       varSelec822MM30$TeauMaxMM30 == FALSE & 
        varSelec822MM30$regMinMM30 == FALSE & 
        varSelec822MM30$regMaxMM30 == FALSE 
     )
@@ -2572,7 +2622,7 @@ shinyServer(function(input,output){
     
     dygraph(serie_xts, main = "")%>%
       dyAxis("y", label = "Température en °C", valueRange = c(0, 25)) %>%
-      dyRangeSelector()
+      dyRangeSelector() %>%       dyLegend(show = "follow")
   })
   
   observeEvent(input$Teau_min_822MM30, {
@@ -2598,17 +2648,17 @@ shinyServer(function(input,output){
   
   # Données moyenne journalière + MM7
   varSelec820MM30 <- reactiveValues(
-    TeauMinMM30MM30 = T,
+    TeauMinMM30 = T,
     TeauMeanMM30 = T,
-    TeauMaxMM30MM30 = T,
+    TeauMaxMM30 = T,
     regMinMM30 = F,
     regMaxMM30 = F
   )
   
   output$Sonde820MM30 <- renderDygraph({
-    if(varSelec820MM30$TeauMinMM30MM30 == FALSE & 
+    if(varSelec820MM30$TeauMinMM30 == FALSE & 
        varSelec820MM30$TeauMeanMM30== FALSE &
-       varSelec820MM30$TeauMaxMM30MM30 == FALSE & 
+       varSelec820MM30$TeauMaxMM30 == FALSE & 
        varSelec820MM30$regMinMM30 == FALSE & 
        varSelec820MM30$regMaxMM30 == FALSE 
     )
@@ -2626,7 +2676,7 @@ shinyServer(function(input,output){
     
     dygraph(serie_xts, main = "")%>%
       dyAxis("y", label = "Température en °C", valueRange = c(0, 25)) %>%
-      dyRangeSelector()
+      dyRangeSelector() %>%       dyLegend(show = "follow")
   })
   
   observeEvent(input$Teau_min_820MM30, {
@@ -2653,17 +2703,17 @@ shinyServer(function(input,output){
   
   # Données moyenne journalière + MM7
   varSelec823MM30 <- reactiveValues(
-    TeauMinMM30MM30 = T,
+    TeauMinMM30 = T,
     TeauMeanMM30 = T,
-    TeauMaxMM30MM30 = T,
+    TeauMaxMM30 = T,
     regMinMM30 = F,
     regMaxMM30 = F
   )
   
   output$Sonde823MM30 <- renderDygraph({
-    if(varSelec823MM30$TeauMinMM30MM30 == FALSE & 
+    if(varSelec823MM30$TeauMinMM30 == FALSE & 
        varSelec823MM30$TeauMeanMM30== FALSE &
-       varSelec823MM30$TeauMaxMM30MM30 == FALSE & 
+       varSelec823MM30$TeauMaxMM30 == FALSE & 
        varSelec823MM30$regMinMM30 == FALSE & 
        varSelec823MM30$regMaxMM30 == FALSE 
     )
@@ -2681,7 +2731,7 @@ shinyServer(function(input,output){
     
     dygraph(serie_xts, main = "")%>%
       dyAxis("y", label = "Température en °C", valueRange = c(0, 25)) %>%
-      dyRangeSelector()
+      dyRangeSelector() %>%       dyLegend(show = "follow")
   })
   
   observeEvent(input$Teau_min_823MM30, {
@@ -2741,7 +2791,7 @@ shinyServer(function(input,output){
     
     dygraph(serie_xts, main = "")%>%
       dyAxis("y", label = "Température en °C", valueRange = c(5, 15)) %>%
-      dyRangeSelector()
+      dyRangeSelector() %>%       dyLegend(show = "follow")
   })
   
   observeEvent(input$Teau_min_824MM365, {
@@ -2797,7 +2847,7 @@ shinyServer(function(input,output){
     
     dygraph(serie_xts, main = "")%>%
       dyAxis("y", label = "Température en °C", valueRange = c(5, 15)) %>%
-      dyRangeSelector()
+      dyRangeSelector() %>%       dyLegend(show = "follow")
   })
   
   observeEvent(input$Teau_min_821MM365, {
@@ -2851,7 +2901,7 @@ shinyServer(function(input,output){
     
     dygraph(serie_xts, main = "")%>%
       dyAxis("y", label = "Température en °C", valueRange = c(5, 15)) %>%
-      dyRangeSelector()
+      dyRangeSelector() %>%       dyLegend(show = "follow")
   })
   
   observeEvent(input$Teau_min_822MM365, {
@@ -2905,7 +2955,7 @@ shinyServer(function(input,output){
     
     dygraph(serie_xts, main = "")%>%
       dyAxis("y", label = "Température en °C", valueRange = c(5, 15)) %>%
-      dyRangeSelector()
+      dyRangeSelector() %>%       dyLegend(show = "follow")
   })
   
   observeEvent(input$Teau_min_820MM365, {
@@ -2959,7 +3009,7 @@ shinyServer(function(input,output){
     
     dygraph(serie_xts, main = "")%>%
       dyAxis("y", label = "Température en °C", valueRange = c(5, 15)) %>%
-      dyRangeSelector()
+      dyRangeSelector() %>%       dyLegend(show = "follow")
   })
   
   observeEvent(input$Teau_min_823MM365, {
@@ -2981,7 +3031,7 @@ shinyServer(function(input,output){
     varSelec823MM365$regMaxMM365 = input$Teau_max_823reg365
   })
   
-   # ------------------------------------------------------------ #
+  # ------------------------------------------------------------ #
   
   
   # fiche synthese par sonde
@@ -3007,7 +3057,7 @@ shinyServer(function(input,output){
   observeEvent(input$choix_sondes, {
     id_sonde_synthese = as.numeric(input$choix_sondes)
     sonde_info = db_sonde_synthese[which(db_sonde_synthese==id_sonde_synthese),]
-      
+    
     sonde_synthese_reactive$id_sonde_num = id_sonde_synthese
     sonde_synthese_reactive$id_sonde_char = input$choix_sondes
     sonde_synthese_reactive$label_sonde = sonde_info$label
@@ -3021,7 +3071,7 @@ shinyServer(function(input,output){
     sonde_synthese_reactive$sonde_deb = sonde_info$date_deb
     sonde_synthese_reactive$sonde_fin = sonde_info$date_fin
     sonde_synthese_reactive$sonde_nb_obs = sonde_info$nb_obs
-      
+    
     
     
     
@@ -3031,19 +3081,19 @@ shinyServer(function(input,output){
   output$sonde_synthese_map <- renderLeaflet({
     leaflet() %>%
       addTiles() %>%
-      addMarkers(lat = as.numeric(sonde_synthese_reactive$sonde_lat),
-                lng = as.numeric(sonde_synthese_reactive$sonde_lng), group = "sondes_synthese")
+      addMarkers(lng = as.numeric(sonde_synthese_reactive$sonde_lng),
+                 lat = as.numeric(sonde_synthese_reactive$sonde_lat), group = "sondes_synthese")
   })
   
   output$tableau_stats_sonde_synthese <- renderTable({
     sonde_table = sonde_synthese_reactive$sonde_db %>%
       group_by(id_sonde) %>%
       mutate(Min=min(Teau),
-             Q1 = quantile(Teau,.25),
-             Median = median(Teau),
+             t25 = quantile(Teau,.25),
+             Mediane = median(Teau),
              Moyenne = mean(Teau),
-             E_T = sd(Teau),
-             Q3 = quantile(Teau,.75),
+             sd = sd(Teau),
+             t75 = quantile(Teau,.75),
              Max = max(Teau))
     
     sonde_table = sonde_table[1, 5:ncol(sonde_table)]
@@ -3056,7 +3106,7 @@ shinyServer(function(input,output){
     sonde_data = xts(df_sonde$Teau, order.by=df_sonde$t)
     dygraph(sonde_data, main = "Temp Eau")%>%
       dyAxis("y", label = "Temp", valueRange = c(min(db$Teau)-1, max(db$Teau)+1)) %>%
-      dyRangeSelector()
+      dyRangeSelector() %>%       dyLegend(show = "follow")
     
   })
   
@@ -3076,8 +3126,8 @@ shinyServer(function(input,output){
   
   output$long_lat_txt <- renderText({
     paste0("Longitude : ", sonde_synthese_reactive$sonde_lng,
-          ". Latitude : ", sonde_synthese_reactive$sonde_lat,
-          ". Altitude : ", sonde_synthese_reactive$sonde_alt,".")
+           ". Latitude : ", sonde_synthese_reactive$sonde_lat,
+           ". Altitude : ", sonde_synthese_reactive$sonde_alt,".")
   })
   
   output$deb_txt <- renderText({
@@ -3106,7 +3156,12 @@ shinyServer(function(input,output){
   # ############################################################ #
   # FIN ANALYSE DES TEMPÉRATURES
   # ############################################################ #
-
+  
+  
+ 
+  
+  
+  
   
   
   
