@@ -52,7 +52,7 @@ dashboardPage(
     # Barre latéral du dashboard
     
     width=350,
-    sidebarMenu(
+    sidebarMenu(id="menu_principal",
       # Menu de navigation
       
       
@@ -101,7 +101,8 @@ dashboardPage(
                menuSubItem("Orne", tabName="sub_menu_orne"),
                menuSubItem("Odon", tabName="sub_menu_odon"),
                menuSubItem("Sélune", tabName="sub_menu_selune"),
-               menuSubItem("Les Sondes", tabName = "sub_menu_sondes_synthese")
+               menuSubItem("Les Sondes", tabName = "sub_menu_sondes_synthese"),
+               menuSubItem("Comparaison", tabName = "sub_menu_comparaison")
                
                
       ) # End troisième menu stats
@@ -345,7 +346,8 @@ dashboardPage(
                     dygraphOutput("temp_sonde"),
                     
                     h4("Résumé statistique"),
-                    tableOutput("table_sonde")
+                    tableOutput("table_sonde"),
+                    actionLink(inputId = "link_to_details_sonde", label = "Détails")
                     
                     
                   ) # End absolutePanel
@@ -1472,12 +1474,12 @@ dashboardPage(
               
               fluidRow(
                 selectInput("choix_sondes",
-                            label="Choisir une sonde",choices=list("104"="104", "105"="105", "108"="108", "109"="109", "300"="300", 
-                                                                   "762"="762", "763"="763", "764"="764", "765"="765", "766"="766",
-                                                                   "768"="768", "769"="769", "771"="771", "811"="811", "812"="812",
-                                                                   "813"="813", "815"="815", "816"="816", "817"="817", "818"="818",
-                                                                   "819"="819", "820"="820", "821"="821", "822"="822", "823"="823",
-                                                                   "824"="824", "825"="825", "827"="827", "828"="828", "830"="830"),
+                            label="Choisir une sonde",choices=list("Monne (s104)"="104", "Vie (s105)"="105", "Taute (s108)"="108", "Barge (s109)"="109", "Grande Vallée (s300)"="300", 
+                                                                   "Souleuvre (s762)"="762", "See Rousse (s763)"="763", "Egrenne (s764)"="764", "Durance (s765)"="765", "See (s766)"="766",
+                                                                   "Berence (s768)"="768", "Glanon (s769)"="769", "Vingt Bec (s771)"="771", "Fontaine au Héron (s811)"="811", "Odon T1 (s812)"="812",
+                                                                   "Odon T2 (s813)"="813", "Odon T4 (s815)"="815", "Odon T5 (s816)"="816", "Orne T1 (s817)"="817", "Orne T3 (s818)"="818",
+                                                                   "Orne T2 (s819)"="819", "Selune T4 (s820)"="820", "Selune T2 (s821)"="821", "Selune T3 (s822)"="822", "Selune T5 (s823)"="823",
+                                                                   "Selune T1 (s824)"="824", "Touques T1 (s825)"="825", "Touques T3 (s827)"="827", "Touques T4 (s828)"="828", "Touques T6 (s830)"="830"),
                             selected="817"),
                 #h2("Sondes n°817 : Orne (T1)")
                 textOutput("id_lab_txt")
@@ -1544,7 +1546,72 @@ dashboardPage(
               
               
               
-      ) # End tabItem 5
+      ), # End tabItem 5
+      # -------------------------------------------------- #
+      
+      
+      
+      
+         # debut tabItem 6
+      # -------------------------------------------------- #
+      tabItem(tabName = "sub_menu_comparaison",
+              # compraison entre les sondes
+              
+              
+              # ---------------------------------------- #
+              fluidRow(
+                column(width = 6,
+                       selectizeInput("choix_comparaison",
+                                   label="Choisir des sondes (maximum de 5)",choices=list("Monne (s104)"="104", "Vie (s105)"="105", "Taute (s108)"="108", "Barge (s109)"="109", "Grande Vallée (s300)"="300", 
+                                                                          "Souleuvre (s762)"="762", "See Rousse (s763)"="763", "Egrenne (s764)"="764", "Durance (s765)"="765", "See (s766)"="766",
+                                                                          "Berence (s768)"="768", "Glanon (s769)"="769", "Vingt Bec (s771)"="771", "Fontaine au Héron (s811)"="811", "Odon T1 (s812)"="812",
+                                                                          "Odon T2 (s813)"="813", "Odon T4 (s815)"="815", "Odon T5 (s816)"="816", "Orne T1 (s817)"="817", "Orne T3 (s818)"="818",
+                                                                          "Orne T2 (s819)"="819", "Selune T4 (s820)"="820", "Selune T2 (s821)"="821", "Selune T3 (s822)"="822", "Selune T5 (s823)"="823",
+                                                                          "Selune T1 (s824)"="824", "Touques T1 (s825)"="825", "Touques T3 (s827)"="827", "Touques T4 (s828)"="828", "Touques T6 (s830)"="830"),
+                                   multiple=T,
+                                   selected=c("817", "818", "819"),
+                                   options = list(maxItems=5)
+                                   )
+                       
+                       
+                       ),
+                column(width = 6)
+              ),
+              # ---------------------------------------- #
+              
+              
+              # ---------------------------------------- #
+              fluidRow(
+                column(width = 6,
+                       h3("Température de l'eau (bi-horaire)"),
+                       dygraphOutput("comp_bih")
+                       ),
+                column(width = 6,
+                       h3("Température de l'eau moyenne par jour"),
+                       dygraphOutput("comp_Teau")
+                       )
+              ),
+              # ---------------------------------------- #
+              
+              
+              # ---------------------------------------- #
+              fluidRow(
+                column(width = 6,
+                       h3("Moyennes Mobiles 30"),
+                       dygraphOutput("comp_MM30")
+                       ),
+                column(width = 6,
+                       h3("Moyennes Mobiles 365"),
+                       dygraphOutput("comp_MM365")
+                )
+              ),
+              # ---------------------------------------- #
+              
+              
+              
+              
+              
+      )# End tabItem 6
       # -------------------------------------------------- #
       
       
