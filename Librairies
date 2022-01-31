@@ -1,1 +1,89 @@
 ## Ajouter ici le code pour auto-installer les librairies utilisées
+##########
+# Librairies
+#########
+
+if(!require(leaflet)){
+  install.packages("leaflet")
+  library(leaflet)
+}
+if(!require(dplyr)){
+  install.packages("dplyr")
+  library(dplyr)
+}
+if(!require(sf)){
+  install.packages("sf")
+  library(sf)
+}
+if(!require(leafpop)){
+  install.packages("leafpop")
+  library(leafpop)
+}
+if(!require(zoo)){
+  install.packages("zoo")
+  library(zoo)
+}
+if(!require(lubridate)){
+  install.packages("lubridate")
+  library(lubridate)
+}
+if(!require(shiny)){
+  install.packages("shiny")
+  library(shiny)
+}
+if(!require(htmlwidgets)){
+  install.packages("htmlwidgets")
+  library(htmlwidgets)
+}
+if(!require(dygraphs)){
+  install.packages("dygraphs")
+  library(dygraphs)
+}
+if(!require(devtools)){
+  install.packages("devtools")
+  library(devtools)
+}
+if(!require(xts)){
+  install.packages("xts")
+  library(xts)
+}
+if(!require(maptools)){
+  install.packages("maptools")
+  library(maptools)
+}
+if(!require(shinyjs)){
+  install.packages("shinyjs")
+  library(shinyjs)
+}
+if(!require(shinydashboard)){
+  install.packages("shinydashboard")
+  library(shinydashboard)
+}
+if(!require(reactable)){
+  install.packages("reactable")
+  library(reactable)
+}
+
+if(!require(plotly)){
+  install.packages("plotly")
+  library(plotly)
+}
+
+if(!require(rstatix)){
+  install.packages("rstatix")
+  library(rstatix)
+}
+
+if(!require(tidyr)){
+  install.packages("tidyr")
+  library(tidyr)
+}
+
+if(!require(openxlsx)){
+  install.packages("openxlsx")
+  library(openxlsx)
+}
+if(!require(ggpubr)){
+  install.packages("ggpubr")
+  library(ggpubr)
+}
