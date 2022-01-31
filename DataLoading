@@ -1,8 +1,11 @@
+#Intégrer le chemin d'accès au projet
+
 path="D:/Users/Desktop/Cours/M2stat/Projet" # path Lucie
 #path = "/Users/julien/Desktop/projetM2/dashboard_propre" # path Julien
 # Si tu galère
-system.file("img","Rlogo.png",package="png")
-pathimg = "D:/Logiciels biostat/R-3.6.1/library/png/img/" # pathimg Lucie
+
+#system.file("img",package="png")
+pathimg = system.file("img",package="png") # pathimg Lucie
 #pathimg = "/Library/Frameworks/R.framework/Versions/4.0/Resources/library/png/img/" # pathimg Julien
 setwd(path)
 
@@ -31,7 +34,6 @@ setwd(path)
 #d=2*asin(sqrt((sin((lat1-lat2)/2))^2 + cos(lat1)*cos(lat2)*(sin((lon1-lon2)/2))^2))
 
 # temperature des cours d'eau
-#db<-read.csv2("projet.csv", sep=",")
 load("db.RData")
 str(db)
 
@@ -39,16 +41,78 @@ str(db)
 load("KMLs.RData")
 
 
-# coordonnées des sondes
-datacoord <- read.csv("https://www.data.gouv.fr/fr/datasets/r/4d471339-e7db-43af-aa65-883bb80a23dc",
-                      header = T,sep=",", encoding = "UTF-8")
+# # coordonnées des sondes
+# datacoord <- read.csv("https://www.data.gouv.fr/fr/datasets/r/4d471339-e7db-43af-aa65-883bb80a23dc",
+#                       header = T,sep=",", encoding = "UTF-8")
+# 
+# datacoord <- datacoord[-(nrow(datacoord)),]
+# 
+# datacoord$img <- paste(pathimg,"Sonde",datacoord$id_sonde,".png",sep="")
+# 
+# datacoord$lib <- paste(datacoord$TopoOH,": Sonde" ,datacoord$id_sonde)
 
-datacoord <- datacoord[-(nrow(datacoord)),]
 
-datacoord$img <- paste(pathimg,"Sonde",datacoord$id_sonde,".png",sep="")
+db_sonde_synthese <- openxlsx::read.xlsx("Bilan activité sondes T.xlsx",sheet=1,
+                                         startRow = 5,colNames=T,rowNames = F)
 
-datacoord$lib <- paste(datacoord$TopoOH,": Sonde" ,datacoord$id_sonde)
+db_sonde_synthese <- db_sonde_synthese[,-c(1,6,7,9:ncol(db_sonde_synthese))]
 
+colnames(db_sonde_synthese) <- c("id_sonde","label","latitude","longitude","Altitude")
+
+
+str(db_sonde_synthese)
+
+
+for (i in 1:nrow(db_sonde_synthese)){
+   if (db_sonde_synthese$id_sonde[i] %in% unique(db$id_sonde))
+   {
+      db_sonde_synthese$id_sonde[i] = db_sonde_synthese$id_sonde[i] 
+   }
+   else{db_sonde_synthese$id_sonde[i] = NA}
+}
+
+db_sonde_synthese <- db_sonde_synthese[is.na(db_sonde_synthese$id_sonde)==F,]
+
+db_sonde_synthese$id_sonde <- as.factor(db_sonde_synthese$id_sonde)
+
+modif = db %>%
+   group_by(id_sonde)%>%
+   mutate(nb_obs = length(id_sonde),
+          date_debut = min(date),
+          date_fin = max(date),
+   )
+
+modif = modif[,-c(1,3,4)]
+modif = modif[duplicated(modif$id_sonde)==F,]
+
+
+db_sonde_synthese = merge(db_sonde_synthese,modif, by="id_sonde")
+db_sonde_synthese$img = paste(pathimg,"/Sonde",db_sonde_synthese$id_sonde,".png",sep="")
+
+
+rm(modif)
+
+# db_sonde_synthese = read.csv2("D:/Users/Desktop/Cours/M2stat/Projet/fiche_synthese.csv", sep=";", header=T)
+# head(db_sonde_synthese)
+# str(db_sonde_synthese)
+# 
+# db_sonde_synthese$longitude  <- as.character(db_sonde_synthese$longitude)
+# db_sonde_synthese$longitude  <- as.numeric(db_sonde_synthese$longitude)
+# 
+# db_sonde_synthese$latitude  <- as.character(db_sonde_synthese$latitude)
+# db_sonde_synthese$latitude  <- as.numeric(db_sonde_synthese$latitude)
+
+
+
+# ajouter 
+#  - altitude
+#  - debit
+#  - distance à la source
+#  - commentaire du tableau
+#  - commentaire du graphe
+
+
+as.character(db_sonde_synthese$id_sonde)
 
 ################################################################################################
 # Moyennes mobiles
@@ -83,7 +147,17 @@ dbMM = db2 %>%
          )
 
 
+db2$limiteTruite <- NA
+db2$limiteTruite = ifelse(db2$TeauMoy <= 0.5 | db2$TeauMoy >=  25.5 ,
+                          db2$limiteTruite <- "Létal",
+                          ifelse( db2$TeauMoy >=  19.5 ,
+                                  db2$limiteTruite <- "Critique", 
+                                  ifelse( db2$TeauMoy <= 4.5 | db2$TeauMoy >=  16.5 ,
+                                          db2$limiteTruite <- "DangJuv",   
+                                          db2$limiteTruite <- "Preferendumthermique" )
+                                  ))
 
+db2$limiteTruite <- as.factor(db2$limiteTruite)
 ##########
 # Sondes Touques
 ##########
@@ -93,27 +167,27 @@ dbMM = db2 %>%
 ###
 dbsonde825MM <- dbMM[dbMM$id_sonde==825,]
 
-# db_Truite <- as.data.frame(cbind(rep(0.5,nrow(dbsonde825MM)),
-#                                  rep(4.5,nrow(dbsonde825MM)),
-#                                  rep(16.5,nrow(dbsonde825MM)), 
-#                                  rep(19.5,nrow(dbsonde825MM)),
-#                                  rep(25.5,nrow(dbsonde825MM)),
-#                                  rep(30,nrow(dbsonde825MM))
-#                                  ))
-# 
-# colnames(db_Truite) <- c("Seuil létal",
-#                          "Danger pour juvéniles",
-#                          "Preferendum thermique",
-#                          "Danger pour juvéniles ",
-#                          "Seuil critique",
-#                          "Seuil létal")
-# 
-# 
-# db_xts_date825 = dbsonde825MM$date
-# db_Truite_xts = xts(db_Truite, order.by=db_xts_date825)
+db_Truite <- as.data.frame(cbind(rep(0.5,nrow(dbsonde825MM)),
+                                 rep(4.5,nrow(dbsonde825MM)),
+                                 rep(16.5,nrow(dbsonde825MM)),
+                                 rep(19.5,nrow(dbsonde825MM)),
+                                 rep(25.5,nrow(dbsonde825MM)),
+                                 rep(30,nrow(dbsonde825MM))
+                                 ))
+
+colnames(db_Truite) <- c("Seuil létal",
+                         "Danger pour juvéniles",
+                         "Preferendum thermique",
+                         "Danger pour juvéniles ",
+                         "Seuil critique",
+                         "Seuil létal")
 
 
-# 
+db_xts_date825 = dbsonde825MM$date
+db_Truite_xts = xts(db_Truite, order.by=db_xts_date825)
+
+
+#
 # dbsonde825MM$truiteseuilletalmin <- 0.5
 # dbsonde825MM$truiteseuilletalmax <- 25.5
 # dbsonde825MM$truiteDangerJuv1 <- 4.5
@@ -150,10 +224,11 @@ dbsonde825MM=merge(dbsonde825MM,dbsonde825MMReg,by="date",all.x=T)
 db_xts_sonde825 = dbsonde825MM[, c(FALSE, FALSE, rep(T,ncol(dbsonde825MM)-2))] # pour garder que les colonnes / series de températures à transformer
 db_xts_date825 = dbsonde825MM$date
 db_xts_sonde825 = xts(db_xts_sonde825, order.by=db_xts_date825)
-db_xts_sonde825a =  db_xts_sonde825[,c(1,2,4,5,8,11)]
-db_xts_sonde825b = db_xts_sonde825[,c(6,9,12,17,18)]
+db_xts_sonde825a =  db_xts_sonde825[,c(1,4,2,5,11,8)]
+
+db_xts_sonde825b = db_xts_sonde825[,c(6,12,9,17,18)]
 db_xts_sonde825b = db_xts_sonde825b[is.na(db_xts_sonde825b$TeauMinMM30)==F,]
-db_xts_sonde825c = db_xts_sonde825[,c(7,10,13,19,20)]
+db_xts_sonde825c = db_xts_sonde825[,c(7,13,10,19,20)]
 db_xts_sonde825c = db_xts_sonde825c[is.na(db_xts_sonde825c$TeauMinMM365)==F,]
 
 rm(dbsonde825MMReg)
@@ -194,10 +269,10 @@ dbsonde827MM=merge(dbsonde827MM,dbsonde827MMReg,by="date",all.x=T)
 db_xts_sonde827 = dbsonde827MM[, c(FALSE, FALSE, rep(T,ncol(dbsonde827MM)-2))] # pour garder que les colonnes / series de températures à transformer
 db_xts_date827 = dbsonde827MM$date
 db_xts_sonde827 = xts(db_xts_sonde827, order.by=db_xts_date827)
-db_xts_sonde827a =  db_xts_sonde827[,c(1,2,4,5,8,11)]
-db_xts_sonde827b = db_xts_sonde827[,c(6,9,12,17,18)]
+db_xts_sonde827a =  db_xts_sonde827[,c(1,4,2,5,11,8)]
+db_xts_sonde827b = db_xts_sonde827[,c(6,12,9,17,18)]
 db_xts_sonde827b = db_xts_sonde827b[is.na(db_xts_sonde827b$TeauMinMM30)==F,]
-db_xts_sonde827c = db_xts_sonde827[,c(7,10,13,19,20)]
+db_xts_sonde827c = db_xts_sonde827[,c(7,13,10,19,20)]
 db_xts_sonde827c = db_xts_sonde827c[is.na(db_xts_sonde827c$TeauMinMM365)==F,]
 
 rm(dbsonde827MMReg)
@@ -235,10 +310,10 @@ dbsonde828MM=merge(dbsonde828MM,dbsonde828MMReg,by="date",all.x=T)
 db_xts_sonde828 = dbsonde828MM[, c(FALSE, FALSE, rep(T,ncol(dbsonde828MM)-2))] # pour garder que les colonnes / series de températures à transformer
 db_xts_date828 = dbsonde828MM$date
 db_xts_sonde828 = xts(db_xts_sonde828, order.by=db_xts_date828)
-db_xts_sonde828a =  db_xts_sonde828[,c(1,2,4,5,8,11)]
-db_xts_sonde828b = db_xts_sonde828[,c(6,9,12,17,18)]
+db_xts_sonde828a =  db_xts_sonde828[,c(1,4,2,5,11,8)]
+db_xts_sonde828b = db_xts_sonde828[,c(6,12,9,17,18)]
 db_xts_sonde828b = db_xts_sonde828b[is.na(db_xts_sonde828b$TeauMinMM30)==F,]
-db_xts_sonde828c = db_xts_sonde828[,c(7,10,13,19,20)]
+db_xts_sonde828c = db_xts_sonde828[,c(7,13,10,19,20)]
 db_xts_sonde828c = db_xts_sonde828c[is.na(db_xts_sonde828c$TeauMinMM365)==F,]
 
 rm(dbsonde828MMReg)
@@ -277,10 +352,10 @@ dbsonde830MM=merge(dbsonde830MM,dbsonde830MMReg,by="date",all.x=T)
 db_xts_sonde830 = dbsonde830MM[, c(FALSE, FALSE, rep(T,ncol(dbsonde830MM)-2))] # pour garder que les colonnes / series de températures à transformer
 db_xts_date830 = dbsonde830MM$date
 db_xts_sonde830 = xts(db_xts_sonde830, order.by=db_xts_date830)
-db_xts_sonde830a =  db_xts_sonde830[,c(1,2,4,5,8,11)]
-db_xts_sonde830b = db_xts_sonde830[,c(6,9,12,17,18)]
+db_xts_sonde830a =  db_xts_sonde830[,c(1,4,2,5,11,8)]
+db_xts_sonde830b = db_xts_sonde830[,c(6,12,9,17,18)]
 db_xts_sonde830b = db_xts_sonde830b[is.na(db_xts_sonde830b$TeauMinMM30)==F,]
-db_xts_sonde830c = db_xts_sonde830[,c(7,10,13,19,20)]
+db_xts_sonde830c = db_xts_sonde830[,c(7,13,10,19,20)]
 db_xts_sonde830c = db_xts_sonde830c[is.na(db_xts_sonde830c$TeauMinMM365)==F,]
 
 rm(dbsonde830MMReg)
@@ -328,10 +403,10 @@ dbsonde817MM=merge(dbsonde817MM,dbsonde817MMReg,by="date",all.x=T)
 db_xts_sonde817 = dbsonde817MM[, c(FALSE, FALSE, rep(T,ncol(dbsonde817MM)-2))] # pour garder que les colonnes / series de températures à transformer
 db_xts_date817 = dbsonde817MM$date
 db_xts_sonde817 = xts(db_xts_sonde817, order.by=db_xts_date817)
-db_xts_sonde817a =  db_xts_sonde817[,c(1,2,4,5,8,11)]
-db_xts_sonde817b = db_xts_sonde817[,c(6,9,12,17,18)]
+db_xts_sonde817a =  db_xts_sonde817[,c(1,4,2,5,11,8)]
+db_xts_sonde817b = db_xts_sonde817[,c(6,12,9,17,18)]
 db_xts_sonde817b = db_xts_sonde817b[is.na(db_xts_sonde817b$TeauMinMM30)==F,]
-db_xts_sonde817c = db_xts_sonde817[,c(7,10,13,19,20)]
+db_xts_sonde817c = db_xts_sonde817[,c(7,13,10,19,20)]
 db_xts_sonde817c = db_xts_sonde817c[is.na(db_xts_sonde817c$TeauMinMM365)==F,]
 
 rm(dbsonde817MMReg)
@@ -372,10 +447,10 @@ dbsonde818MM=merge(dbsonde818MM,dbsonde818MMReg,by="date",all.x=T)
 db_xts_sonde818 = dbsonde818MM[, c(FALSE, FALSE, rep(T,ncol(dbsonde818MM)-2))] # pour garder que les colonnes / series de températures à transformer
 db_xts_date818 = dbsonde818MM$date
 db_xts_sonde818 = xts(db_xts_sonde818, order.by=db_xts_date818)
-db_xts_sonde818a =  db_xts_sonde818[,c(1,2,4,5,8,11)]
-db_xts_sonde818b = db_xts_sonde818[,c(6,9,12,17,18)]
+db_xts_sonde818a =  db_xts_sonde818[,c(1,4,2,5,11,8)]
+db_xts_sonde818b = db_xts_sonde818[,c(6,12,9,17,18)]
 db_xts_sonde818b = db_xts_sonde818b[is.na(db_xts_sonde818b$TeauMinMM30)==F,]
-db_xts_sonde818c = db_xts_sonde818[,c(7,10,13,19,20)]
+db_xts_sonde818c = db_xts_sonde818[,c(7,13,10,19,20)]
 db_xts_sonde818c = db_xts_sonde818c[is.na(db_xts_sonde818c$TeauMinMM365)==F,]
 
 rm(dbsonde818MMReg)
@@ -413,10 +488,10 @@ dbsonde819MM=merge(dbsonde819MM,dbsonde819MMReg,by="date",all.x=T)
 db_xts_sonde819 = dbsonde819MM[, c(FALSE, FALSE, rep(T,ncol(dbsonde819MM)-2))] # pour garder que les colonnes / series de températures à transformer
 db_xts_date819 = dbsonde819MM$date
 db_xts_sonde819 = xts(db_xts_sonde819, order.by=db_xts_date819)
-db_xts_sonde819a =  db_xts_sonde819[,c(1,2,4,5,8,11)]
-db_xts_sonde819b = db_xts_sonde819[,c(6,9,12,17,18)]
+db_xts_sonde819a =  db_xts_sonde819[,c(1,4,2,5,11,8)]
+db_xts_sonde819b = db_xts_sonde819[,c(6,12,9,17,18)]
 db_xts_sonde819b = db_xts_sonde819b[is.na(db_xts_sonde819b$TeauMinMM30)==F,]
-db_xts_sonde819c = db_xts_sonde819[,c(7,10,13,19,20)]
+db_xts_sonde819c = db_xts_sonde819[,c(7,13,10,19,20)]
 db_xts_sonde819c = db_xts_sonde819c[is.na(db_xts_sonde819c$TeauMinMM365)==F,]
 
 rm(dbsonde819MMReg)
@@ -464,10 +539,10 @@ dbsonde812MM=merge(dbsonde812MM,dbsonde812MMReg,by="date",all.x=T)
 db_xts_sonde812 = dbsonde812MM[, c(FALSE, FALSE, rep(T,ncol(dbsonde812MM)-2))] # pour garder que les colonnes / series de températures à transformer
 db_xts_date812 = dbsonde812MM$date
 db_xts_sonde812 = xts(db_xts_sonde812, order.by=db_xts_date812)
-db_xts_sonde812a =  db_xts_sonde812[,c(1,2,4,5,8,11)]
-db_xts_sonde812b = db_xts_sonde812[,c(6,9,12,17,18)]
+db_xts_sonde812a =  db_xts_sonde812[,c(1,4,2,5,11,8)]
+db_xts_sonde812b = db_xts_sonde812[,c(6,12,9,17,18)]
 db_xts_sonde812b = db_xts_sonde812b[is.na(db_xts_sonde812b$TeauMinMM30)==F,]
-db_xts_sonde812c = db_xts_sonde812[,c(7,10,13,19,20)]
+db_xts_sonde812c = db_xts_sonde812[,c(7,13,10,19,20)]
 db_xts_sonde812c = db_xts_sonde812c[is.na(db_xts_sonde812c$TeauMinMM365)==F,]
 
 rm(dbsonde812MMReg)
@@ -508,10 +583,10 @@ dbsonde813MM=merge(dbsonde813MM,dbsonde813MMReg,by="date",all.x=T)
 db_xts_sonde813 = dbsonde813MM[, c(FALSE, FALSE, rep(T,ncol(dbsonde813MM)-2))] # pour garder que les colonnes / series de températures à transformer
 db_xts_date813 = dbsonde813MM$date
 db_xts_sonde813 = xts(db_xts_sonde813, order.by=db_xts_date813)
-db_xts_sonde813a =  db_xts_sonde813[,c(1,2,4,5,8,11)]
-db_xts_sonde813b = db_xts_sonde813[,c(6,9,12,17,18)]
+db_xts_sonde813a =  db_xts_sonde813[,c(1,4,2,5,8,11)]
+db_xts_sonde813b = db_xts_sonde813[,c(6,12,9,17,18)]
 db_xts_sonde813b = db_xts_sonde813b[is.na(db_xts_sonde813b$TeauMinMM30)==F,]
-db_xts_sonde813c = db_xts_sonde813[,c(7,10,13,19,20)]
+db_xts_sonde813c = db_xts_sonde813[,c(7,13,10,19,20)]
 db_xts_sonde813c = db_xts_sonde813c[is.na(db_xts_sonde813c$TeauMinMM365)==F,]
 
 rm(dbsonde813MMReg)
@@ -549,10 +624,10 @@ dbsonde815MM=merge(dbsonde815MM,dbsonde815MMReg,by="date",all.x=T)
 db_xts_sonde815 = dbsonde815MM[, c(FALSE, FALSE, rep(T,ncol(dbsonde815MM)-2))] # pour garder que les colonnes / series de températures à transformer
 db_xts_date815 = dbsonde815MM$date
 db_xts_sonde815 = xts(db_xts_sonde815, order.by=db_xts_date815)
-db_xts_sonde815a =  db_xts_sonde815[,c(1,2,4,5,8,11)]
-db_xts_sonde815b = db_xts_sonde815[,c(6,9,12,17,18)]
+db_xts_sonde815a =  db_xts_sonde815[,c(1,4,2,5,11,8)]
+db_xts_sonde815b = db_xts_sonde815[,c(6,12,9,17,18)]
 db_xts_sonde815b = db_xts_sonde815b[is.na(db_xts_sonde815b$TeauMinMM30)==F,]
-db_xts_sonde815c = db_xts_sonde815[,c(7,10,13,19,20)]
+db_xts_sonde815c = db_xts_sonde815[,c(7,13,10,19,20)]
 db_xts_sonde815c = db_xts_sonde815c[is.na(db_xts_sonde815c$TeauMinMM365)==F,]
 
 rm(dbsonde815MMReg)
@@ -591,10 +666,10 @@ dbsonde816MM=merge(dbsonde816MM,dbsonde816MMReg,by="date",all.x=T)
 db_xts_sonde816 = dbsonde816MM[, c(FALSE, FALSE, rep(T,ncol(dbsonde816MM)-2))] # pour garder que les colonnes / series de températures à transformer
 db_xts_date816 = dbsonde816MM$date
 db_xts_sonde816 = xts(db_xts_sonde816, order.by=db_xts_date816)
-db_xts_sonde816a =  db_xts_sonde816[,c(1,2,4,5,8,11)]
-db_xts_sonde816b = db_xts_sonde816[,c(6,9,12,17,18)]
+db_xts_sonde816a =  db_xts_sonde816[,c(1,4,2,5,11,8)]
+db_xts_sonde816b = db_xts_sonde816[,c(6,12,9,17,18)]
 db_xts_sonde816b = db_xts_sonde816b[is.na(db_xts_sonde816b$TeauMinMM30)==F,]
-db_xts_sonde816c = db_xts_sonde816[,c(7,10,13,19,20)]
+db_xts_sonde816c = db_xts_sonde816[,c(7,13,10,19,20)]
 db_xts_sonde816c = db_xts_sonde816c[is.na(db_xts_sonde816c$TeauMinMM365)==F,]
 
 rm(dbsonde816MMReg)
@@ -641,10 +716,10 @@ dbsonde824MM=merge(dbsonde824MM,dbsonde824MMReg,by="date",all.x=T)
 db_xts_sonde824 = dbsonde824MM[, c(FALSE, FALSE, rep(T,ncol(dbsonde824MM)-2))] # pour garder que les colonnes / series de températures à transformer
 db_xts_date824 = dbsonde824MM$date
 db_xts_sonde824 = xts(db_xts_sonde824, order.by=db_xts_date824)
-db_xts_sonde824a =  db_xts_sonde824[,c(1,2,4,5,8,11)]
-db_xts_sonde824b = db_xts_sonde824[,c(6,9,12,17,18)]
+db_xts_sonde824a =  db_xts_sonde824[,c(1,4,2,5,11,8)]
+db_xts_sonde824b = db_xts_sonde824[,c(6,12,9,17,18)]
 db_xts_sonde824b = db_xts_sonde824b[is.na(db_xts_sonde824b$TeauMinMM30)==F,]
-db_xts_sonde824c = db_xts_sonde824[,c(7,10,13,19,20)]
+db_xts_sonde824c = db_xts_sonde824[,c(7,13,10,19,20)]
 db_xts_sonde824c = db_xts_sonde824c[is.na(db_xts_sonde824c$TeauMinMM365)==F,]
 
 rm(dbsonde824MMReg)
@@ -685,10 +760,10 @@ dbsonde821MM=merge(dbsonde821MM,dbsonde821MMReg,by="date",all.x=T)
 db_xts_sonde821 = dbsonde821MM[, c(FALSE, FALSE, rep(T,ncol(dbsonde821MM)-2))] # pour garder que les colonnes / series de températures à transformer
 db_xts_date821 = dbsonde821MM$date
 db_xts_sonde821 = xts(db_xts_sonde821, order.by=db_xts_date821)
-db_xts_sonde821a =  db_xts_sonde821[,c(1,2,4,5,8,11)]
-db_xts_sonde821b = db_xts_sonde821[,c(6,9,12,17,18)]
+db_xts_sonde821a =  db_xts_sonde821[,c(1,4,2,5,11,8)]
+db_xts_sonde821b = db_xts_sonde821[,c(6,12,9,17,18)]
 db_xts_sonde821b = db_xts_sonde821b[is.na(db_xts_sonde821b$TeauMinMM30)==F,]
-db_xts_sonde821c = db_xts_sonde821[,c(7,10,13,19,20)]
+db_xts_sonde821c = db_xts_sonde821[,c(7,13,10,19,20)]
 db_xts_sonde821c = db_xts_sonde821c[is.na(db_xts_sonde821c$TeauMinMM365)==F,]
 
 rm(dbsonde821MMReg)
@@ -726,10 +801,10 @@ dbsonde822MM=merge(dbsonde822MM,dbsonde822MMReg,by="date",all.x=T)
 db_xts_sonde822 = dbsonde822MM[, c(FALSE, FALSE, rep(T,ncol(dbsonde822MM)-2))] # pour garder que les colonnes / series de températures à transformer
 db_xts_date822 = dbsonde822MM$date
 db_xts_sonde822 = xts(db_xts_sonde822, order.by=db_xts_date822)
-db_xts_sonde822a =  db_xts_sonde822[,c(1,2,4,5,8,11)]
-db_xts_sonde822b = db_xts_sonde822[,c(6,9,12,17,18)]
+db_xts_sonde822a =  db_xts_sonde822[,c(1,4,2,5,11,8)]
+db_xts_sonde822b = db_xts_sonde822[,c(6,12,9,17,18)]
 db_xts_sonde822b = db_xts_sonde822b[is.na(db_xts_sonde822b$TeauMinMM30)==F,]
-db_xts_sonde822c = db_xts_sonde822[,c(7,10,13,19,20)]
+db_xts_sonde822c = db_xts_sonde822[,c(7,13,10,19,20)]
 db_xts_sonde822c = db_xts_sonde822c[is.na(db_xts_sonde822c$TeauMinMM365)==F,]
 
 rm(dbsonde822MMReg)
@@ -768,10 +843,10 @@ dbsonde820MM=merge(dbsonde820MM,dbsonde820MMReg,by="date",all.x=T)
 db_xts_sonde820 = dbsonde820MM[, c(FALSE, FALSE, rep(T,ncol(dbsonde820MM)-2))] # pour garder que les colonnes / series de températures à transformer
 db_xts_date820 = dbsonde820MM$date
 db_xts_sonde820 = xts(db_xts_sonde820, order.by=db_xts_date820)
-db_xts_sonde820a =  db_xts_sonde820[,c(1,2,4,5,8,11)]
-db_xts_sonde820b = db_xts_sonde820[,c(6,9,12,17,18)]
+db_xts_sonde820a =  db_xts_sonde820[,c(1,4,2,5,11,8)]
+db_xts_sonde820b = db_xts_sonde820[,c(6,12,9,17,18)]
 db_xts_sonde820b = db_xts_sonde820b[is.na(db_xts_sonde820b$TeauMinMM30)==F,]
-db_xts_sonde820c = db_xts_sonde820[,c(7,10,13,19,20)]
+db_xts_sonde820c = db_xts_sonde820[,c(7,13,10,19,20)]
 db_xts_sonde820c = db_xts_sonde820c[is.na(db_xts_sonde820c$TeauMinMM365)==F,]
 
 rm(dbsonde820MMReg)
@@ -814,10 +889,10 @@ dbsonde823MM=merge(dbsonde823MM,dbsonde823MMReg,by="date",all.x=T)
 db_xts_sonde823 = dbsonde823MM[, c(FALSE, FALSE, rep(T,ncol(dbsonde823MM)-2))] # pour garder que les colonnes / series de températures à transformer
 db_xts_date823 = dbsonde823MM$date
 db_xts_sonde823 = xts(db_xts_sonde823, order.by=db_xts_date823)
-db_xts_sonde823a =  db_xts_sonde823[,c(1,2,4,5,8,11)]
-db_xts_sonde823b = db_xts_sonde823[,c(6,9,12,17,18)]
+db_xts_sonde823a =  db_xts_sonde823[,c(1,4,2,5,11,8)]
+db_xts_sonde823b = db_xts_sonde823[,c(6,12,9,17,18)]
 db_xts_sonde823b = db_xts_sonde823b[is.na(db_xts_sonde823b$TeauMinMM30)==F,]
-db_xts_sonde823c = db_xts_sonde823[,c(7,10,13,19,20)]
+db_xts_sonde823c = db_xts_sonde823[,c(7,13,10,19,20)]
 db_xts_sonde823c = db_xts_sonde823c[is.na(db_xts_sonde823c$TeauMinMM365)==F,]
 
 rm(dbsonde823MMReg)
