@@ -1,4 +1,4 @@
-shinyServer(function(input,output){
+shinyServer(function(input,output,session){
   
   # ############################################################ #
   # INTRODUCTION
@@ -72,6 +72,19 @@ shinyServer(function(input,output){
                                                  iconColor = 'white', markerColor = 'blue'))
     }
 
+  })
+  
+  observeEvent(input$link_to_details_sonde, {
+    
+    updateSelectInput(
+      session=session,
+      inputId = "choix_sondes",
+      selected = id_sonde_reactive$id_sonde_char
+    )
+    
+    updateNavbarPage(session=session, inputId = "menu_principal", selected = "sub_menu_sondes_synthese")
+    
+    
   })
   
   observeEvent(input$BV1, {
@@ -3077,6 +3090,10 @@ shinyServer(function(input,output){
     
   },ignoreInit = TRUE)
   
+  observeEvent(input$return_to_sub_menu_map_sonde, {
+    updateNavbarPage(session=session, inputId = "menu_principal", selected = "sub_menu_sondes")
+  })
+  
   
   output$sonde_synthese_map <- renderLeaflet({
     leaflet() %>%
@@ -3147,6 +3164,103 @@ shinyServer(function(input,output){
   
   
   
+  # ------------------------------------------------------------ #
+  
+  
+  
+  
+  
+  
+  
+  # comparaison sondes
+  # ------------------------------------------------------------ #
+  sonde_comp_reactive <- reactiveValues(
+    choix_sondes = c("817", "818", "819")
+  )
+  
+  df_xts_comp_teau <- reactive({
+    df_xts_choix = data.frame(date = db_xts_comp_teau_moy$date)
+    
+    for(c in sonde_comp_reactive$choix_sondes){
+      df_xts_choix[[c]] = db_xts_comp_teau_moy[[c]]
+    }
+    df_xts_choix = xts(df_xts_choix[,-1], order.by=df_xts_choix$date)
+    
+    df_xts_choix
+  })
+  
+  
+  df_xts_comp_MM30 <- reactive({
+    df_xts_choix = data.frame(date = db_xts_comp_teau_MM30$date)
+    
+    for(c in sonde_comp_reactive$choix_sondes){
+      df_xts_choix[[c]] = db_xts_comp_teau_MM30[[c]]
+    }
+    df_xts_choix = xts(df_xts_choix[,-1], order.by=df_xts_choix$date)
+    
+    df_xts_choix
+  })
+  
+  
+  df_xts_comp_MM365 <- reactive({
+    df_xts_choix = data.frame(date = db_xts_comp_teau_MM365$date)
+    
+    for(c in sonde_comp_reactive$choix_sondes){
+      df_xts_choix[[c]] = db_xts_comp_teau_MM365[[c]]
+    }
+    df_xts_choix = xts(df_xts_choix[,-1], order.by=df_xts_choix$date)
+    
+    df_xts_choix
+  })
+  
+  df_xts_comp_bih <- reactive({
+    df_xts_choix = data.frame(t = db_xts_comp_teau_bih$t)
+    
+    for(c in sonde_comp_reactive$choix_sondes){
+      df_xts_choix[[c]] = db_xts_comp_teau_bih[[c]]
+    }
+    df_xts_choix = xts(df_xts_choix[,-1], order.by=df_xts_choix$t)
+    
+    df_xts_choix
+  })
+  
+  
+  
+  
+  
+  observeEvent(input$choix_comparaison, {
+    sonde_comp_reactive$choix_sondes = input$choix_comparaison
+  },ignoreInit = TRUE)
+  
+  
+  
+  
+  output$comp_Teau <- renderDygraph({
+    dygraph(df_xts_comp_teau())%>%
+      dyAxis("y", label = "Température") %>%
+      dyRangeSelector()
+  })
+  
+  
+  output$comp_MM30 <- renderDygraph({
+    dygraph(df_xts_comp_MM30())%>%
+      dyAxis("y", label = "Température") %>%
+      dyRangeSelector()
+  })
+  
+  output$comp_MM365 <- renderDygraph({
+    dygraph(df_xts_comp_MM365())%>%
+      dyAxis("y", label = "Température") %>%
+      dyRangeSelector()
+  })
+  
+  
+  output$comp_bih <- renderDygraph({
+    dygraph(df_xts_comp_bih())%>%
+      dyAxis("y", label = "Température") %>%
+      dyRangeSelector()
+  })
+  # Fin onglet comparaison
   # ------------------------------------------------------------ #
   
   
