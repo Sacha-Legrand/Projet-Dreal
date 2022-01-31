@@ -921,4 +921,220 @@ rm(dbsonde824MM,dbsonde821MM,dbsonde822MM,dbsonde823MM,
 # }
 #   
 # mean(dbMM365$Diff, na.rm=T)
+
+
+
+
+
+
+
+# ####################### #
+# Comparaison sondes
+# ####################### #
+
+min_date = min(db$date)-1
+max_date = max(db$date)+1
+
+periode_date = interval(start = min_date, end = max_date)
+duree_periode = time_length(periode_date, unit = "days")
+
+date_xts = c(min_date)
+for(i in 1:duree_periode){
+  date_xts = c(date_xts, min_date+i)
+}
+
+summary(date_xts)
+head(date_xts)
+
+
+db_xts_comp_teau_moy = data.frame(date=date_xts)
+for(id_s in unique(db$id_sonde)){
+  db_temp = db[which(db$id_sonde==id_s),]
+  db_temp = aggregate(Teau~date,data=db_temp, FUN=mean)
+  
+  
+  #print(id_s)
+  #print(db_xts_comp_teau_moy$date[]==db_temp$date[i])
+  
+  
+  j = 1
+  for(i in 1:length(db_xts_comp_teau_moy$date)){
+    #print(db_xts_comp_teau_moy$date[i]==db_temp$date[j])
+    if(db_xts_comp_teau_moy$date[i]==db_temp$date[j]){
+      db_xts_comp_teau_moy[[id_s]][i] = db_temp$Teau[j]
+      if(j < length(db_temp$date)){
+        j = j+1
+      }
+    }
+    else{
+      db_xts_comp_teau_moy[[id_s]][i] = NA
+    }
+    
+  }
+  #print("ok")
+  #db_xts_comp_teau_moy$id_s = xts(db_temp$Teau, order.by = db_temp$date)
+}
+
+head(date_xts)
+head(db_xts_comp_teau_moy)
+
+#db_temp = db[which(db$id_sonde==104),]
+#test=aggregate(Teau~date,data=db_temp, FUN=mean)
+
+
+#db_xts_comp_teau_moy = xts(db_xts_comp_teau_moy[,-1], order.by = db_xts_comp_teau_moy$date)
+
+#head(db_xts_comp_teau_moy["104"])
+
+#dygraph(db_xts_comp_teau_moy)
+
+
+choix = c("104", "818", "817")#, "300", "109")
+df_choix = data.frame(date = db_xts_comp_teau_moy$date)
+for(c in choix){
+  df_choix[[c]] = db_xts_comp_teau_moy[[c]]
+}
+df_xts_choix = xts(df_choix[,-1], order.by=df_choix$date)
+
+
+dygraph(df_xts_choix)
+
+
+
+# ############################### #
+# MM30
+# ############################### #
+
+
+db_xts_comp_teau_MM30 = db_xts_comp_teau_moy
+
+for(i in 2:ncol(db_xts_comp_teau_MM30)){
+  db_xts_comp_teau_MM30[[i]] = stats::filter(db_xts_comp_teau_MM30[[i]],filter=c(1/(2*30),rep(1/30,29),1/(2*30)))
+}
+
+head(db_xts_comp_teau_MM30, 30)
+
+
+
+choix = c("104", "818", "817")#, "300", "109")
+df_choix = data.frame(date = db_xts_comp_teau_MM30$date)
+for(c in choix){
+  df_choix[[c]] = db_xts_comp_teau_MM30[[c]]
+}
+df_xts_choix = xts(df_choix[,-1], order.by=df_choix$date)
+
+
+dygraph(df_xts_choix)
+
+
+# ############################### #
+# MM365
+# ############################### #
+
+
+db_xts_comp_teau_MM365 = db_xts_comp_teau_moy
+
+for(i in 2:ncol(db_xts_comp_teau_MM365)){
+  db_xts_comp_teau_MM365[[i]] = stats::filter(db_xts_comp_teau_MM365[[i]],filter=rep(1/365,365))
+}
+
+head(db_xts_comp_teau_MM365, 30)
+
+
+
+choix = c("104", "818", "817")#, "300", "109")
+df_choix = data.frame(date = db_xts_comp_teau_MM365$date)
+for(c in choix){
+  df_choix[[c]] = db_xts_comp_teau_MM365[[c]]
+}
+df_xts_choix = xts(df_choix[,-1], order.by=df_choix$date)
+
+
+dygraph(df_xts_choix)
+
+
+
+# 
+# dbMM = db2 %>%
+#   group_by(id_sonde)%>%
+#   mutate(TeauMinMM7 = stats::filter(TeauMin,filter=rep(1/7,7)),
+#          TeauMinMM30 = stats::filter(TeauMin,filter=c(1/(2*30),rep(1/30,29),1/(2*30))),
+#          TeauMinMM365 = stats::filter(TeauMin,filter=rep(1/365,365)),
+#          TeauMaxMM7 = stats::filter(TeauMax,filter=rep(1/7,7)),
+#          TeauMaxMM30 = stats::filter(TeauMax,filter=c(1/(2*30),rep(1/30,29),1/(2*30))),
+#          TeauMaxMM365 = stats::filter(TeauMax,filter=rep(1/365,365)),
+#          TeauMeanMM7 = stats::filter(TeauMoy,filter=rep(1/7,7)),
+#          TeauMeanMM30 = stats::filter(TeauMoy,filter=c(1/(2*30),rep(1/30,29),1/(2*30))),
+#          TeauMeanMM365 = stats::filter(TeauMoy,filter=rep(1/365,365)),
+#          TeauMedMM7 = stats::filter(TeauMed,filter=rep(1/7,7)),
+#          TeauMedMM30 = stats::filter(TeauMed,filter=c(1/(2*30),rep(1/30,29),1/(2*30))),
+#          TeauMedMM365 = stats::filter(TeauMed,filter=rep(1/365,365))
+#          
+#   )
+# 
+
+
+# ####################### #
+# bi-horaire
+# ####################### #
+
+for(i in unique(db$id_sonde)){
+  print(i)
+  print(head(db[which(db$id_sonde==i),1]))
+}
+
+
+
+min_t = min(db$t)-3600*2
+max_t = max(db$t)+3600*2
+
+min_t
+max_t
+
+periode_t = interval(start = min_t, end = max_t)
+duree_periode_t = time_length(periode_date, unit = "hours")
+
+duree_periode_t
+
+
+t_xts = c(min_t)
+for(i in 1:(1+duree_periode_t%/%2)){
+  t_xts = c(t_xts, t_xts[i]+2*3600)
+}
+
+summary(t_xts)
+head(t_xts)
+
+
+db_xts_comp_teau_bih = data.frame(t=t_xts)
+for(id_s in unique(db$id_sonde)){
+  db_temp = db[which(db$id_sonde==id_s),]
+  db_temp$t = ymd_hms(paste0(year(db_temp$t), "-",
+                             month(db_temp$t), "-",
+                             day(db_temp$t), " ",
+                             ifelse(hour(db_temp$t)%%2==0, hour(db_temp$t), (hour(db_temp$t))-1), ":00:00"))
+  
+  j = 1
+  for(i in 1:length(db_xts_comp_teau_bih$t)){
+    #print(db_xts_comp_teau_moy$date[i]==db_temp$date[j])
+    if(db_temp$t[j]== db_xts_comp_teau_bih$t[i]){
+      db_xts_comp_teau_bih[[id_s]][i] = db_temp$Teau[j]
+      if(j < length(db_temp$t)){
+        j = j+1
+      }
+      else{
+        break
+      }
+    }
+    else{
+      db_xts_comp_teau_bih[[id_s]][i] = NA
+    }
+    
+  }
+  
+}
+
+
+
+
   
