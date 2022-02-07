@@ -10,7 +10,6 @@
 # ---------- #
 
 
-
 # ---------------------------------------------------------------------- #
 # ------------------------------ TITRE --------------------------------- #
 # ---------------------------------------------------------------------- #
@@ -22,1443 +21,1379 @@
 
 
 dashboardPage(
-  # Début du Dashboard
-  
-  
-  
-  
-  
-  
-  # ---------------------------------------------------------------------- #
-  # ----------------------------- EN TÊTE -------------------------------- #
-  # ---------------------------------------------------------------------- #
-  # En tête du dashboard
-  dashboardHeader(title = "Hydrologie des cours d'eau Normand",
-                  titleWidth = 350),
-  # Fin en tête du dashboard
-  # ---------------------------------------------------------------------- #
-  
-  
-  
-  
-  
-  
-  
-  # ---------------------------------------------------------------------- #
-  # --------------- BARRE LATÉRALE / MENU DE NAVIGATION ------------------ #
-  # ---------------------------------------------------------------------- #
-  # Barre Latérale / Menu de navigation
-  dashboardSidebar(
-    # Barre latéral du dashboard
-    
-    width=350,
-    sidebarMenu(id="menu_principal",
-      # Menu de navigation
-      
-      
-      
-      
-      # ------------------------------------------------------------ #
-      menuItem("Introduction", tabName = "menu_intro", icon=icon("home"),
-               # premier menu : Introduction
-               
-               # les sub-menus
-               menuSubItem("Contexte de l'étude", tabName="sub_menu_contexte"),
-               menuSubItem("Données de l'étude", tabName="sub_menu_data"),
-               menuSubItem("Lexique", tabName="sub_menu_lexique"),
-               menuSubItem("Bibliographie", tabName = "sub_menu_biblio")
-               
-               
-      ), # End premier menu Introduction
-      # ------------------------------------------------------------ #
-      
-      
-      
-      
-      
-      # ------------------------------------------------------------ #
-      menuItem("Cartographie", tabName = "menu_cartes", icon = icon("map"),
-               # deuxième menu : cartographie
-               
-               # les sub-menus
-               menuSubItem("Sondes thermiques", tabName="sub_menu_sondes"),
-               menuSubItem("Bassins versants", tabName="sub_menu_bv"),
-               menuSubItem("Cours d'eau", tabName="sub_menu_cours_eau")
-               
-               
-      ), # End deuxième menu cartographie
-      # ------------------------------------------------------------ #
-      
-      
-      # ------------------------------------------------------------ #
-      menuItem("Analyse des températures",tabName = "menu_stats",
-               icon = icon("stats", lib = "glyphicon"),
-               # troisième menu : Analyse des températures
-               
-               
-               # les sub-menus
-               menuSubItem("Touques", tabName="sub_menu_touques"),
-               menuSubItem("Orne", tabName="sub_menu_orne"),
-               menuSubItem("Odon", tabName="sub_menu_odon"),
-               menuSubItem("Sélune", tabName="sub_menu_selune"),
-               menuSubItem("Les Sondes", tabName = "sub_menu_sondes_synthese"),
-               menuSubItem("Comparaison", tabName = "sub_menu_comparaison")
-               
-               
-      ) # End troisième menu stats
-      # ------------------------------------------------------------ #
-      
-    ) # End sidebarMenu
-  ), # End dashboardSidebar
-  
-  
-  # Fin barre Latérale / Menu de navigation
-  # ---------------------------------------------------------------------- #
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  # ---------------------------------------------------------------------- #
-  # ------------------------------ CORPS --------------------------------- #
-  # ---------------------------------------------------------------------- #
-  dashboardBody(
-    # corps du dashboard
-    
-    
-    # ------------------------------------------------------------ #
-    # HTML / CSS / javascript
-    useShinyjs(),
-    tags$header(
-      tags$style(
-        HTML(
-          '.skin-blue .main-header .logo {background-color: #31b94a;}',
-          '.skin-blue .main-header .logo:hover {background-color: #31b94a;}',
-          '.skin-blue .main-header .navbar {background-color: #31b94a;}',
-          'a {text-decoration: none; color: white;}'
-        )
-      )
-    ),
-    
-    tags$body(
-      tags$style(
-        HTML(
-          '#map_sondes {width:100%;height:calc(85vh - 80px) !important;}',
-          '#map_BV {width:100%;height:calc(85vh - 80px) !important;}',
-          '#panel_info_sondes {width:25%;height:calc(125vh - 125px) !important;}',
-          '#myPannel2 {width:25%;height:calc(125vh - 125px) !important;}',
-          '#ID{color: black;font-size: 20px;font-style: bold;}',
-          '#ID2{color: black;font-size: 20px;font-style: bold;}',
-          '#DATE2{color: black;font-size: 10px;}'
-        )
-      )
-    ),
-    # ------------------------------------------------------------ #
+    # Début du Dashboard
     
     
     
-    # ------------------------------------------------------------ #
-    tabItems(
-      # ################################################## #
-      # Premier Menu : Introduction
-      # ################################################## #
-      
-      
-      # -------------------------------------------------- #
-      tabItem(tabName = "sub_menu_contexte",
-              # Premier onglet du Menu 1 Introduction : Contexte de l'étude
-              
-              h2("Contexte de l'étude des températures des cours d'eau"),
-              
-              
-              fluidRow(
-                
-              ) # End fluidRow
-              
-      ), # End tabItem 1 (onglet 1 du menu 1)
-      # -------------------------------------------------- #
-      
-      
-      
-      
-      
-      # -------------------------------------------------- #
-      tabItem(tabName = "sub_menu_data",
-              # Onglet 2 du Menu 1 Introduction : Données de l'étude
-              
-              
-              h2("Données de l'étude"),
-              
-              
-              tabsetPanel(
-                # Set de Panels
-                
-                
-                # Panel 1
-                # ------------------------------ #
-                tabPanel(
-                  "Provenance des données",
-                  
-                  fluidRow(
+    
+    
+    
+    # ---------------------------------------------------------------------- #
+    # ----------------------------- EN TÊTE -------------------------------- #
+    # ---------------------------------------------------------------------- #
+    # En tête du dashboard
+    dashboardHeader(title = "Hydrologie des cours d'eau Normand",
+                    titleWidth = 350),
+    # Fin en tête du dashboard
+    # ---------------------------------------------------------------------- #
+    
+    
+    
+    
+    
+    
+    
+    # ---------------------------------------------------------------------- #
+    # --------------- BARRE LATÉRALE / MENU DE NAVIGATION ------------------ #
+    # ---------------------------------------------------------------------- #
+    # Barre Latérale / Menu de navigation
+    dashboardSidebar(
+        # Barre latéral du dashboard
+        
+        width=350,
+        sidebarMenu(id="menu_principal",
+                    # Menu de navigation
                     
-                  ) # End fluidRow
-                  
-                  
-                ), # End tabPanel 1
-                # ------------------------------ #
-                
-                
-                
-                # Panel 2
-                # ------------------------------ #
-                tabPanel(
-                  "Description des variables",
-                  
-                  fluidRow(
                     
-                  ) # End fluidRow
-                  
-                ) # End tabPanel 2
-                # ------------------------------ #
-                
-                
-              ) # End tabsetPanel
-              
-              
-              
-      ), # End tabItem 2 (onglet 2 du menu 1)
-      # -------------------------------------------------- #
-      
-      
-      
-      
-      # -------------------------------------------------- #
-      tabItem(tabName = "sub_menu_lexique",
-              # Onglet 3 du Menu 1 Introduction : Lexique
-              
-              
-              h2("Lexique"),
-              
-              
-              fluidRow(
-                
-              ) # End fluidRow
-              
-      ), # End tabItem 3 (onglet 3 du menu 1)
-      # -------------------------------------------------- #
-      
-      
-      # -------------------------------------------------- #
-      tabItem(tabName = "sub_menu_biblio",
-              # Onglet 4 du Menu 1 Introduction : Bibliographie
-              
-              
-              h2("Bibliographie"),
-              
-              
-              fluidRow(
-                
-              ) # End fluidRow
-              
-      ), # End tabItem 4 (onglet 4 du menu 1)
-      # -------------------------------------------------- #
-      
-      
-      # ################################################## #    
-      # Fin Menu 1 : Introduction
-      # ################################################## #$
-      
-      
-      
-      
-      
-      
-      
-      
-      # ################################################## #
-      # Deuxième Menu : Cartographie
-      # ################################################## #
-      
-      
-      
-      
-      
-      # -------------------------------------------------- #
-      tabItem(tabName = "sub_menu_sondes",
-              # Carte des sondes
-              
-              
-              h2("Sondes thermiques"),
-              
-              # # ---------------------------------------- #
-              # fluidRow(
-              #   #box(
-              #     width = 6,
-              #     column(
-              #       width=3,
-              #       checkboxInput(inputId = "DREAL", label = "Sondes DREAL", value=TRUE)
-              #     ),
-              #     
-              #     # marge
-              #     # column(
-              #     #   width=1
-              #     # ),
-              #     # 
-              #     
-              #     column(
-              #       width = 3,
-              #       checkboxInput(inputId = "OFB", label = "Sondes OFB")
-              #     )
-              #   #) # end box
-              # ),
-              # # ---------------------------------------- #
-              
-              
-              
-              # ---------------------------------------- #
-              fluidRow(
-                
-                box(
-                  column(width = 2, checkboxInput(inputId = "DREAL", label = "Sondes DREAL", value=TRUE)),
-                  column(width = 2, checkboxInput(inputId = "OFB", label = "Sondes OFB")),
-                  column(width = 2, checkboxInput(inputId = "BV1", label = "Grand BV", value=F)),
+                    
+                    
+                    # ------------------------------------------------------------ #
+                    menuItem("Introduction", tabName = "menu_intro", icon=icon("home"),
+                             # premier menu : Introduction
+                             
+                             # les sub-menus
+                             menuSubItem("Contexte de l'étude", tabName="sub_menu_contexte"),
+                             menuSubItem("Données de l'étude", tabName="sub_menu_data"),
+                             menuSubItem("Lexique", tabName="sub_menu_lexique"),
+                             menuSubItem("Bibliographie", tabName = "sub_menu_biblio")
+                             
+                             
+                    ), # End premier menu Introduction
+                    # ------------------------------------------------------------ #
+                    
+                    
+                    
+                    
+                    
+                    # ------------------------------------------------------------ #
+                    menuItem("Cartographie", tabName = "menu_cartes", icon = icon("map"),
+                             # deuxième menu : cartographie
+                             
+                             # les sub-menus
+                             menuSubItem("Sondes thermiques", tabName="sub_menu_sondes")
+                             #menuSubItem("Bassins versants", tabName="sub_menu_bv"),
+                             #menuSubItem("Cours d'eau", tabName="sub_menu_cours_eau")
+                             
+                             
+                    ), # End deuxième menu cartographie
+                    # ------------------------------------------------------------ #
+                    
+                    
+                    # ------------------------------------------------------------ #
+                    menuItem("Analyse des températures",tabName = "menu_stats",
+                             icon = icon("stats", lib = "glyphicon"),
+                             # troisième menu : Analyse des températures
+                             
+                             
+                             # les sub-menus
+                             menuSubItem("Touques", tabName="sub_menu_touques"),
+                             menuSubItem("Orne", tabName="sub_menu_orne"),
+                             menuSubItem("Odon", tabName="sub_menu_odon"),
+                             menuSubItem("Sélune", tabName="sub_menu_selune"),
+                             menuSubItem("Les Sondes", tabName = "sub_menu_sondes_synthese"),
+                             menuSubItem("Comparaison", tabName = "sub_menu_comparaison")
+                             
+                             
+                    ) # End troisième menu stats
+                    # ------------------------------------------------------------ #
+                    
+        ) # End sidebarMenu
+    ), # End dashboardSidebar
+    
+    
+    # Fin barre Latérale / Menu de navigation
+    # ---------------------------------------------------------------------- #
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    # ---------------------------------------------------------------------- #
+    # ------------------------------ CORPS --------------------------------- #
+    # ---------------------------------------------------------------------- #
+    dashboardBody(
+        # corps du dashboard
+        
+        
+        # ------------------------------------------------------------ #
+        # HTML / CSS / javascript
+        useShinyjs(),
+        tags$header(
+            tags$style(
+                HTML(
+                    '.skin-blue .main-header .logo {background-color: #31b94a;}',
+                    '.skin-blue .main-header .logo:hover {background-color: #31b94a;}',
+                    '.skin-blue .main-header .navbar {background-color: #31b94a;}',
+                    '.box.box-solid.box-primary>.box-header {
+                    color:#fff;
+                    background:#ECF0F5
+                    }
+                    .box.box-solid.box-primary{
+                    border-bottom-color:#ECF0F5;
+                    border-left-color:#ECF0F5;
+                    border-right-color:#ECF0F5;
+                    border-top-color:#ECF0F5;
+                    background:#ECF0F5
+                    } ',
+                    'a {text-decoration: none; color: #aba5aa;}'
+                )
+            )
+        ),
+        
+        tags$body(
+            tags$style(
+                HTML(
+                    '#map_sondes {width:100%;height:calc(85vh - 80px) !important;}',
+                    '#map_BV {width:100%;height:calc(85vh - 80px) !important;}',
+                    '#panel_info_sondes {width:25%;height:calc(125vh - 125px) !important;}',
+                    '#myPannel2 {width:25%;height:calc(125vh - 125px) !important;}',
+                    '#ID{color: black;font-size: 20px;font-style: bold;}',
+                    '#ID2{color: black;font-size: 20px;font-style: bold;}',
+                    '#DATE2{color: black;font-size: 10px;}',
+                    '#link_to_details_sonde{color: #30a8cf;font-size: 14px;}',
+                    '#link_to_details_sonde{color: #30a8cf;font-size: 14px;}'
+                )
+            )
+        ),
+        # ------------------------------------------------------------ #
+        
+        
+        
+        # ------------------------------------------------------------ #
+        tabItems(
+            # ################################################## #
+            # Premier Menu : Introduction
+            # ################################################## #
+            
+            
+            # -------------------------------------------------- #
+            tabItem(tabName = "sub_menu_contexte",
+                    # Premier onglet du Menu 1 Introduction : Contexte de l'étude
+                    
+                    h2("Contexte de l'étude des températures des cours d'eau"),
+                    
+                    
+                    fluidRow(
                         
-                  
-                  width = 12, height = "100%",
-                  leafletOutput("map_sondes")
-                ), # End box
-                
-                hidden(
-                  # Panel informatif des sondes
-                  absolutePanel(
+                    ) # End fluidRow
                     
-                    id="panel_info_sondes", class="panel panel-default", top=50,
-                    right=0, width=400, height="100%",
-                    
-                    actionButton(inputId = "closeIP", label = "X"),
-                    textOutput("ID"),
-                    h4("Graphique"),
-                    
-                    dygraphOutput("temp_sonde"),
-                    
-                    h4("Résumé statistique"),
-                    tableOutput("table_sonde"),
-                    actionLink(inputId = "link_to_details_sonde", label = "Détails")
+            ), # End tabItem 1 (onglet 1 du menu 1)
+            # -------------------------------------------------- #
+            
+            
+            
+            
+            
+            # -------------------------------------------------- #
+            tabItem(tabName = "sub_menu_data",
+                    # Onglet 2 du Menu 1 Introduction : Données de l'étude
                     
                     
-                  ) # End absolutePanel
-                  
-                ) # End hidden
-                
-              ) # End fluidRow
-              # ---------------------------------------- #
-              
-              
-              
-              
-              
-              
-      ), # End tabItem 1 (onglet 1 du menu 2)
-      # -------------------------------------------------- #
-      
-      
-      
-      
-      
-      # -------------------------------------------------- #
-      tabItem(tabName = "sub_menu_bv",
-              # Carte des bassins versants
-              
-              
-              h2("Bassins versants"),
-              
-              # ---------------------------------------- #
-              fluidRow(
-                box(
-                  #column(width = 2, checkboxInput(inputId = "BV1", label = "Grand BV", value=TRUE)),
-                  column(width = 2, checkboxInput(inputId = "BV2", label = "Moyen BV")),
-                  column(width = 2, checkboxInput(inputId = "BV3", label = "Petit BV")),
-                  
-                  width = 12, height = "100%",
-                  leafletOutput("map_BV")
-                ) # End box
-                
-                # box(
-                #   width = 4,
-                #   checkboxInput(inputId = "BV1", label = "Grand BV", value=TRUE),
-                #   checkboxInput(inputId = "BV2", label = "Moyen BV"),
-                #   checkboxInput(inputId = "BV3", label = "Petit BV")
-                # ) # End box
-                
-                
-              ) # End fluidRow
-              # ---------------------------------------- #
-              
-              
-      ), # End tabItem 2 (onglet 2 du menu 2)
-      # -------------------------------------------------- #
-      
-      
-      
-      
-      
-      # -------------------------------------------------- #
-      tabItem(tabName = "sub_menu_cours_eau",
-              # carte des cours d'eau
-              
-              
-              h2("Cours d'eau"),
-              
-              fluidRow(
-                leafletOutput("map_eau")
-              ) # End fluidRow
-              
-              
-      ), # End tabItem 3 (onglet 3 du menu 2)
-      # -------------------------------------------------- #
-      
-      
-      
-      # ################################################## #
-      # Fin du Menu 2 : Cartographie
-      # ################################################## #
-      
-      
-      
-      
-      
-      # ################################################## #
-      # Troisième Menu : Analyse des températures
-      # ################################################## #
-      
-      
-      
-      # -------------------------------------------------- #
-      tabItem(tabName = "sub_menu_touques",
-              # touques
-              
-              h2("Analyse des températures de la Touques"),
-              
-              tabsetPanel(
-                tabPanel("Description",
-                         p("Taille du fleuve : 107km") ,    
-                         p("Surface du bassin versant associcé : 1305 km²"), 
-                         p("Prend source à : Gacé"),   
-                         p("Se jette en : Mer de la Manche (Deauville,Trouville-sur-Mer)"), 
-                         p("Nature principale des couches sédimentaires : crayeuse")
-                ), # End tabPanel Description
-                
-                tabPanel("Températures enregistrées",
-                         h3("Données aggrégées à la journée"),
-                         fluidRow(
-                           box(width=12,
-                               h3("Sonde 825"),
-                               
-                             tabsetPanel(
-                               tabPanel("Série",
-                           box(width=9,
-                               
-                               dygraphOutput("Sonde825MM7")
-                           ),
-                           box("Données Brutes",
-                               width = 3,
-                               checkboxInput(inputId = "Teau_min_825", label = "Températures minimales", value=F),
-                               checkboxInput(inputId = "Teau_moy_825", label = "Températures moyennes", value=T),
-                               checkboxInput(inputId = "Teau_max_825", label = "Températures maximales", value=F)
-                               
-                           ),
-                           box("Données lissées sur 7 jours",
-                               width = 3,
-                               checkboxInput(inputId = "Teau_min_825MM7", label = "Températures minimales ", value=F),
-                               checkboxInput(inputId = "Teau_moy_825MM7", label = "Températures moyennes  ", value=T),
-                               checkboxInput(inputId = "Teau_max_825MM7", label = "Températures maximales ", value=F)
-                           ),
-                           box( width = 3,
-                                checkboxInput(inputId = "LimiteTruite", label = "Preferendum thermiques", value=F)
-                                )
-                           ),
-                           tabPanel("Fréquence",
-                                      box(width=10,
+                    h2("Données de l'étude"),
+                    
+                    
+                    tabsetPanel(
+                        # Set de Panels
+                        
+                        
+                        # Panel 1
+                        # ------------------------------ #
+                        tabPanel(
+                            "Provenance des données",
+                            
+                            fluidRow(
+                                
+                            ) # End fluidRow
+                            
+                            
+                        ), # End tabPanel 1
+                        # ------------------------------ #
+                        
+                        
+                        
+                        # Panel 2
+                        # ------------------------------ #
+                        tabPanel(
+                            "Description des variables",
+                            
+                            fluidRow(
+                                
+                            ) # End fluidRow
+                            
+                        ) # End tabPanel 2
+                        # ------------------------------ #
+                        
+                        
+                    ) # End tabsetPanel
+                    
+                    
+                    
+            ), # End tabItem 2 (onglet 2 du menu 1)
+            # -------------------------------------------------- #
+            
+            
+            
+            
+            # -------------------------------------------------- #
+            tabItem(tabName = "sub_menu_lexique",
+                    # Onglet 3 du Menu 1 Introduction : Lexique
+                    
+                    
+                    h2("Lexique"),
+                    
+                    
+                    fluidRow(
+                        
+                    ) # End fluidRow
+                    
+            ), # End tabItem 3 (onglet 3 du menu 1)
+            # -------------------------------------------------- #
+            
+            
+            # -------------------------------------------------- #
+            tabItem(tabName = "sub_menu_biblio",
+                    # Onglet 4 du Menu 1 Introduction : Bibliographie
+                    
+                    
+                    h2("Bibliographie"),
+                    
+                    
+                    fluidRow(
+                        
+                    ) # End fluidRow
+                    
+            ), # End tabItem 4 (onglet 4 du menu 1)
+            # -------------------------------------------------- #
+            
+            
+            # ################################################## #    
+            # Fin Menu 1 : Introduction
+            # ################################################## #$
+            
+            
+            
+            
+            
+            
+            
+            
+            # ################################################## #
+            # Deuxième Menu : Cartographie
+            # ################################################## #
+            
+            
+            
+            
+            
+            # -------------------------------------------------- #
+            tabItem(tabName = "sub_menu_sondes",
+                    # Carte des sondes
+                    
+                    
+                    h2("Sondes thermiques"),
+                    
+                    # # ---------------------------------------- #
+                    # fluidRow(
+                    #   #box(
+                    #     width = 6,
+                    #     column(
+                    #       width=3,
+                    #       checkboxInput(inputId = "DREAL", label = "Sondes DREAL", value=TRUE)
+                    #     ),
+                    #     
+                    #     # marge
+                    #     # column(
+                    #     #   width=1
+                    #     # ),
+                    #     # 
+                    #     
+                    #     column(
+                    #       width = 3,
+                    #       checkboxInput(inputId = "OFB", label = "Sondes OFB")
+                    #     )
+                    #   #) # end box
+                    # ),
+                    # # ---------------------------------------- #
+                    
+                    
+                    
+                    # ---------------------------------------- #
+                    fluidRow(
+                        
+                        box(
+                            column(width = 2, checkboxInput(inputId = "DREAL", label = "Sondes DREAL", value=TRUE)),
+                            column(width = 2, checkboxInput(inputId = "OFB", label = "Sondes OFB")),
+                            column(width = 2, checkboxInput(inputId = "BV1", label = "Grand BV", value=F)),
+                            
+                            
+                            width = 12, height = "100%",
+                            leafletOutput("map_sondes")
+                        ), # End box
+                        
+                        hidden(
+                            # Panel informatif des sondes
+                            absolutePanel(
+                                
+                                id="panel_info_sondes", class="panel panel-default", top=50,
+                                right=0, width=400, height="100%",
+                                
+                                actionButton(inputId = "closeIP", label = "X"),
+                                textOutput("ID"),
+                                h4("Graphique"),
+                                
+                                dygraphOutput("temp_sonde"),
+                                
+                                h4("Résumé statistique"),
+                                tableOutput("table_sonde"),
+                                actionLink(inputId = "link_to_details_sonde", label = "Détails")
+                                
+                                
+                            ) # End absolutePanel
+                            
+                        ) # End hidden
+                        
+                    ) # End fluidRow
+                    # ---------------------------------------- #
+                    
+                    
+                    
+                    
+                    
+                    
+            ), # End tabItem 1 (onglet 1 du menu 2)
+            # -------------------------------------------------- #
+            
+            
+            
+            
+            
+            # -------------------------------------------------- #
+            # tabItem(tabName = "sub_menu_bv",
+            #         # Carte des bassins versants
+            #         
+            #         
+            #         h2("Bassins versants"),
+            #         
+            #         # ---------------------------------------- #
+            #         fluidRow(
+            #             box(
+            #                 #column(width = 2, checkboxInput(inputId = "BV1", label = "Grand BV", value=TRUE)),
+            #                 column(width = 2, checkboxInput(inputId = "BV2", label = "Moyen BV")),
+            #                 column(width = 2, checkboxInput(inputId = "BV3", label = "Petit BV")),
+            #                 
+            #                 width = 12, height = "100%",
+            #                 leafletOutput("map_BV")
+            #             ) # End box
+            #             
+            #             # box(
+            #             #   width = 4,
+            #             #   checkboxInput(inputId = "BV1", label = "Grand BV", value=TRUE),
+            #             #   checkboxInput(inputId = "BV2", label = "Moyen BV"),
+            #             #   checkboxInput(inputId = "BV3", label = "Petit BV")
+            #             # ) # End box
+            #             
+            #             
+            #         ) # End fluidRow
+            #         # ---------------------------------------- #
+            #         
+            #         
+            # ), # End tabItem 2 (onglet 2 du menu 2)
+            # # -------------------------------------------------- #
+            # 
+            # 
+            # 
+            # 
+            # 
+            # # -------------------------------------------------- #
+            # tabItem(tabName = "sub_menu_cours_eau",
+            #         # carte des cours d'eau
+            #         
+            #         
+            #         h2("Cours d'eau"),
+            #         
+            #         fluidRow(
+            #             leafletOutput("map_eau")
+            #         ) # End fluidRow
+            #         
+            #         
+            # ), # End tabItem 3 (onglet 3 du menu 2)
+            # # -------------------------------------------------- #
+            
+            
+            
+            # ################################################## #
+            # Fin du Menu 2 : Cartographie
+            # ################################################## #
+            
+            
+            
+            
+            
+            # ################################################## #
+            # Troisième Menu : Analyse des températures
+            # ################################################## #
+            
+            
+            
+            # -------------------------------------------------- #
+            tabItem(tabName = "sub_menu_touques",
+                    # touques
+                    
+                    h2("Analyse des températures de la Touques"),
+                    
+                    tabsetPanel(
+                        tabPanel("Description",
+                                 fluidRow(
+                                     
+                                      box(width=2,status = "primary",solidHeader = 
+                                              TRUE,
                                           
-                                          plotlyOutput("hist825"))
-                           )
-                           )
-                           ),
-                           box(
-                               width=8,
-                               h3("Sonde 827"),
-                               dygraphOutput("Sonde827MM7")
-                           ),
-                           box("Données Brutes",
-                               width = 4,
-                               checkboxInput(inputId = "Teau_min_827", label = "Températures minimales", value=F),
-                               checkboxInput(inputId = "Teau_moy_827", label = "Températures moyennes", value=T),
-                               checkboxInput(inputId = "Teau_max_827", label = "Températures maximales", value=F)
-                               
-                           ),
-                           box("Données lissées sur 7 jours",
-                               width = 4,
-                               checkboxInput(inputId = "Teau_min_827MM7", label = "Températures minimales ", value=F),
-                               checkboxInput(inputId = "Teau_moy_827MM7", label = "Températures moyennes  ", value=T),
-                               checkboxInput(inputId = "Teau_max_827MM7", label = "Températures maximales ", value=F)
-                           ),
-                           box(
-                               width=8,
-                               h3("Sonde 828"),
-                               dygraphOutput("Sonde828MM7")
-                           ),
-                           box("Données Brutes",
-                               width = 4,
-                               checkboxInput(inputId = "Teau_min_828", label = "Températures minimales", value=F),
-                               checkboxInput(inputId = "Teau_moy_828", label = "Températures moyennes", value=T),
-                               checkboxInput(inputId = "Teau_max_828", label = "Températures maximales", value=F)
-                               
-                           ),
-                           box("Données lissées sur 7 jours",
-                               width = 4,
-                               checkboxInput(inputId = "Teau_min_828MM7", label = "Températures minimales ", value=F),
-                               checkboxInput(inputId = "Teau_moy_828MM7", label = "Températures moyennes  ", value=T),
-                               checkboxInput(inputId = "Teau_max_828MM7", label = "Températures maximales ", value=F)
-                           ),
-                           box(
-                               width=8,
-                               h3("Sonde 830"),
-                               dygraphOutput("Sonde830MM7")
-                           ),
-                           box("Données Brutes",
-                               width = 4,
-                               checkboxInput(inputId = "Teau_min_830", label = "Températures minimales", value=F),
-                               checkboxInput(inputId = "Teau_moy_830", label = "Températures moyennes", value=T),
-                               checkboxInput(inputId = "Teau_max_830", label = "Températures maximales", value=F)
-                               
-                           ),
-                           box("Données lissées sur 7 jours",
-                               width = 4,
-                               checkboxInput(inputId = "Teau_min_830MM7", label = "Températures minimales ", value=F),
-                               checkboxInput(inputId = "Teau_moy_830MM7", label = "Températures moyennes ", value=T),
-                               checkboxInput(inputId = "Teau_max_830MM7", label = "Températures maximales ", value=F)
-                           )
-                           
-                           
-                         )# End fluidRow
-                ), # End tabPanel 
-                tabPanel("Températures lissées sur 30 jours",
+                                         
+                                         img(src="Touques.png")),
+                               box( h3("La Touques"),
+                                    br(),
+                                    width=8,status = "primary",solidHeader = TRUE,
+                       
+                                 p("Taille du fleuve : 107km") ,    
+                                 p("Surface du bassin versant associcé : 1305 km²"), 
+                                 p("Prend source à : Gacé"),   
+                                 p("Se jette en : Mer de la Manche (Deauville,Trouville-sur-Mer)"), 
+                                 p("Nature principale des couches sédimentaires : crayeuse")
+                                 
+                                 
+                        ))), # End tabPanel Description
+                        
+                        tabPanel("Températures enregistrées",
+                                 
+                                 fluidRow(
+                                     box("Données aggrégées à la journée",
+                                         width = 6,
+                                         checkboxInput(inputId = "Teau_min", label = "Températures minimales", value=F),
+                                         checkboxInput(inputId = "Teau_moy", label = "Températures moyennes", value=T),
+                                         checkboxInput(inputId = "Teau_max", label = "Températures maximales", value=F)
+                                         ),
+                                     box("Données lissées sur 7 jours",
+                                         width = 6,
+                                         checkboxInput(inputId = "Teau_minMM7", label = "Températures minimales ", value=F),
+                                         checkboxInput(inputId = "Teau_moyMM7", label = "Températures moyennes  ", value=F),
+                                         checkboxInput(inputId = "Teau_maxMM7", label = "Températures maximales ", value=F)
+                                         ),
+                                     # box( width = 3,
+                                     #      checkboxInput(inputId = "LimiteTruite", label = "Preferendum thermiques", value=F)
+                                     # ),
+                                             
+                                             
+                                         box(width=6,
+                                             h3("Touques T1"),
+                                             dygraphOutput("Sonde825MM7")
+                                         ),       
+                                    
+                                     box(
+                                         width=6,
+                                         h3("Touques T3"),
+                                         dygraphOutput("Sonde827MM7")
+                                     ),
+                                    
+                                     box(
+                                         width=6,
+                                         h3("Touques T4"),
+                                         dygraphOutput("Sonde828MM7")
+                                     ),
+                                    
+                                     box(
+                                         width=6,
+                                         h3("Touques T6"),
+                                         dygraphOutput("Sonde830MM7")
+                                     )
+
+                                     
+                                 )# End fluidRow
+                        ), # End tabPanel 
+                        
+                        
+            tabPanel("Fréquence",
+                     fluidRow(
+                         box(
+                             width = 7,
+                             selectInput(inputId = 'Espece', label = 'Choisir une espèce',
+                                         choices = c("Truite" = "limiteTruite",
+                                                     "Brochet" = "limiteBrochet")
+                                         #unique(db2$Espece),
+                                         #select=c("Truite")
+                             )
+                             ,
+                             sliderInput("AnHist",  min=min(db2$An), max = max(db2$An),label="Choisir une période",
+                                         value= c(min(db2$An),max(db2$An)))
+                             
+                         ),
+                         box(width=6,
+                             h3("Touques T1"),
+                             plotlyOutput("hist825")),
+                         box(width=6,
+                             h3("Touques T3"),
+                             plotlyOutput("hist827")),
+                         box(width=6,
+                             h3("Touques T4"),
+                             plotlyOutput("hist828")),
+                         box(width=6,
+                             h3("Touques T6"),
+                             plotlyOutput("hist830"))
                          
-                         fluidRow(
-                           box(
-                               width=8,
-                               h3("Sonde 825"),
-                               dygraphOutput("Sonde825MM30")
-                           ),
-                           box("Données lissées sur 30 jours",
-                               width = 4,
-                               checkboxInput(inputId = "Teau_min_825MM30", label = "Températures minimales", value=T),
-                               checkboxInput(inputId = "Teau_moy_825MM30", label = "Températures moyennes", value=T),
-                               checkboxInput(inputId = "Teau_max_825MM30", label = "Températures maximales", value=T)
-                               
-                           ), 
-                           box("Droites de régression",
-                               width = 4,
-                               checkboxInput(inputId = "Teau_min_825reg30", label = "Droite de régression des températures minimales", value=F),
-                               checkboxInput(inputId = "Teau_max_825reg30", label = "Droite de régression des températures maximales", value=F)
-                               
-                           ),
-                           box(
-                               width=8,
-                               h3("Sonde 827"),
-                               dygraphOutput("Sonde827MM30")
-                           ),
-                           box("Données lissées sur 30 jours",
-                               width = 4,
-                               checkboxInput(inputId = "Teau_min_827MM30", label = "Températures minimales", value=T),
-                               checkboxInput(inputId = "Teau_moy_827MM30", label = "Températures moyennes", value=T),
-                               checkboxInput(inputId = "Teau_max_827MM30", label = "Températures maximales", value=T)
-                               
-                           ), 
-                           box("Droites de régression",
-                               width = 4,
-                               checkboxInput(inputId = "Teau_min_827reg30", label = "Droite de régression des températures minimales", value=F),
-                               checkboxInput(inputId = "Teau_max_827reg30", label = "Droite de régression des températures maximales", value=F)
-                               
-                           ),
-                           box(
-                               width=8,
-                               h3("Sonde 828"),
-                               dygraphOutput("Sonde828MM30")
-                           ),
-                           box("Données lissées sur 30 jours",
-                               width = 4,
-                               checkboxInput(inputId = "Teau_min_828MM30", label = "Températures minimales", value=T),
-                               checkboxInput(inputId = "Teau_moy_828MM30", label = "Températures moyennes", value=T),
-                               checkboxInput(inputId = "Teau_max_828MM30", label = "Températures maximales", value=T)
-                               
-                           ), 
-                           box("Droites de régression",
-                               width = 4,
-                               checkboxInput(inputId = "Teau_min_828reg30", label = "Droite de régression des températures minimales", value=F),
-                               checkboxInput(inputId = "Teau_max_828reg30", label = "Droite de régression des températures maximales", value=F)
-                               
-                           ),
-                           box(
-                               width=8,
-                               h3("Sonde 830"),
-                               dygraphOutput("Sonde830MM30")
-                           ),
-                           box("Données lissées sur 30 jours",
-                               width = 4,
-                               checkboxInput(inputId = "Teau_min_830MM30", label = "Températures minimales", value=T),
-                               checkboxInput(inputId = "Teau_moy_830MM30", label = "Températures moyennes", value=T),
-                               checkboxInput(inputId = "Teau_max_830MM30", label = "Températures maximales", value=T)
-                               
-                           ), 
-                           box("Droites de régression",
-                               width = 4,
-                               checkboxInput(inputId = "Teau_min_830reg30", label = "Droite de régression des températures minimales", value=F),
-                               checkboxInput(inputId = "Teau_max_830reg30", label = "Droite de régression des températures maximales", value=F)
-                               
-                           )
-                         )# end fluid
-                ),# end tabPanel
-                tabPanel("Températures lissées sur 365 jours",
-                         
-                         fluidRow(
-                           box(
-                               width=8,
-                               h3("Sonde 825"),
-                               dygraphOutput("Sonde825MM365")
-                           ),
-                           box("Données lissées sur 365 jours",
-                               width = 4,
-                               checkboxInput(inputId = "Teau_min_825MM365", label = "Températures minimales", value=T),
-                               checkboxInput(inputId = "Teau_moy_825MM365", label = "Températures moyennes", value=T),
-                               checkboxInput(inputId = "Teau_max_825MM365", label = "Températures maximales", value=T)
-                               
-                           ), 
-                           box("Droites de régression",
-                               width = 4,
-                               checkboxInput(inputId = "Teau_min_825reg365", label = "Droite de régression des températures minimales", value=F),
-                               checkboxInput(inputId = "Teau_max_825reg365", label = "Droite de régression des températures maximales", value=F)
-                               
-                           ),
-                           box(
-                               width=8,
-                               h3("Sonde 827"),
-                               dygraphOutput("Sonde827MM365")
-                           ),
-                           box("Données lissées sur 365 jours",
-                               width = 4,
-                               checkboxInput(inputId = "Teau_min_827MM365", label = "Températures minimales", value=T),
-                               checkboxInput(inputId = "Teau_moy_827MM365", label = "Températures moyennes", value=T),
-                               checkboxInput(inputId = "Teau_max_827MM365", label = "Températures maximales", value=T)
-                               
-                           ), 
-                           box("Droites de régression",
-                               width = 4,
-                               checkboxInput(inputId = "Teau_min_827reg365", label = "Droite de régression des températures minimales", value=F),
-                               checkboxInput(inputId = "Teau_max_827reg365", label = "Droite de régression des températures maximales", value=F)
-                               
-                           ),
-                           box(
-                               width=8,
-                               h3("Sonde 828"),
-                               dygraphOutput("Sonde828MM365")
-                           ),
-                           box("Données lissées sur 365 jours",
-                               width = 4,
-                               checkboxInput(inputId = "Teau_min_828MM365", label = "Températures minimales", value=T),
-                               checkboxInput(inputId = "Teau_moy_828MM365", label = "Températures moyennes", value=T),
-                               checkboxInput(inputId = "Teau_max_828MM365", label = "Températures maximales", value=T)
-                               
-                           ), 
-                           box("Droites de régression",
-                               width = 4,
-                               checkboxInput(inputId = "Teau_min_828reg365", label = "Droite de régression des températures minimales", value=F),
-                               checkboxInput(inputId = "Teau_max_828reg365", label = "Droite de régression des températures maximales", value=F)
-                               
-                           ),
-                           box(
-                               width=8,
-                               h3("Sonde 830"),
-                               dygraphOutput("Sonde830MM365")
-                           ),
-                           box("Données lissées sur 365 jours",
-                               width = 4,
-                               checkboxInput(inputId = "Teau_min_830MM365", label = "Températures minimales", value=T),
-                               checkboxInput(inputId = "Teau_moy_830MM365", label = "Températures moyennes", value=T),
-                               checkboxInput(inputId = "Teau_max_830MM365", label = "Températures maximales", value=T)
-                               
-                           ), 
-                           box("Droites de régression",
-                               width = 4,
-                               checkboxInput(inputId = "Teau_min_830reg365", label = "Droite de régression des températures minimales", value=F),
-                               checkboxInput(inputId = "Teau_max_830reg365", label = "Droite de régression des températures maximales", value=F)
-                               
-                           )
-                         ) # End fluidRow
-                ) # End tabPanel
-              )  # End tabsetPanel
-              
-              
-      ), # End tabItem 1
-      # -------------------------------------------------- #
-      
-      
-      
-      
-      # -------------------------------------------------- #
-      tabItem(tabName = "sub_menu_orne",
-              # orne
-              
-              
-              h2("Analyse des températures de l'Orne"),
-              
-              fluidRow(
-                tabsetPanel(
-                  tabPanel("Description",
-                           p("Taille du fleuve : ") ,    
-                           p("Surface du bassin versant associcé : "), 
-                           p("Prend source à : "),   
-                           p("Se jette en : "), 
-                           p("Nature principale des couhes sédimentaires : ")
-                  ), # End tabPanel Description
-                  
-                  tabPanel("Températures enregistrées",
-                           fluidRow(
-                             box("Sonde 817",
-                                 width=8,
-                                 dygraphOutput("Sonde817MM7")
-                             ),
-                             box("Données Brutes",
-                                 width = 4,
-                                 checkboxInput(inputId = "Teau_min_817", label = "Températures minimales", value=F),
-                                 checkboxInput(inputId = "Teau_moy_817", label = "Températures moyennes", value=T),
-                                 checkboxInput(inputId = "Teau_max_817", label = "Températures maximales", value=F)
+                     )
+                     ),
+                        tabPanel("Températures lissées sur 30 jours",
                                  
-                             ),
-                             box("Données lissées sur 7 jours",
-                                 width = 4,
-                                 checkboxInput(inputId = "Teau_min_817MM7", label = "Températures minimales ", value=F),
-                                 checkboxInput(inputId = "Teau_moy_817MM7", label = "Températures moyennes  ", value=T),
-                                 checkboxInput(inputId = "Teau_max_817MM7", label = "Températures maximales ", value=F)
-                             ),
-                             box("Sonde 818",
-                                 width=8,
-                                 dygraphOutput("Sonde818MM7")
-                             ),
-                             box("Données Brutes",
-                                 width = 4,
-                                 checkboxInput(inputId = "Teau_min_818", label = "Températures minimales", value=F),
-                                 checkboxInput(inputId = "Teau_moy_818", label = "Températures moyennes", value=T),
-                                 checkboxInput(inputId = "Teau_max_818", label = "Températures maximales", value=F)
+                                 fluidRow(
+                                    
+                                     box(h4("Données lissées sur 30 jours"),
+                                         width = 6,
+                                         checkboxInput(inputId = "Teau_minMM30", label = "Températures minimales", value=F),
+                                         checkboxInput(inputId = "Teau_moyMM30", label = "Températures moyennes", value=T),
+                                         checkboxInput(inputId = "Teau_maxMM30", label = "Températures maximales", value=F)
+                                         
+                                     ), 
+                                     
+                                     box(h4("Droites de régression"),
+                                         width = 6,height = 170,
+                                         checkboxInput(inputId = "Teau_minreg30", label = "Droite de régression des températures minimales", value=F),
+                                         checkboxInput(inputId = "Teau_maxreg30", label = "Droite de régression des températures maximales", value=F)
+                                         
+                                     ),
+                                     box(
+                                         width=6,
+                                         h3("Touques T1"),
+                                         dygraphOutput("Sonde825MM30")
+                                     ),
+                                     box(
+                                         width=6,
+                                         h3("Touques T3"),
+                                         dygraphOutput("Sonde827MM30")
+                                     ),
+                                     
+                                     box(
+                                         width=6,
+                                         h3("Touques T4"),
+                                         dygraphOutput("Sonde828MM30")
+                                     ),
+                                     
+                                     box(
+                                         width=6,
+                                         h3("Touques T6"),
+                                         dygraphOutput("Sonde830MM30")
+                                     )
+                                 )# end fluid
+                        ),# end tabPanel
+                        tabPanel("Températures lissées sur 365 jours",
                                  
-                             ),
-                             box("Données lissées sur 7 jours",
-                                 width = 4,
-                                 checkboxInput(inputId = "Teau_min_818MM7", label = "Températures minimales ", value=F),
-                                 checkboxInput(inputId = "Teau_moy_818MM7", label = "Températures moyennes  ", value=T),
-                                 checkboxInput(inputId = "Teau_max_818MM7", label = "Températures maximales ", value=F)
-                             ),
-                             box("Sonde 819",
-                                 width=8,
-                                 dygraphOutput("Sonde819MM7")
-                             ),
-                             box("Données Brutes",
-                                 width = 4,
-                                 checkboxInput(inputId = "Teau_min_819", label = "Températures minimales", value=F),
-                                 checkboxInput(inputId = "Teau_moy_819", label = "Températures moyennes", value=T),
-                                 checkboxInput(inputId = "Teau_max_819", label = "Températures maximales", value=F)
-                                 
-                             ),
-                             box("Données lissées sur 7 jours",
-                                 width = 4,
-                                 checkboxInput(inputId = "Teau_min_819MM7", label = "Températures minimales ", value=F),
-                                 checkboxInput(inputId = "Teau_moy_819MM7", label = "Températures moyennes  ", value=T),
-                                 checkboxInput(inputId = "Teau_max_819MM7", label = "Températures maximales ", value=F)
-                             )
-                             
-                           )# End fluidRow
-                  ), # End tabPanel 
-                  tabPanel("Températures lissées sur 30 jours",
-                           
-                           fluidRow(
-                             box("Sonde 817",
-                                 width=8,
-                                 dygraphOutput("Sonde817MM30")
-                             ),
-                             box("Données lissées sur 30 jours",
-                                 width = 4,
-                                 checkboxInput(inputId = "Teau_min_817MM30", label = "Températures minimales", value=T),
-                                 checkboxInput(inputId = "Teau_moy_817MM30", label = "Températures moyennes", value=T),
-                                 checkboxInput(inputId = "Teau_max_817MM30", label = "Températures maximales", value=T)
-                                 
-                             ), 
-                             box("Droites de régression",
-                                 width = 4,
-                                 checkboxInput(inputId = "Teau_min_817reg30", label = "Droite de régression des températures minimales", value=F),
-                                 checkboxInput(inputId = "Teau_max_817reg30", label = "Droite de régression des températures maximales", value=F)
-                                 
-                             ),
-                             box("Sonde 818",
-                                 width=8,
-                                 dygraphOutput("Sonde818MM30")
-                             ),
-                             box("Données lissées sur 30 jours",
-                                 width = 4,
-                                 checkboxInput(inputId = "Teau_min_818MM30", label = "Températures minimales", value=T),
-                                 checkboxInput(inputId = "Teau_moy_818MM30", label = "Températures moyennes", value=T),
-                                 checkboxInput(inputId = "Teau_max_818MM30", label = "Températures maximales", value=T)
-                                 
-                             ), 
-                             box("Droites de régression",
-                                 width = 4,
-                                 checkboxInput(inputId = "Teau_min_818reg30", label = "Droite de régression des températures minimales", value=F),
-                                 checkboxInput(inputId = "Teau_max_818reg30", label = "Droite de régression des températures maximales", value=F)
-                                 
-                             ),
-                             box("Sonde 819",
-                                 width=8,
-                                 dygraphOutput("Sonde819MM30")
-                             ),
-                             box("Données lissées sur 30 jours",
-                                 width = 4,
-                                 checkboxInput(inputId = "Teau_min_819MM30", label = "Températures minimales", value=T),
-                                 checkboxInput(inputId = "Teau_moy_819MM30", label = "Températures moyennes", value=T),
-                                 checkboxInput(inputId = "Teau_max_819MM30", label = "Températures maximales", value=T)
-                                 
-                             ), 
-                             box("Droites de régression",
-                                 width = 4,
-                                 checkboxInput(inputId = "Teau_min_819reg30", label = "Droite de régression des températures minimales", value=F),
-                                 checkboxInput(inputId = "Teau_max_819reg30", label = "Droite de régression des températures maximales", value=F)
-                                 
-                             )
-                             
-                           )# end fluid
-                  ),# end tabPanel
-                  tabPanel("Températures lissées sur 365 jours",
-                           
-                           fluidRow(
-                             box("Sonde 817",
-                                 width=8,
-                                 dygraphOutput("Sonde817MM365")
-                             ),
-                             box("Données lissées sur 30 jours",
-                                 width = 4,
-                                 checkboxInput(inputId = "Teau_min_817MM365", label = "Températures minimales", value=T),
-                                 checkboxInput(inputId = "Teau_moy_817MM365", label = "Températures moyennes", value=T),
-                                 checkboxInput(inputId = "Teau_max_817MM365", label = "Températures maximales", value=T)
-                                 
-                             ), 
-                             box("Droites de régression",
-                                 width = 4,
-                                 checkboxInput(inputId = "Teau_min_817reg365", label = "Droite de régression des températures minimales", value=F),
-                                 checkboxInput(inputId = "Teau_max_817reg365", label = "Droite de régression des températures maximales", value=F)
-                                 
-                             ),
-                             box("Sonde 818",
-                                 width=8,
-                                 dygraphOutput("Sonde818MM365")
-                             ),
-                             box("Données lissées sur 30 jours",
-                                 width = 4,
-                                 checkboxInput(inputId = "Teau_min_818MM365", label = "Températures minimales", value=T),
-                                 checkboxInput(inputId = "Teau_moy_818MM365", label = "Températures moyennes", value=T),
-                                 checkboxInput(inputId = "Teau_max_818MM365", label = "Températures maximales", value=T)
-                                 
-                             ), 
-                             box("Droites de régression",
-                                 width = 4,
-                                 checkboxInput(inputId = "Teau_min_818reg365", label = "Droite de régression des températures minimales", value=F),
-                                 checkboxInput(inputId = "Teau_max_818reg365", label = "Droite de régression des températures maximales", value=F)
-                                 
-                             ),
-                             box("Sonde 819",
-                                 width=8,
-                                 dygraphOutput("Sonde819MM365")
-                             ),
-                             box("Données lissées sur 365 jours",
-                                 width = 4,
-                                 checkboxInput(inputId = "Teau_min_819MM365", label = "Températures minimales", value=T),
-                                 checkboxInput(inputId = "Teau_moy_819MM365", label = "Températures moyennes", value=T),
-                                 checkboxInput(inputId = "Teau_max_819MM365", label = "Températures maximales", value=T)
-                                 
-                             ), 
-                             box("Droites de régression",
-                                 width = 4,
-                                 checkboxInput(inputId = "Teau_min_819reg365", label = "Droite de régression des températures minimales", value=F),
-                                 checkboxInput(inputId = "Teau_max_819reg365", label = "Droite de régression des températures maximales", value=F)
-                                 
-                             )
-                             
-                           ) # End fluidRow
-                           
-                           
-                           
-                           
-                  ) # End tabPanel
-                )  # End tabsetPanel
-                
-              )
-              
-              
-      ), # End tabItem 2
-      # -------------------------------------------------- #
-      
-      
-      
-      # -------------------------------------------------- #
-      tabItem(tabName = "sub_menu_odon",
-              # odon
-              
-              
-              h2("Analyse des températures de l'Odon"),
-              
-              fluidRow(
-                tabsetPanel(
-                  tabPanel("Description",
-                           p("Taille du fleuve : 107km") ,    
-                           p("Surface du bassin versant associcé : 1305 km²"), 
-                           p("Prend source à : Gacé"),   
-                           p("Se jette en : Mer de la Mache (Deauville,Trouville-sur-Mer)"), 
-                           p("Nature principale des couhes sédimentaires : crayeuses")
-                  ), # End tabPanel Description
-                  
-                  tabPanel("Températures enregistrées",
-                           fluidRow(
-                             box("Sonde 812",
-                                 width=8,
-                                 dygraphOutput("Sonde812MM7")
-                             ),
-                             box("Données Brutes",
-                                 width = 4,
-                                 checkboxInput(inputId = "Teau_min_812", label = "Températures minimales", value=F),
-                                 checkboxInput(inputId = "Teau_moy_812", label = "Températures moyennes", value=T),
-                                 checkboxInput(inputId = "Teau_max_812", label = "Températures maximales", value=F)
-                                 
-                             ),
-                             box("Données lissées sur 7 jours",
-                                 width = 4,
-                                 checkboxInput(inputId = "Teau_min_812MM7", label = "Températures minimales ", value=F),
-                                 checkboxInput(inputId = "Teau_moy_812MM7", label = "Températures moyennes  ", value=T),
-                                 checkboxInput(inputId = "Teau_max_812MM7", label = "Températures maximales ", value=F)
-                             ),
-                             box("Sonde 813",
-                                 width=8,
-                                 dygraphOutput("Sonde813MM7")
-                             ),
-                             box("Données Brutes",
-                                 width = 4,
-                                 checkboxInput(inputId = "Teau_min_813", label = "Températures minimales", value=F),
-                                 checkboxInput(inputId = "Teau_moy_813", label = "Températures moyennes", value=T),
-                                 checkboxInput(inputId = "Teau_max_813", label = "Températures maximales", value=F)
-                                 
-                             ),
-                             box("Données lissées sur 7 jours",
-                                 width = 4,
-                                 checkboxInput(inputId = "Teau_min_813MM7", label = "Températures minimales ", value=F),
-                                 checkboxInput(inputId = "Teau_moy_813MM7", label = "Températures moyennes  ", value=T),
-                                 checkboxInput(inputId = "Teau_max_813MM7", label = "Températures maximales ", value=F)
-                             ),
-                             box("Sonde 815",
-                                 width=8,
-                                 dygraphOutput("Sonde815MM7")
-                             ),
-                             box("Données Brutes",
-                                 width = 4,
-                                 checkboxInput(inputId = "Teau_min_815", label = "Températures minimales", value=F),
-                                 checkboxInput(inputId = "Teau_moy_815", label = "Températures moyennes", value=T),
-                                 checkboxInput(inputId = "Teau_max_815", label = "Températures maximales", value=F)
-                                 
-                             ),
-                             box("Données lissées sur 7 jours",
-                                 width = 4,
-                                 checkboxInput(inputId = "Teau_min_815MM7", label = "Températures minimales ", value=F),
-                                 checkboxInput(inputId = "Teau_moy_815MM7", label = "Températures moyennes  ", value=T),
-                                 checkboxInput(inputId = "Teau_max_815MM7", label = "Températures maximales ", value=F)
-                             ),
-                             box("Sonde 816",
-                                 width=8,
-                                 dygraphOutput("Sonde816MM7")
-                             ),
-                             box("Données Brutes",
-                                 width = 4,
-                                 checkboxInput(inputId = "Teau_min_816", label = "Températures minimales", value=F),
-                                 checkboxInput(inputId = "Teau_moy_816", label = "Températures moyennes", value=T),
-                                 checkboxInput(inputId = "Teau_max_816", label = "Températures maximales", value=F)
-                                 
-                             ),
-                             box("Données lissées sur 7 jours",
-                                 width = 4,
-                                 checkboxInput(inputId = "Teau_min_816MM7", label = "Températures minimales ", value=F),
-                                 checkboxInput(inputId = "Teau_moy_816MM7", label = "Températures moyennes  ", value=T),
-                                 checkboxInput(inputId = "Teau_max_816MM7", label = "Températures maximales ", value=F)
-                             )
-                             
-                             
-                           )# End fluidRow
-                  ), # End tabPanel 
-                  tabPanel("Températures lissées sur 30 jours",
-                           
-                           fluidRow(
-                             box("Sonde 812",
-                                 width=8,
-                                 dygraphOutput("Sonde812MM30")
-                             ),
-                             box("Données lissées sur 30 jours",
-                                 width = 4,
-                                 checkboxInput(inputId = "Teau_min_812MM30", label = "Températures minimales", value=T),
-                                 checkboxInput(inputId = "Teau_moy_812MM30", label = "Températures moyennes", value=T),
-                                 checkboxInput(inputId = "Teau_max_812MM30", label = "Températures maximales", value=T)
-                                 
-                             ), 
-                             box("Droites de régression",
-                                 width = 4,
-                                 checkboxInput(inputId = "Teau_min_812reg30", label = "Droite de régression des températures minimales", value=F),
-                                 checkboxInput(inputId = "Teau_max_812reg30", label = "Droite de régression des températures maximales", value=F)
-                                 
-                             ),
-                             box("Sonde 813",
-                                 width=8,
-                                 dygraphOutput("Sonde813MM30")
-                             ),
-                             box("Données lissées sur 30 jours",
-                                 width = 4,
-                                 checkboxInput(inputId = "Teau_min_813MM30", label = "Températures minimales", value=T),
-                                 checkboxInput(inputId = "Teau_moy_813MM30", label = "Températures moyennes", value=T),
-                                 checkboxInput(inputId = "Teau_max_813MM30", label = "Températures maximales", value=T)
-                                 
-                             ), 
-                             box("Droites de régression",
-                                 width = 4,
-                                 checkboxInput(inputId = "Teau_min_813reg30", label = "Droite de régression des températures minimales", value=F),
-                                 checkboxInput(inputId = "Teau_max_813reg30", label = "Droite de régression des températures maximales", value=F)
-                                 
-                             ),
-                             box("Sonde 815",
-                                 width=8,
-                                 dygraphOutput("Sonde815MM30")
-                             ),
-                             box("Données lissées sur 30 jours",
-                                 width = 4,
-                                 checkboxInput(inputId = "Teau_min_815MM30", label = "Températures minimales", value=T),
-                                 checkboxInput(inputId = "Teau_moy_815MM30", label = "Températures moyennes", value=T),
-                                 checkboxInput(inputId = "Teau_max_815MM30", label = "Températures maximales", value=T)
-                                 
-                             ), 
-                             box("Droites de régression",
-                                 width = 4,
-                                 checkboxInput(inputId = "Teau_min_815reg30", label = "Droite de régression des températures minimales", value=F),
-                                 checkboxInput(inputId = "Teau_max_815reg30", label = "Droite de régression des températures maximales", value=F)
-                                 
-                             ),
-                             box("Sonde 816",
-                                 width=8,
-                                 dygraphOutput("Sonde816MM30")
-                             ),
-                             box("Données lissées sur 30 jours",
-                                 width = 4,
-                                 checkboxInput(inputId = "Teau_min_816MM30", label = "Températures minimales", value=T),
-                                 checkboxInput(inputId = "Teau_moy_816MM30", label = "Températures moyennes", value=T),
-                                 checkboxInput(inputId = "Teau_max_816MM30", label = "Températures maximales", value=T)
-                                 
-                             ), 
-                             box("Droites de régression",
-                                 width = 4,
-                                 checkboxInput(inputId = "Teau_min_816reg30", label = "Droite de régression des températures minimales", value=F),
-                                 checkboxInput(inputId = "Teau_max_816reg30", label = "Droite de régression des températures maximales", value=F)
-                                 
-                             )
-                           )# end fluid
-                  ),# end tabPanel
-                  tabPanel("Températures lissées sur 365 jours",
-                           
-                           fluidRow(
-                             box("Sonde 812",
-                                 width=8,
-                                 dygraphOutput("Sonde812MM365")
-                             ),
-                             box("Données lissées sur 30 jours",
-                                 width = 4,
-                                 checkboxInput(inputId = "Teau_min_812MM365", label = "Températures minimales", value=T),
-                                 checkboxInput(inputId = "Teau_moy_812MM365", label = "Températures moyennes", value=T),
-                                 checkboxInput(inputId = "Teau_max_812MM365", label = "Températures maximales", value=T)
-                                 
-                             ), 
-                             box("Droites de régression",
-                                 width = 4,
-                                 checkboxInput(inputId = "Teau_min_812reg365", label = "Droite de régression des températures minimales", value=F),
-                                 checkboxInput(inputId = "Teau_max_812reg365", label = "Droite de régression des températures maximales", value=F)
-                                 
-                             ),
-                             box("Sonde 813",
-                                 width=8,
-                                 dygraphOutput("Sonde813MM365")
-                             ),
-                             box("Données lissées sur 30 jours",
-                                 width = 4,
-                                 checkboxInput(inputId = "Teau_min_813MM365", label = "Températures minimales", value=T),
-                                 checkboxInput(inputId = "Teau_moy_813MM365", label = "Températures moyennes", value=T),
-                                 checkboxInput(inputId = "Teau_max_813MM365", label = "Températures maximales", value=T)
-                                 
-                             ), 
-                             box("Droites de régression",
-                                 width = 4,
-                                 checkboxInput(inputId = "Teau_min_813reg365", label = "Droite de régression des températures minimales", value=F),
-                                 checkboxInput(inputId = "Teau_max_813reg365", label = "Droite de régression des températures maximales", value=F)
-                                 
-                             ),
-                             box("Sonde 815",
-                                 width=8,
-                                 dygraphOutput("Sonde815MM365")
-                             ),
-                             box("Données lissées sur 365 jours",
-                                 width = 4,
-                                 checkboxInput(inputId = "Teau_min_815MM365", label = "Températures minimales", value=T),
-                                 checkboxInput(inputId = "Teau_moy_815MM365", label = "Températures moyennes", value=T),
-                                 checkboxInput(inputId = "Teau_max_815MM365", label = "Températures maximales", value=T)
-                                 
-                             ), 
-                             box("Droites de régression",
-                                 width = 4,
-                                 checkboxInput(inputId = "Teau_min_815reg365", label = "Droite de régression des températures minimales", value=F),
-                                 checkboxInput(inputId = "Teau_max_815reg365", label = "Droite de régression des températures maximales", value=F)
-                                 
-                             ),
-                             box("Sonde 816",
-                                 width=8,
-                                 dygraphOutput("Sonde816MM365")
-                             ),
-                             box("Données lissées sur 30 jours",
-                                 width = 4,
-                                 checkboxInput(inputId = "Teau_min_816MM365", label = "Températures minimales", value=T),
-                                 checkboxInput(inputId = "Teau_moy_816MM365", label = "Températures moyennes", value=T),
-                                 checkboxInput(inputId = "Teau_max_816MM365", label = "Températures maximales", value=T)
-                                 
-                             ), 
-                             box("Droites de régression",
-                                 width = 4,
-                                 checkboxInput(inputId = "Teau_min_816reg365", label = "Droite de régression des températures minimales", value=F),
-                                 checkboxInput(inputId = "Teau_max_816reg365", label = "Droite de régression des températures maximales", value=F)
-                                 
-                             )
-                           ) # End fluidRow
-                  ) # End tabPanel
-                )  # End tabsetPanel
-                
-              )
-              
-      ), # End tabItem 3
-      # -------------------------------------------------- #
-      
-      
-      
-      # -------------------------------------------------- #
-      tabItem(tabName = "sub_menu_selune",
-              # selune
-              
-              h2("Analyse des températures de la Sélune"),
-              
-              fluidRow(
-                
-                tabsetPanel(
-                  tabPanel("Description",
-                           p("Taille du fleuve : ") ,    
-                           p("Surface du bassin versant associcé : "), 
-                           p("Prend source à : "),   
-                           p("Se jette en : "), 
-                           p("Nature principale des couhes sédimentaires : ")
-                  ), # End tabPanel Description
-                  
-                  tabPanel("Températures enregistrées",
-                           fluidRow(
-                             box("Sonde 824",
-                                 width=8,
-                                 dygraphOutput("Sonde824MM7")
-                             ),
-                             box("Données Brutes",
-                                 width = 4,
-                                 checkboxInput(inputId = "Teau_min_824", label = "Températures minimales", value=F),
-                                 checkboxInput(inputId = "Teau_moy_824", label = "Températures moyennes", value=T),
-                                 checkboxInput(inputId = "Teau_max_824", label = "Températures maximales", value=F)
-                                 
-                             ),
-                             box("Données lissées sur 7 jours",
-                                 width = 4,
-                                 checkboxInput(inputId = "Teau_min_824MM7", label = "Températures minimales ", value=F),
-                                 checkboxInput(inputId = "Teau_moy_824MM7", label = "Températures moyennes  ", value=T),
-                                 checkboxInput(inputId = "Teau_max_824MM7", label = "Températures maximales ", value=F)
-                             ),
-                             box("Sonde 821",
-                                 width=8,
-                                 dygraphOutput("Sonde821MM7")
-                             ),
-                             box("Données Brutes",
-                                 width = 4,
-                                 checkboxInput(inputId = "Teau_min_821", label = "Températures minimales", value=F),
-                                 checkboxInput(inputId = "Teau_moy_821", label = "Températures moyennes", value=T),
-                                 checkboxInput(inputId = "Teau_max_821", label = "Températures maximales", value=F)
-                                 
-                             ),
-                             box("Données lissées sur 7 jours",
-                                 width = 4,
-                                 checkboxInput(inputId = "Teau_min_821MM7", label = "Températures minimales ", value=F),
-                                 checkboxInput(inputId = "Teau_moy_821MM7", label = "Températures moyennes  ", value=T),
-                                 checkboxInput(inputId = "Teau_max_821MM7", label = "Températures maximales ", value=F)
-                             ),
-                             box("Sonde 822",
-                                 width=8,
-                                 dygraphOutput("Sonde822MM7")
-                             ),
-                             box("Données Brutes",
-                                 width = 4,
-                                 checkboxInput(inputId = "Teau_min_822", label = "Températures minimales", value=F),
-                                 checkboxInput(inputId = "Teau_moy_822", label = "Températures moyennes", value=T),
-                                 checkboxInput(inputId = "Teau_max_822", label = "Températures maximales", value=F)
-                                 
-                             ),
-                             box("Données lissées sur 7 jours",
-                                 width = 4,
-                                 checkboxInput(inputId = "Teau_min_822MM7", label = "Températures minimales ", value=F),
-                                 checkboxInput(inputId = "Teau_moy_822MM7", label = "Températures moyennes  ", value=T),
-                                 checkboxInput(inputId = "Teau_max_822MM7", label = "Températures maximales ", value=F)
-                             ),
-                             box("Sonde 820",
-                                 width=8,
-                                 dygraphOutput("Sonde820MM7")
-                             ),
-                             box("Données Brutes",
-                                 width = 4,
-                                 checkboxInput(inputId = "Teau_min_820", label = "Températures minimales", value=F),
-                                 checkboxInput(inputId = "Teau_moy_820", label = "Températures moyennes", value=T),
-                                 checkboxInput(inputId = "Teau_max_820", label = "Températures maximales", value=F)
-                                 
-                             ),
-                             box("Données lissées sur 7 jours",
-                                 width = 4,
-                                 checkboxInput(inputId = "Teau_min_820MM7", label = "Températures minimales ", value=F),
-                                 checkboxInput(inputId = "Teau_moy_820MM7", label = "Températures moyennes  ", value=T),
-                                 checkboxInput(inputId = "Teau_max_820MM7", label = "Températures maximales ", value=F)
-                             ),
-                             
-                             box("Sonde 823",
-                                 width=8,
-                                 dygraphOutput("Sonde823MM7")
-                             ),
-                             box("Données Brutes",
-                                 width = 4,
-                                 checkboxInput(inputId = "Teau_min_823", label = "Températures minimales", value=F),
-                                 checkboxInput(inputId = "Teau_moy_823", label = "Températures moyennes", value=T),
-                                 checkboxInput(inputId = "Teau_max_823", label = "Températures maximales", value=F)
-                                 
-                             ),
-                             box("Données lissées sur 7 jours",
-                                 width = 4,
-                                 checkboxInput(inputId = "Teau_min_823MM7", label = "Températures minimales ", value=F),
-                                 checkboxInput(inputId = "Teau_moy_823MM7", label = "Températures moyennes  ", value=T),
-                                 checkboxInput(inputId = "Teau_max_823MM7", label = "Températures maximales ", value=F)
-                             )
-                             
-                             
-                           )# End fluidRow
-                  ), # End tabPanel 
-                  tabPanel("Températures lissées sur 30 jours",
-                           
-                           fluidRow(
-                             box("Sonde 824",
-                                 width=8,
-                                 dygraphOutput("Sonde824MM30")
-                             ),
-                             box("Données lissées sur 30 jours",
-                                 width = 4,
-                                 checkboxInput(inputId = "Teau_min_824MM30", label = "Températures minimales", value=T),
-                                 checkboxInput(inputId = "Teau_moy_824MM30", label = "Températures moyennes", value=T),
-                                 checkboxInput(inputId = "Teau_max_824MM30", label = "Températures maximales", value=T)
-                                 
-                             ), 
-                             box("Droites de régression",
-                                 width = 4,
-                                 checkboxInput(inputId = "Teau_min_824reg30", label = "Droite de régression des températures minimales", value=F),
-                                 checkboxInput(inputId = "Teau_max_824reg30", label = "Droite de régression des températures maximales", value=F)
-                                 
-                             ),
-                             box("Sonde 821",
-                                 width=8,
-                                 dygraphOutput("Sonde821MM30")
-                             ),
-                             box("Données lissées sur 30 jours",
-                                 width = 4,
-                                 checkboxInput(inputId = "Teau_min_821MM30", label = "Températures minimales", value=T),
-                                 checkboxInput(inputId = "Teau_moy_821MM30", label = "Températures moyennes", value=T),
-                                 checkboxInput(inputId = "Teau_max_821MM30", label = "Températures maximales", value=T)
-                                 
-                             ), 
-                             box("Droites de régression",
-                                 width = 4,
-                                 checkboxInput(inputId = "Teau_min_821reg30", label = "Droite de régression des températures minimales", value=F),
-                                 checkboxInput(inputId = "Teau_max_821reg30", label = "Droite de régression des températures maximales", value=F)
-                                 
-                             ),
-                             box("Sonde 822",
-                                 width=8,
-                                 dygraphOutput("Sonde822MM30")
-                             ),
-                             box("Données lissées sur 30 jours",
-                                 width = 4,
-                                 checkboxInput(inputId = "Teau_min_822MM30", label = "Températures minimales", value=T),
-                                 checkboxInput(inputId = "Teau_moy_822MM30", label = "Températures moyennes", value=T),
-                                 checkboxInput(inputId = "Teau_max_822MM30", label = "Températures maximales", value=T)
-                                 
-                             ), 
-                             box("Droites de régression",
-                                 width = 4,
-                                 checkboxInput(inputId = "Teau_min_822reg30", label = "Droite de régression des températures minimales", value=F),
-                                 checkboxInput(inputId = "Teau_max_822reg30", label = "Droite de régression des températures maximales", value=F)
-                                 
-                             ),
-                             box("Sonde 820",
-                                 width=8,
-                                 dygraphOutput("Sonde820MM30")
-                             ),
-                             box("Données lissées sur 30 jours",
-                                 width = 4,
-                                 checkboxInput(inputId = "Teau_min_820MM30", label = "Températures minimales", value=T),
-                                 checkboxInput(inputId = "Teau_moy_820MM30", label = "Températures moyennes", value=T),
-                                 checkboxInput(inputId = "Teau_max_820MM30", label = "Températures maximales", value=T)
-                                 
-                             ), 
-                             box("Droites de régression",
-                                 width = 4,
-                                 checkboxInput(inputId = "Teau_min_820reg30", label = "Droite de régression des températures minimales", value=F),
-                                 checkboxInput(inputId = "Teau_max_820reg30", label = "Droite de régression des températures maximales", value=F)
-                                 
-                             ),
-                             box("Sonde 823",
-                                 width=8,
-                                 dygraphOutput("Sonde823MM30")
-                             ),
-                             box("Données lissées sur 30 jours",
-                                 width = 4,
-                                 checkboxInput(inputId = "Teau_min_823MM30", label = "Températures minimales", value=T),
-                                 checkboxInput(inputId = "Teau_moy_823MM30", label = "Températures moyennes", value=T),
-                                 checkboxInput(inputId = "Teau_max_823MM30", label = "Températures maximales", value=T)
-                                 
-                             ), 
-                             box("Droites de régression",
-                                 width = 4,
-                                 checkboxInput(inputId = "Teau_min_823reg30", label = "Droite de régression des températures minimales", value=F),
-                                 checkboxInput(inputId = "Teau_max_823reg30", label = "Droite de régression des températures maximales", value=F)
-                                 
-                             )
-                           )# end fluid
-                  ),# end tabPanel
-                  tabPanel("Températures lissées sur 365 jours",
-                           
-                           fluidRow(
-                             box("Sonde 824",
-                                 width=8,
-                                 dygraphOutput("Sonde824MM365")
-                             ),
-                             box("Données lissées sur 30 jours",
-                                 width = 4,
-                                 checkboxInput(inputId = "Teau_min_824MM365", label = "Températures minimales", value=T),
-                                 checkboxInput(inputId = "Teau_moy_824MM365", label = "Températures moyennes", value=T),
-                                 checkboxInput(inputId = "Teau_max_824MM365", label = "Températures maximales", value=T)
-                                 
-                             ), 
-                             box("Droites de régression",
-                                 width = 4,
-                                 checkboxInput(inputId = "Teau_min_824reg365", label = "Droite de régression des températures minimales", value=F),
-                                 checkboxInput(inputId = "Teau_max_824reg365", label = "Droite de régression des températures maximales", value=F)
-                                 
-                             ),
-                             box("Sonde 821",
-                                 width=8,
-                                 dygraphOutput("Sonde821MM365")
-                             ),
-                             box("Données lissées sur 30 jours",
-                                 width = 4,
-                                 checkboxInput(inputId = "Teau_min_821MM365", label = "Températures minimales", value=T),
-                                 checkboxInput(inputId = "Teau_moy_821MM365", label = "Températures moyennes", value=T),
-                                 checkboxInput(inputId = "Teau_max_821MM365", label = "Températures maximales", value=T)
-                                 
-                             ), 
-                             box("Droites de régression",
-                                 width = 4,
-                                 checkboxInput(inputId = "Teau_min_821reg365", label = "Droite de régression des températures minimales", value=F),
-                                 checkboxInput(inputId = "Teau_max_821reg365", label = "Droite de régression des températures maximales", value=F)
-                                 
-                             ),
-                             box("Sonde 822",
-                                 width=8,
-                                 dygraphOutput("Sonde822MM365")
-                             ),
-                             box("Données lissées sur 365 jours",
-                                 width = 4,
-                                 checkboxInput(inputId = "Teau_min_822MM365", label = "Températures minimales", value=T),
-                                 checkboxInput(inputId = "Teau_moy_822MM365", label = "Températures moyennes", value=T),
-                                 checkboxInput(inputId = "Teau_max_822MM365", label = "Températures maximales", value=T)
-                                 
-                             ), 
-                             box("Droites de régression",
-                                 width = 4,
-                                 checkboxInput(inputId = "Teau_min_822reg365", label = "Droite de régression des températures minimales", value=F),
-                                 checkboxInput(inputId = "Teau_max_822reg365", label = "Droite de régression des températures maximales", value=F)
-                                 
-                             ),
-                             box("Sonde 820",
-                                 width=8,
-                                 dygraphOutput("Sonde820MM365")
-                             ),
-                             box("Données lissées sur 30 jours",
-                                 width = 4,
-                                 checkboxInput(inputId = "Teau_min_820MM365", label = "Températures minimales", value=T),
-                                 checkboxInput(inputId = "Teau_moy_820MM365", label = "Températures moyennes", value=T),
-                                 checkboxInput(inputId = "Teau_max_820MM365", label = "Températures maximales", value=T)
-                                 
-                             ), 
-                             box("Droites de régression",
-                                 width = 4,
-                                 checkboxInput(inputId = "Teau_min_820reg365", label = "Droite de régression des températures minimales", value=F),
-                                 checkboxInput(inputId = "Teau_max_820reg365", label = "Droite de régression des températures maximales", value=F)
-                                 
-                             ),
-                             box("Sonde 823",
-                                 width=8,
-                                 dygraphOutput("Sonde823MM365")
-                             ),
-                             box("Données lissées sur 30 jours",
-                                 width = 4,
-                                 checkboxInput(inputId = "Teau_min_823MM365", label = "Températures minimales", value=T),
-                                 checkboxInput(inputId = "Teau_moy_823MM365", label = "Températures moyennes", value=T),
-                                 checkboxInput(inputId = "Teau_max_823MM365", label = "Températures maximales", value=T)
-                                 
-                             ), 
-                             box("Droites de régression",
-                                 width = 4,
-                                 checkboxInput(inputId = "Teau_min_823reg365", label = "Droite de régression des températures minimales", value=F),
-                                 checkboxInput(inputId = "Teau_max_823reg365", label = "Droite de régression des températures maximales", value=F)
-                                 
-                             )
-                           ) # End fluidRow
-                  ) # End tabPanel
-                )  # End tabsetPanel
-                
-                
-                
-              )
-              
-              
-      ), # End tabItem 4
-      # -------------------------------------------------- #
-      
-      
-      
-      
-      # -------------------------------------------------- #
+                                 fluidRow(
+                                    
+                                     box(h4("Données lissées sur 365 jours"),
+                                         width = 6,
+                                         checkboxInput(inputId = "Teau_minMM365", label = "Températures minimales", value=F),
+                                         checkboxInput(inputId = "Teau_moyMM365", label = "Températures moyennes", value=T),
+                                         checkboxInput(inputId = "Teau_maxMM365", label = "Températures maximales", value=F)
+                                         
+                                     ), 
+                                     box(h4("Droites de régression"),
+                                         width = 6,height = 170,
+                                         checkboxInput(inputId = "Teau_minreg365", label = "Droite de régression des températures minimales", value=F),
+                                         checkboxInput(inputId = "Teau_maxreg365", label = "Droite de régression des températures maximales", value=F)
+                                         
+                                     ),
+                                     box(
+                                         width=6,
+                                         h3("Touques T1"),
+                                         dygraphOutput("Sonde825MM365")
+                                     ),
+                                     box(
+                                         width=6,
+                                         h3("Touques T3"),
+                                         dygraphOutput("Sonde827MM365")
+                                     ),
+                                     box(
+                                         width=6,
+                                         h3("Touques T4"),
+                                         dygraphOutput("Sonde828MM365")
+                                     ),
+                                    
+                                     box(
+                                         width=6,
+                                         h3("Touques T6"),
+                                         dygraphOutput("Sonde830MM365")
+                                     )
+                                 ) # End fluidRow
+                        ) # End tabPanel
+                    )  # End tabsetPanel
+                    
+                    
+            ), # End tabItem 1
+            # -------------------------------------------------- #
+            
+            
+            
+            
+            # -------------------------------------------------- #
+            tabItem(tabName = "sub_menu_orne",
+                    # orne
+                    
+                    
+                    h2("Analyse des températures de l'Orne"),
+                    
+                    fluidRow(
+                        tabsetPanel(
+                            tabPanel("Description",
+                                     p("Taille du fleuve : ") ,    
+                                     p("Surface du bassin versant associcé : "), 
+                                     p("Prend source à : "),   
+                                     p("Se jette en : "), 
+                                     p("Nature principale des couhes sédimentaires : ")
+                            ), # End tabPanel Description
+                            
+                            tabPanel("Températures enregistrées",
+                                     fluidRow(
+                                         box("Sonde 817",
+                                             width=8,
+                                             dygraphOutput("Sonde817MM7")
+                                         ),
+                                         box("Données Brutes",
+                                             width = 4,
+                                             checkboxInput(inputId = "Teau_min_817", label = "Températures minimales", value=F),
+                                             checkboxInput(inputId = "Teau_moy_817", label = "Températures moyennes", value=T),
+                                             checkboxInput(inputId = "Teau_max_817", label = "Températures maximales", value=F)
+                                             
+                                         ),
+                                         box("Données lissées sur 7 jours",
+                                             width = 4,
+                                             checkboxInput(inputId = "Teau_min_817MM7", label = "Températures minimales ", value=F),
+                                             checkboxInput(inputId = "Teau_moy_817MM7", label = "Températures moyennes  ", value=T),
+                                             checkboxInput(inputId = "Teau_max_817MM7", label = "Températures maximales ", value=F)
+                                         ),
+                                         box("Sonde 818",
+                                             width=8,
+                                             dygraphOutput("Sonde818MM7")
+                                         ),
+                                         box("Données Brutes",
+                                             width = 4,
+                                             checkboxInput(inputId = "Teau_min_818", label = "Températures minimales", value=F),
+                                             checkboxInput(inputId = "Teau_moy_818", label = "Températures moyennes", value=T),
+                                             checkboxInput(inputId = "Teau_max_818", label = "Températures maximales", value=F)
+                                             
+                                         ),
+                                         box("Données lissées sur 7 jours",
+                                             width = 4,
+                                             checkboxInput(inputId = "Teau_min_818MM7", label = "Températures minimales ", value=F),
+                                             checkboxInput(inputId = "Teau_moy_818MM7", label = "Températures moyennes  ", value=T),
+                                             checkboxInput(inputId = "Teau_max_818MM7", label = "Températures maximales ", value=F)
+                                         ),
+                                         box("Sonde 819",
+                                             width=8,
+                                             dygraphOutput("Sonde819MM7")
+                                         ),
+                                         box("Données Brutes",
+                                             width = 4,
+                                             checkboxInput(inputId = "Teau_min_819", label = "Températures minimales", value=F),
+                                             checkboxInput(inputId = "Teau_moy_819", label = "Températures moyennes", value=T),
+                                             checkboxInput(inputId = "Teau_max_819", label = "Températures maximales", value=F)
+                                             
+                                         ),
+                                         box("Données lissées sur 7 jours",
+                                             width = 4,
+                                             checkboxInput(inputId = "Teau_min_819MM7", label = "Températures minimales ", value=F),
+                                             checkboxInput(inputId = "Teau_moy_819MM7", label = "Températures moyennes  ", value=T),
+                                             checkboxInput(inputId = "Teau_max_819MM7", label = "Températures maximales ", value=F)
+                                         )
+                                         
+                                     )# End fluidRow
+                            ), # End tabPanel 
+                            tabPanel("Températures lissées sur 30 jours",
+                                     
+                                     fluidRow(
+                                         box("Sonde 817",
+                                             width=8,
+                                             dygraphOutput("Sonde817MM30")
+                                         ),
+                                         box("Données lissées sur 30 jours",
+                                             width = 4,
+                                             checkboxInput(inputId = "Teau_min_817MM30", label = "Températures minimales", value=T),
+                                             checkboxInput(inputId = "Teau_moy_817MM30", label = "Températures moyennes", value=T),
+                                             checkboxInput(inputId = "Teau_max_817MM30", label = "Températures maximales", value=T)
+                                             
+                                         ), 
+                                         box("Droites de régression",
+                                             width = 4,
+                                             checkboxInput(inputId = "Teau_min_817reg30", label = "Droite de régression des températures minimales", value=F),
+                                             checkboxInput(inputId = "Teau_max_817reg30", label = "Droite de régression des températures maximales", value=F)
+                                             
+                                         ),
+                                         box("Sonde 818",
+                                             width=8,
+                                             dygraphOutput("Sonde818MM30")
+                                         ),
+                                         box("Données lissées sur 30 jours",
+                                             width = 4,
+                                             checkboxInput(inputId = "Teau_min_818MM30", label = "Températures minimales", value=T),
+                                             checkboxInput(inputId = "Teau_moy_818MM30", label = "Températures moyennes", value=T),
+                                             checkboxInput(inputId = "Teau_max_818MM30", label = "Températures maximales", value=T)
+                                             
+                                         ), 
+                                         box("Droites de régression",
+                                             width = 4,
+                                             checkboxInput(inputId = "Teau_min_818reg30", label = "Droite de régression des températures minimales", value=F),
+                                             checkboxInput(inputId = "Teau_max_818reg30", label = "Droite de régression des températures maximales", value=F)
+                                             
+                                         ),
+                                         box("Sonde 819",
+                                             width=8,
+                                             dygraphOutput("Sonde819MM30")
+                                         ),
+                                         box("Données lissées sur 30 jours",
+                                             width = 4,
+                                             checkboxInput(inputId = "Teau_min_819MM30", label = "Températures minimales", value=T),
+                                             checkboxInput(inputId = "Teau_moy_819MM30", label = "Températures moyennes", value=T),
+                                             checkboxInput(inputId = "Teau_max_819MM30", label = "Températures maximales", value=T)
+                                             
+                                         ), 
+                                         box("Droites de régression",
+                                             width = 4,
+                                             checkboxInput(inputId = "Teau_min_819reg30", label = "Droite de régression des températures minimales", value=F),
+                                             checkboxInput(inputId = "Teau_max_819reg30", label = "Droite de régression des températures maximales", value=F)
+                                             
+                                         )
+                                         
+                                     )# end fluid
+                            ),# end tabPanel
+                            tabPanel("Températures lissées sur 365 jours",
+                                     
+                                     fluidRow(
+                                         box("Sonde 817",
+                                             width=8,
+                                             dygraphOutput("Sonde817MM365")
+                                         ),
+                                         box("Données lissées sur 30 jours",
+                                             width = 4,
+                                             checkboxInput(inputId = "Teau_min_817MM365", label = "Températures minimales", value=T),
+                                             checkboxInput(inputId = "Teau_moy_817MM365", label = "Températures moyennes", value=T),
+                                             checkboxInput(inputId = "Teau_max_817MM365", label = "Températures maximales", value=T)
+                                             
+                                         ), 
+                                         box("Droites de régression",
+                                             width = 4,
+                                             checkboxInput(inputId = "Teau_min_817reg365", label = "Droite de régression des températures minimales", value=F),
+                                             checkboxInput(inputId = "Teau_max_817reg365", label = "Droite de régression des températures maximales", value=F)
+                                             
+                                         ),
+                                         box("Sonde 818",
+                                             width=8,
+                                             dygraphOutput("Sonde818MM365")
+                                         ),
+                                         box("Données lissées sur 30 jours",
+                                             width = 4,
+                                             checkboxInput(inputId = "Teau_min_818MM365", label = "Températures minimales", value=T),
+                                             checkboxInput(inputId = "Teau_moy_818MM365", label = "Températures moyennes", value=T),
+                                             checkboxInput(inputId = "Teau_max_818MM365", label = "Températures maximales", value=T)
+                                             
+                                         ), 
+                                         box("Droites de régression",
+                                             width = 4,
+                                             checkboxInput(inputId = "Teau_min_818reg365", label = "Droite de régression des températures minimales", value=F),
+                                             checkboxInput(inputId = "Teau_max_818reg365", label = "Droite de régression des températures maximales", value=F)
+                                             
+                                         ),
+                                         box("Sonde 819",
+                                             width=8,
+                                             dygraphOutput("Sonde819MM365")
+                                         ),
+                                         box("Données lissées sur 365 jours",
+                                             width = 4,
+                                             checkboxInput(inputId = "Teau_min_819MM365", label = "Températures minimales", value=T),
+                                             checkboxInput(inputId = "Teau_moy_819MM365", label = "Températures moyennes", value=T),
+                                             checkboxInput(inputId = "Teau_max_819MM365", label = "Températures maximales", value=T)
+                                             
+                                         ), 
+                                         box("Droites de régression",
+                                             width = 4,
+                                             checkboxInput(inputId = "Teau_min_819reg365", label = "Droite de régression des températures minimales", value=F),
+                                             checkboxInput(inputId = "Teau_max_819reg365", label = "Droite de régression des températures maximales", value=F)
+                                             
+                                         )
+                                         
+                                     ) # End fluidRow
+                                     
+                                     
+                                     
+                                     
+                            ) # End tabPanel
+                        )  # End tabsetPanel
+                        
+                    )
+                    
+                    
+            ), # End tabItem 2
+            # -------------------------------------------------- #
+            
+            
+            
+            # -------------------------------------------------- #
+            tabItem(tabName = "sub_menu_odon",
+                    # odon
+                    
+                    
+                    h2("Analyse des températures de l'Odon"),
+                    
+                    fluidRow(
+                        tabsetPanel(
+                            tabPanel("Description",
+                                     p("Taille du fleuve : 107km") ,    
+                                     p("Surface du bassin versant associcé : 1305 km²"), 
+                                     p("Prend source à : Gacé"),   
+                                     p("Se jette en : Mer de la Mache (Deauville,Trouville-sur-Mer)"), 
+                                     p("Nature principale des couhes sédimentaires : crayeuses")
+                            ), # End tabPanel Description
+                            
+                            tabPanel("Températures enregistrées",
+                                     fluidRow(
+                                         box("Sonde 812",
+                                             width=8,
+                                             dygraphOutput("Sonde812MM7")
+                                         ),
+                                         box("Données Brutes",
+                                             width = 4,
+                                             checkboxInput(inputId = "Teau_min_812", label = "Températures minimales", value=F),
+                                             checkboxInput(inputId = "Teau_moy_812", label = "Températures moyennes", value=T),
+                                             checkboxInput(inputId = "Teau_max_812", label = "Températures maximales", value=F)
+                                             
+                                         ),
+                                         box("Données lissées sur 7 jours",
+                                             width = 4,
+                                             checkboxInput(inputId = "Teau_min_812MM7", label = "Températures minimales ", value=F),
+                                             checkboxInput(inputId = "Teau_moy_812MM7", label = "Températures moyennes  ", value=T),
+                                             checkboxInput(inputId = "Teau_max_812MM7", label = "Températures maximales ", value=F)
+                                         ),
+                                         box("Sonde 813",
+                                             width=8,
+                                             dygraphOutput("Sonde813MM7")
+                                         ),
+                                         box("Données Brutes",
+                                             width = 4,
+                                             checkboxInput(inputId = "Teau_min_813", label = "Températures minimales", value=F),
+                                             checkboxInput(inputId = "Teau_moy_813", label = "Températures moyennes", value=T),
+                                             checkboxInput(inputId = "Teau_max_813", label = "Températures maximales", value=F)
+                                             
+                                         ),
+                                         box("Données lissées sur 7 jours",
+                                             width = 4,
+                                             checkboxInput(inputId = "Teau_min_813MM7", label = "Températures minimales ", value=F),
+                                             checkboxInput(inputId = "Teau_moy_813MM7", label = "Températures moyennes  ", value=T),
+                                             checkboxInput(inputId = "Teau_max_813MM7", label = "Températures maximales ", value=F)
+                                         ),
+                                         box("Sonde 815",
+                                             width=8,
+                                             dygraphOutput("Sonde815MM7")
+                                         ),
+                                         box("Données Brutes",
+                                             width = 4,
+                                             checkboxInput(inputId = "Teau_min_815", label = "Températures minimales", value=F),
+                                             checkboxInput(inputId = "Teau_moy_815", label = "Températures moyennes", value=T),
+                                             checkboxInput(inputId = "Teau_max_815", label = "Températures maximales", value=F)
+                                             
+                                         ),
+                                         box("Données lissées sur 7 jours",
+                                             width = 4,
+                                             checkboxInput(inputId = "Teau_min_815MM7", label = "Températures minimales ", value=F),
+                                             checkboxInput(inputId = "Teau_moy_815MM7", label = "Températures moyennes  ", value=T),
+                                             checkboxInput(inputId = "Teau_max_815MM7", label = "Températures maximales ", value=F)
+                                         ),
+                                         box("Sonde 816",
+                                             width=8,
+                                             dygraphOutput("Sonde816MM7")
+                                         ),
+                                         box("Données Brutes",
+                                             width = 4,
+                                             checkboxInput(inputId = "Teau_min_816", label = "Températures minimales", value=F),
+                                             checkboxInput(inputId = "Teau_moy_816", label = "Températures moyennes", value=T),
+                                             checkboxInput(inputId = "Teau_max_816", label = "Températures maximales", value=F)
+                                             
+                                         ),
+                                         box("Données lissées sur 7 jours",
+                                             width = 4,
+                                             checkboxInput(inputId = "Teau_min_816MM7", label = "Températures minimales ", value=F),
+                                             checkboxInput(inputId = "Teau_moy_816MM7", label = "Températures moyennes  ", value=T),
+                                             checkboxInput(inputId = "Teau_max_816MM7", label = "Températures maximales ", value=F)
+                                         )
+                                         
+                                         
+                                     )# End fluidRow
+                            ), # End tabPanel 
+                            tabPanel("Températures lissées sur 30 jours",
+                                     
+                                     fluidRow(
+                                         box("Sonde 812",
+                                             width=8,
+                                             dygraphOutput("Sonde812MM30")
+                                         ),
+                                         box("Données lissées sur 30 jours",
+                                             width = 4,
+                                             checkboxInput(inputId = "Teau_min_812MM30", label = "Températures minimales", value=T),
+                                             checkboxInput(inputId = "Teau_moy_812MM30", label = "Températures moyennes", value=T),
+                                             checkboxInput(inputId = "Teau_max_812MM30", label = "Températures maximales", value=T)
+                                             
+                                         ), 
+                                         box("Droites de régression",
+                                             width = 4,
+                                             checkboxInput(inputId = "Teau_min_812reg30", label = "Droite de régression des températures minimales", value=F),
+                                             checkboxInput(inputId = "Teau_max_812reg30", label = "Droite de régression des températures maximales", value=F)
+                                             
+                                         ),
+                                         box("Sonde 813",
+                                             width=8,
+                                             dygraphOutput("Sonde813MM30")
+                                         ),
+                                         box("Données lissées sur 30 jours",
+                                             width = 4,
+                                             checkboxInput(inputId = "Teau_min_813MM30", label = "Températures minimales", value=T),
+                                             checkboxInput(inputId = "Teau_moy_813MM30", label = "Températures moyennes", value=T),
+                                             checkboxInput(inputId = "Teau_max_813MM30", label = "Températures maximales", value=T)
+                                             
+                                         ), 
+                                         box("Droites de régression",
+                                             width = 4,
+                                             checkboxInput(inputId = "Teau_min_813reg30", label = "Droite de régression des températures minimales", value=F),
+                                             checkboxInput(inputId = "Teau_max_813reg30", label = "Droite de régression des températures maximales", value=F)
+                                             
+                                         ),
+                                         box("Sonde 815",
+                                             width=8,
+                                             dygraphOutput("Sonde815MM30")
+                                         ),
+                                         box("Données lissées sur 30 jours",
+                                             width = 4,
+                                             checkboxInput(inputId = "Teau_min_815MM30", label = "Températures minimales", value=T),
+                                             checkboxInput(inputId = "Teau_moy_815MM30", label = "Températures moyennes", value=T),
+                                             checkboxInput(inputId = "Teau_max_815MM30", label = "Températures maximales", value=T)
+                                             
+                                         ), 
+                                         box("Droites de régression",
+                                             width = 4,
+                                             checkboxInput(inputId = "Teau_min_815reg30", label = "Droite de régression des températures minimales", value=F),
+                                             checkboxInput(inputId = "Teau_max_815reg30", label = "Droite de régression des températures maximales", value=F)
+                                             
+                                         ),
+                                         box("Sonde 816",
+                                             width=8,
+                                             dygraphOutput("Sonde816MM30")
+                                         ),
+                                         box("Données lissées sur 30 jours",
+                                             width = 4,
+                                             checkboxInput(inputId = "Teau_min_816MM30", label = "Températures minimales", value=T),
+                                             checkboxInput(inputId = "Teau_moy_816MM30", label = "Températures moyennes", value=T),
+                                             checkboxInput(inputId = "Teau_max_816MM30", label = "Températures maximales", value=T)
+                                             
+                                         ), 
+                                         box("Droites de régression",
+                                             width = 4,
+                                             checkboxInput(inputId = "Teau_min_816reg30", label = "Droite de régression des températures minimales", value=F),
+                                             checkboxInput(inputId = "Teau_max_816reg30", label = "Droite de régression des températures maximales", value=F)
+                                             
+                                         )
+                                     )# end fluid
+                            ),# end tabPanel
+                            tabPanel("Températures lissées sur 365 jours",
+                                     
+                                     fluidRow(
+                                         box("Sonde 812",
+                                             width=8,
+                                             dygraphOutput("Sonde812MM365")
+                                         ),
+                                         box("Données lissées sur 30 jours",
+                                             width = 4,
+                                             checkboxInput(inputId = "Teau_min_812MM365", label = "Températures minimales", value=T),
+                                             checkboxInput(inputId = "Teau_moy_812MM365", label = "Températures moyennes", value=T),
+                                             checkboxInput(inputId = "Teau_max_812MM365", label = "Températures maximales", value=T)
+                                             
+                                         ), 
+                                         box("Droites de régression",
+                                             width = 4,
+                                             checkboxInput(inputId = "Teau_min_812reg365", label = "Droite de régression des températures minimales", value=F),
+                                             checkboxInput(inputId = "Teau_max_812reg365", label = "Droite de régression des températures maximales", value=F)
+                                             
+                                         ),
+                                         box("Sonde 813",
+                                             width=8,
+                                             dygraphOutput("Sonde813MM365")
+                                         ),
+                                         box("Données lissées sur 30 jours",
+                                             width = 4,
+                                             checkboxInput(inputId = "Teau_min_813MM365", label = "Températures minimales", value=T),
+                                             checkboxInput(inputId = "Teau_moy_813MM365", label = "Températures moyennes", value=T),
+                                             checkboxInput(inputId = "Teau_max_813MM365", label = "Températures maximales", value=T)
+                                             
+                                         ), 
+                                         box("Droites de régression",
+                                             width = 4,
+                                             checkboxInput(inputId = "Teau_min_813reg365", label = "Droite de régression des températures minimales", value=F),
+                                             checkboxInput(inputId = "Teau_max_813reg365", label = "Droite de régression des températures maximales", value=F)
+                                             
+                                         ),
+                                         box("Sonde 815",
+                                             width=8,
+                                             dygraphOutput("Sonde815MM365")
+                                         ),
+                                         box("Données lissées sur 365 jours",
+                                             width = 4,
+                                             checkboxInput(inputId = "Teau_min_815MM365", label = "Températures minimales", value=T),
+                                             checkboxInput(inputId = "Teau_moy_815MM365", label = "Températures moyennes", value=T),
+                                             checkboxInput(inputId = "Teau_max_815MM365", label = "Températures maximales", value=T)
+                                             
+                                         ), 
+                                         box("Droites de régression",
+                                             width = 4,
+                                             checkboxInput(inputId = "Teau_min_815reg365", label = "Droite de régression des températures minimales", value=F),
+                                             checkboxInput(inputId = "Teau_max_815reg365", label = "Droite de régression des températures maximales", value=F)
+                                             
+                                         ),
+                                         box("Sonde 816",
+                                             width=8,
+                                             dygraphOutput("Sonde816MM365")
+                                         ),
+                                         box("Données lissées sur 30 jours",
+                                             width = 4,
+                                             checkboxInput(inputId = "Teau_min_816MM365", label = "Températures minimales", value=T),
+                                             checkboxInput(inputId = "Teau_moy_816MM365", label = "Températures moyennes", value=T),
+                                             checkboxInput(inputId = "Teau_max_816MM365", label = "Températures maximales", value=T)
+                                             
+                                         ), 
+                                         box("Droites de régression",
+                                             width = 4,
+                                             checkboxInput(inputId = "Teau_min_816reg365", label = "Droite de régression des températures minimales", value=F),
+                                             checkboxInput(inputId = "Teau_max_816reg365", label = "Droite de régression des températures maximales", value=F)
+                                             
+                                         )
+                                     ) # End fluidRow
+                            ) # End tabPanel
+                        )  # End tabsetPanel
+                        
+                    )
+                    
+            ), # End tabItem 3
+            # -------------------------------------------------- #
+            
+            
+            
+            # -------------------------------------------------- #
+            tabItem(tabName = "sub_menu_selune",
+                    # selune
+                    
+                    h2("Analyse des températures de la Sélune"),
+                    
+                    fluidRow(
+                        
+                        tabsetPanel(
+                            tabPanel("Description",
+                                     p("Taille du fleuve : ") ,    
+                                     p("Surface du bassin versant associcé : "), 
+                                     p("Prend source à : "),   
+                                     p("Se jette en : "), 
+                                     p("Nature principale des couhes sédimentaires : ")
+                            ), # End tabPanel Description
+                            
+                            tabPanel("Températures enregistrées",
+                                     fluidRow(
+                                         box("Sonde 824",
+                                             width=8,
+                                             dygraphOutput("Sonde824MM7")
+                                         ),
+                                         box("Données Brutes",
+                                             width = 4,
+                                             checkboxInput(inputId = "Teau_min_824", label = "Températures minimales", value=F),
+                                             checkboxInput(inputId = "Teau_moy_824", label = "Températures moyennes", value=T),
+                                             checkboxInput(inputId = "Teau_max_824", label = "Températures maximales", value=F)
+                                             
+                                         ),
+                                         box("Données lissées sur 7 jours",
+                                             width = 4,
+                                             checkboxInput(inputId = "Teau_min_824MM7", label = "Températures minimales ", value=F),
+                                             checkboxInput(inputId = "Teau_moy_824MM7", label = "Températures moyennes  ", value=T),
+                                             checkboxInput(inputId = "Teau_max_824MM7", label = "Températures maximales ", value=F)
+                                         ),
+                                         box("Sonde 821",
+                                             width=8,
+                                             dygraphOutput("Sonde821MM7")
+                                         ),
+                                         box("Données Brutes",
+                                             width = 4,
+                                             checkboxInput(inputId = "Teau_min_821", label = "Températures minimales", value=F),
+                                             checkboxInput(inputId = "Teau_moy_821", label = "Températures moyennes", value=T),
+                                             checkboxInput(inputId = "Teau_max_821", label = "Températures maximales", value=F)
+                                             
+                                         ),
+                                         box("Données lissées sur 7 jours",
+                                             width = 4,
+                                             checkboxInput(inputId = "Teau_min_821MM7", label = "Températures minimales ", value=F),
+                                             checkboxInput(inputId = "Teau_moy_821MM7", label = "Températures moyennes  ", value=T),
+                                             checkboxInput(inputId = "Teau_max_821MM7", label = "Températures maximales ", value=F)
+                                         ),
+                                         box("Sonde 822",
+                                             width=8,
+                                             dygraphOutput("Sonde822MM7")
+                                         ),
+                                         box("Données Brutes",
+                                             width = 4,
+                                             checkboxInput(inputId = "Teau_min_822", label = "Températures minimales", value=F),
+                                             checkboxInput(inputId = "Teau_moy_822", label = "Températures moyennes", value=T),
+                                             checkboxInput(inputId = "Teau_max_822", label = "Températures maximales", value=F)
+                                             
+                                         ),
+                                         box("Données lissées sur 7 jours",
+                                             width = 4,
+                                             checkboxInput(inputId = "Teau_min_822MM7", label = "Températures minimales ", value=F),
+                                             checkboxInput(inputId = "Teau_moy_822MM7", label = "Températures moyennes  ", value=T),
+                                             checkboxInput(inputId = "Teau_max_822MM7", label = "Températures maximales ", value=F)
+                                         ),
+                                         box("Sonde 820",
+                                             width=8,
+                                             dygraphOutput("Sonde820MM7")
+                                         ),
+                                         box("Données Brutes",
+                                             width = 4,
+                                             checkboxInput(inputId = "Teau_min_820", label = "Températures minimales", value=F),
+                                             checkboxInput(inputId = "Teau_moy_820", label = "Températures moyennes", value=T),
+                                             checkboxInput(inputId = "Teau_max_820", label = "Températures maximales", value=F)
+                                             
+                                         ),
+                                         box("Données lissées sur 7 jours",
+                                             width = 4,
+                                             checkboxInput(inputId = "Teau_min_820MM7", label = "Températures minimales ", value=F),
+                                             checkboxInput(inputId = "Teau_moy_820MM7", label = "Températures moyennes  ", value=T),
+                                             checkboxInput(inputId = "Teau_max_820MM7", label = "Températures maximales ", value=F)
+                                         ),
+                                         
+                                         box("Sonde 823",
+                                             width=8,
+                                             dygraphOutput("Sonde823MM7")
+                                         ),
+                                         box("Données Brutes",
+                                             width = 4,
+                                             checkboxInput(inputId = "Teau_min_823", label = "Températures minimales", value=F),
+                                             checkboxInput(inputId = "Teau_moy_823", label = "Températures moyennes", value=T),
+                                             checkboxInput(inputId = "Teau_max_823", label = "Températures maximales", value=F)
+                                             
+                                         ),
+                                         box("Données lissées sur 7 jours",
+                                             width = 4,
+                                             checkboxInput(inputId = "Teau_min_823MM7", label = "Températures minimales ", value=F),
+                                             checkboxInput(inputId = "Teau_moy_823MM7", label = "Températures moyennes  ", value=T),
+                                             checkboxInput(inputId = "Teau_max_823MM7", label = "Températures maximales ", value=F)
+                                         )
+                                         
+                                         
+                                     )# End fluidRow
+                            ), # End tabPanel 
+                            tabPanel("Températures lissées sur 30 jours",
+                                     
+                                     fluidRow(
+                                         box("Sonde 824",
+                                             width=8,
+                                             dygraphOutput("Sonde824MM30")
+                                         ),
+                                         box("Données lissées sur 30 jours",
+                                             width = 4,
+                                             checkboxInput(inputId = "Teau_min_824MM30", label = "Températures minimales", value=T),
+                                             checkboxInput(inputId = "Teau_moy_824MM30", label = "Températures moyennes", value=T),
+                                             checkboxInput(inputId = "Teau_max_824MM30", label = "Températures maximales", value=T)
+                                             
+                                         ), 
+                                         box("Droites de régression",
+                                             width = 4,
+                                             checkboxInput(inputId = "Teau_min_824reg30", label = "Droite de régression des températures minimales", value=F),
+                                             checkboxInput(inputId = "Teau_max_824reg30", label = "Droite de régression des températures maximales", value=F)
+                                             
+                                         ),
+                                         box("Sonde 821",
+                                             width=8,
+                                             dygraphOutput("Sonde821MM30")
+                                         ),
+                                         box("Données lissées sur 30 jours",
+                                             width = 4,
+                                             checkboxInput(inputId = "Teau_min_821MM30", label = "Températures minimales", value=T),
+                                             checkboxInput(inputId = "Teau_moy_821MM30", label = "Températures moyennes", value=T),
+                                             checkboxInput(inputId = "Teau_max_821MM30", label = "Températures maximales", value=T)
+                                             
+                                         ), 
+                                         box("Droites de régression",
+                                             width = 4,
+                                             checkboxInput(inputId = "Teau_min_821reg30", label = "Droite de régression des températures minimales", value=F),
+                                             checkboxInput(inputId = "Teau_max_821reg30", label = "Droite de régression des températures maximales", value=F)
+                                             
+                                         ),
+                                         box("Sonde 822",
+                                             width=8,
+                                             dygraphOutput("Sonde822MM30")
+                                         ),
+                                         box("Données lissées sur 30 jours",
+                                             width = 4,
+                                             checkboxInput(inputId = "Teau_min_822MM30", label = "Températures minimales", value=T),
+                                             checkboxInput(inputId = "Teau_moy_822MM30", label = "Températures moyennes", value=T),
+                                             checkboxInput(inputId = "Teau_max_822MM30", label = "Températures maximales", value=T)
+                                             
+                                         ), 
+                                         box("Droites de régression",
+                                             width = 4,
+                                             checkboxInput(inputId = "Teau_min_822reg30", label = "Droite de régression des températures minimales", value=F),
+                                             checkboxInput(inputId = "Teau_max_822reg30", label = "Droite de régression des températures maximales", value=F)
+                                             
+                                         ),
+                                         box("Sonde 820",
+                                             width=8,
+                                             dygraphOutput("Sonde820MM30")
+                                         ),
+                                         box("Données lissées sur 30 jours",
+                                             width = 4,
+                                             checkboxInput(inputId = "Teau_min_820MM30", label = "Températures minimales", value=T),
+                                             checkboxInput(inputId = "Teau_moy_820MM30", label = "Températures moyennes", value=T),
+                                             checkboxInput(inputId = "Teau_max_820MM30", label = "Températures maximales", value=T)
+                                             
+                                         ), 
+                                         box("Droites de régression",
+                                             width = 4,
+                                             checkboxInput(inputId = "Teau_min_820reg30", label = "Droite de régression des températures minimales", value=F),
+                                             checkboxInput(inputId = "Teau_max_820reg30", label = "Droite de régression des températures maximales", value=F)
+                                             
+                                         ),
+                                         box("Sonde 823",
+                                             width=8,
+                                             dygraphOutput("Sonde823MM30")
+                                         ),
+                                         box("Données lissées sur 30 jours",
+                                             width = 4,
+                                             checkboxInput(inputId = "Teau_min_823MM30", label = "Températures minimales", value=T),
+                                             checkboxInput(inputId = "Teau_moy_823MM30", label = "Températures moyennes", value=T),
+                                             checkboxInput(inputId = "Teau_max_823MM30", label = "Températures maximales", value=T)
+                                             
+                                         ), 
+                                         box("Droites de régression",
+                                             width = 4,
+                                             checkboxInput(inputId = "Teau_min_823reg30", label = "Droite de régression des températures minimales", value=F),
+                                             checkboxInput(inputId = "Teau_max_823reg30", label = "Droite de régression des températures maximales", value=F)
+                                             
+                                         )
+                                     )# end fluid
+                            ),# end tabPanel
+                            tabPanel("Températures lissées sur 365 jours",
+                                     
+                                     fluidRow(
+                                         box("Sonde 824",
+                                             width=8,
+                                             dygraphOutput("Sonde824MM365")
+                                         ),
+                                         box("Données lissées sur 30 jours",
+                                             width = 4,
+                                             checkboxInput(inputId = "Teau_min_824MM365", label = "Températures minimales", value=T),
+                                             checkboxInput(inputId = "Teau_moy_824MM365", label = "Températures moyennes", value=T),
+                                             checkboxInput(inputId = "Teau_max_824MM365", label = "Températures maximales", value=T)
+                                             
+                                         ), 
+                                         box("Droites de régression",
+                                             width = 4,
+                                             checkboxInput(inputId = "Teau_min_824reg365", label = "Droite de régression des températures minimales", value=F),
+                                             checkboxInput(inputId = "Teau_max_824reg365", label = "Droite de régression des températures maximales", value=F)
+                                             
+                                         ),
+                                         box("Sonde 821",
+                                             width=8,
+                                             dygraphOutput("Sonde821MM365")
+                                         ),
+                                         box("Données lissées sur 30 jours",
+                                             width = 4,
+                                             checkboxInput(inputId = "Teau_min_821MM365", label = "Températures minimales", value=T),
+                                             checkboxInput(inputId = "Teau_moy_821MM365", label = "Températures moyennes", value=T),
+                                             checkboxInput(inputId = "Teau_max_821MM365", label = "Températures maximales", value=T)
+                                             
+                                         ), 
+                                         box("Droites de régression",
+                                             width = 4,
+                                             checkboxInput(inputId = "Teau_min_821reg365", label = "Droite de régression des températures minimales", value=F),
+                                             checkboxInput(inputId = "Teau_max_821reg365", label = "Droite de régression des températures maximales", value=F)
+                                             
+                                         ),
+                                         box("Sonde 822",
+                                             width=8,
+                                             dygraphOutput("Sonde822MM365")
+                                         ),
+                                         box("Données lissées sur 365 jours",
+                                             width = 4,
+                                             checkboxInput(inputId = "Teau_min_822MM365", label = "Températures minimales", value=T),
+                                             checkboxInput(inputId = "Teau_moy_822MM365", label = "Températures moyennes", value=T),
+                                             checkboxInput(inputId = "Teau_max_822MM365", label = "Températures maximales", value=T)
+                                             
+                                         ), 
+                                         box("Droites de régression",
+                                             width = 4,
+                                             checkboxInput(inputId = "Teau_min_822reg365", label = "Droite de régression des températures minimales", value=F),
+                                             checkboxInput(inputId = "Teau_max_822reg365", label = "Droite de régression des températures maximales", value=F)
+                                             
+                                         ),
+                                         box("Sonde 820",
+                                             width=8,
+                                             dygraphOutput("Sonde820MM365")
+                                         ),
+                                         box("Données lissées sur 30 jours",
+                                             width = 4,
+                                             checkboxInput(inputId = "Teau_min_820MM365", label = "Températures minimales", value=T),
+                                             checkboxInput(inputId = "Teau_moy_820MM365", label = "Températures moyennes", value=T),
+                                             checkboxInput(inputId = "Teau_max_820MM365", label = "Températures maximales", value=T)
+                                             
+                                         ), 
+                                         box("Droites de régression",
+                                             width = 4,
+                                             checkboxInput(inputId = "Teau_min_820reg365", label = "Droite de régression des températures minimales", value=F),
+                                             checkboxInput(inputId = "Teau_max_820reg365", label = "Droite de régression des températures maximales", value=F)
+                                             
+                                         ),
+                                         box("Sonde 823",
+                                             width=8,
+                                             dygraphOutput("Sonde823MM365")
+                                         ),
+                                         box("Données lissées sur 30 jours",
+                                             width = 4,
+                                             checkboxInput(inputId = "Teau_min_823MM365", label = "Températures minimales", value=T),
+                                             checkboxInput(inputId = "Teau_moy_823MM365", label = "Températures moyennes", value=T),
+                                             checkboxInput(inputId = "Teau_max_823MM365", label = "Températures maximales", value=T)
+                                             
+                                         ), 
+                                         box("Droites de régression",
+                                             width = 4,
+                                             checkboxInput(inputId = "Teau_min_823reg365", label = "Droite de régression des températures minimales", value=F),
+                                             checkboxInput(inputId = "Teau_max_823reg365", label = "Droite de régression des températures maximales", value=F)
+                                             
+                                         )
+                                     ) # End fluidRow
+                            ) # End tabPanel
+                        )  # End tabsetPanel
+                        
+                        
+                        
+                    )
+                    
+                    
+            ), # End tabItem 4
+            # -------------------------------------------------- #
+            
+            
+            
       
       
       
