@@ -3202,7 +3202,7 @@ shinyServer(function(input,output,session){
   })
   
   output$perio_sonde_synthese <- renderPlot({
-    perio <- periodogram(db2[which(db2$id_sonde==sonde_synthese_reactive$id_sonde_num),]$TeauMoy)
+    perio <- periodogram(db2[which(db2$id_sonde==sonde_synthese_reactive$id_sonde_num),]$`Température moyenne`)
   })
   
   
