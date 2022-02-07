@@ -3161,6 +3161,17 @@ shinyServer(function(input,output,session){
                  lat = as.numeric(sonde_synthese_reactive$sonde_lat), group = "sondes_synthese")
   })
   
+  # histogramme fréquence des température (bi-horaire)
+  output$freq_sonde_synthese <- renderPlotly({
+    gghist <- sonde_synthese_reactive$sonde_db %>%
+      ggplot(aes(x=Teau))+
+      geom_histogram(fill="#B2DF8A", colour="white", binwidth = .8)+
+      theme_minimal()+
+      theme(legend.title = element_blank())
+    
+    gghist <- ggplotly(gghist)
+  })
+  
   output$tableau_stats_sonde_synthese <- renderTable({
     sonde_table = sonde_synthese_reactive$sonde_db %>%
       group_by(id_sonde) %>%
@@ -3177,19 +3188,27 @@ shinyServer(function(input,output,session){
     
   })
   
+  # representation graphique de la serie
   output$graphe_sonde_synthese <- renderDygraph({
     df_sonde = sonde_synthese_reactive$sonde_db
     sonde_data = xts(df_sonde$Teau, order.by=df_sonde$t)
-    dygraph(sonde_data, main = "Temp Eau")%>%
-      dyAxis("y", label = "Temp", valueRange = c(min(db$Teau)-1, max(db$Teau)+1)) %>%
-      dyRangeSelector() %>%       dyLegend(show = "follow")
+    dygraph(sonde_data, main = paste0(sonde_synthese_reactive$label_sonde))%>%
+      dyAxis("y", label = "Température (°c)", valueRange = c(min(db$Teau)-1, max(db$Teau)+1)) %>%
+      dyAxis("x", drawGrid = F, label = "Date (relevé bi-horaire)") %>%
+      dySeries("V1", label = "Température relevée") %>%
+      #dyRangeSelector() %>%
+      dyLegend(width = 170)#, show="follow")
     
+  })
+  
+  output$perio_sonde_synthese <- renderPlot({
+    perio <- periodogram(db2[which(db2$id_sonde==sonde_synthese_reactive$id_sonde_num),]$TeauMoy)
   })
   
   
   # textes
   output$id_lab_txt <- renderText({
-    paste0("Sondes n°",sonde_synthese_reactive$id_sonde_char," : ",sonde_synthese_reactive$label_sonde)
+    paste0(sonde_synthese_reactive$label_sonde," : ","sondes n°",sonde_synthese_reactive$id_sonde_char)
   })
   
   output$debit_txt <- renderText({
@@ -3243,10 +3262,20 @@ shinyServer(function(input,output,session){
     for(c in sonde_comp_reactive$choix_sondes){
       df_xts_choix[[c]] = db_xts_comp_teau_moy[[c]]
     }
+    
+    label_choix_sondes = c("date")
+    for(c in as.numeric(sonde_comp_reactive$choix_sondes)){
+      label_choix_sondes = c(label_choix_sondes, db_sonde_synthese[which(db_sonde_synthese==c),]$label)
+    }
+    
+    names(df_xts_choix) = label_choix_sondes
+    
     df_xts_choix = xts(df_xts_choix[,-1], order.by=df_xts_choix$date)
     
     df_xts_choix
   })
+  
+  
   
   
   df_xts_comp_MM30 <- reactive({
@@ -3255,6 +3284,14 @@ shinyServer(function(input,output,session){
     for(c in sonde_comp_reactive$choix_sondes){
       df_xts_choix[[c]] = db_xts_comp_teau_MM30[[c]]
     }
+    
+    label_choix_sondes = c("date")
+    for(c in as.numeric(sonde_comp_reactive$choix_sondes)){
+      label_choix_sondes = c(label_choix_sondes, db_sonde_synthese[which(db_sonde_synthese==c),]$label)
+    }
+    
+    names(df_xts_choix) = label_choix_sondes
+    
     df_xts_choix = xts(df_xts_choix[,-1], order.by=df_xts_choix$date)
     
     df_xts_choix
@@ -3267,6 +3304,15 @@ shinyServer(function(input,output,session){
     for(c in sonde_comp_reactive$choix_sondes){
       df_xts_choix[[c]] = db_xts_comp_teau_MM365[[c]]
     }
+    
+    
+    label_choix_sondes = c("date")
+    for(c in as.numeric(sonde_comp_reactive$choix_sondes)){
+      label_choix_sondes = c(label_choix_sondes, db_sonde_synthese[which(db_sonde_synthese==c),]$label)
+    }
+    
+    names(df_xts_choix) = label_choix_sondes
+    
     df_xts_choix = xts(df_xts_choix[,-1], order.by=df_xts_choix$date)
     
     df_xts_choix
@@ -3278,6 +3324,14 @@ shinyServer(function(input,output,session){
     for(c in sonde_comp_reactive$choix_sondes){
       df_xts_choix[[c]] = db_xts_comp_teau_bih[[c]]
     }
+    
+    label_choix_sondes = c("t")
+    for(c in as.numeric(sonde_comp_reactive$choix_sondes)){
+      label_choix_sondes = c(label_choix_sondes, db_sonde_synthese[which(db_sonde_synthese==c),]$label)
+    }
+    
+    names(df_xts_choix) = label_choix_sondes
+    
     df_xts_choix = xts(df_xts_choix[,-1], order.by=df_xts_choix$t)
     
     df_xts_choix
@@ -3295,29 +3349,69 @@ shinyServer(function(input,output,session){
   
   
   output$comp_Teau <- renderDygraph({
-    dygraph(df_xts_comp_teau())%>%
-      dyAxis("y", label = "Température") %>%
-      dyRangeSelector()
+    if(length(sonde_comp_reactive$choix_sondes)==1){
+      dygraph(df_xts_comp_teau(), main="Comparaison des températures moyennes journalières")%>%
+        dyAxis("y", label = "Température (°c)") %>%
+        dyAxis("x", label = "Date") %>%
+        dyRangeSelector() %>%
+        dySeries("V1", label=db_sonde_synthese[which(db_sonde_synthese==as.numeric(sonde_comp_reactive$choix_sondes)),]$label)
+    }
+    else{
+      dygraph(df_xts_comp_teau(), main="Comparaison des températures moyennes journalières")%>%
+        dyAxis("y", label = "Température (°c)") %>%
+        dyAxis("x", label = "Date") %>%
+        dyRangeSelector()
+    }
   })
   
   
   output$comp_MM30 <- renderDygraph({
-    dygraph(df_xts_comp_MM30())%>%
-      dyAxis("y", label = "Température") %>%
-      dyRangeSelector()
+    if(length(sonde_comp_reactive$choix_sondes)==1){
+      dygraph(df_xts_comp_MM30(), main="Comparaison des températures moyennes sur 30 jours")%>%
+        dyAxis("y", label = "Température (°c)") %>%
+        dyAxis("x", label = "Date") %>%
+        dyRangeSelector() %>%
+        dySeries("V1", label=db_sonde_synthese[which(db_sonde_synthese==as.numeric(sonde_comp_reactive$choix_sondes)),]$label)
+    }
+    else{
+      dygraph(df_xts_comp_MM30(), main="Comparaison des températures moyennes sur 30 jours")%>%
+        dyAxis("y", label = "Température (°c)") %>%
+        dyAxis("x", label = "Date") %>%
+        dyRangeSelector()
+    }
   })
   
   output$comp_MM365 <- renderDygraph({
-    dygraph(df_xts_comp_MM365())%>%
-      dyAxis("y", label = "Température") %>%
-      dyRangeSelector()
+    if(length(sonde_comp_reactive$choix_sondes)==1){
+      dygraph(df_xts_comp_MM365(), main="Comparaison des températures moyennes sur 365 jours")%>%
+        dyAxis("y", label = "Température (°c)") %>%
+        dyAxis("x", label = "Date") %>%
+        dyRangeSelector() %>%
+        dySeries("V1", label=db_sonde_synthese[which(db_sonde_synthese==as.numeric(sonde_comp_reactive$choix_sondes)),]$label)
+    }
+    else{
+      dygraph(df_xts_comp_MM365(), main="Comparaison des températures moyennes sur 365 jours")%>%
+        dyAxis("y", label = "Température (°c)") %>%
+        dyAxis("x", label = "Date") %>%
+        dyRangeSelector()
+    }
   })
   
   
   output$comp_bih <- renderDygraph({
-    dygraph(df_xts_comp_bih())%>%
-      dyAxis("y", label = "Température") %>%
-      dyRangeSelector()
+    if(length(sonde_comp_reactive$choix_sondes)==1){
+      dygraph(df_xts_comp_bih())%>%
+        dyAxis("y", label = "Température (°c)") %>%
+        dyAxis("x", label = "Date (relevé bi-horaire)") %>%
+        dyRangeSelector() %>%
+        dySeries("V1", label=db_sonde_synthese[which(db_sonde_synthese==as.numeric(sonde_comp_reactive$choix_sondes)),]$label)
+    }
+    else{
+      dygraph(df_xts_comp_bih(), main="Comparaison des températures relevées")%>%
+        dyAxis("y", label = "Température (°c)") %>%
+        dyAxis("x", label = "Date (relevé bi-horaire)") %>%
+        dyRangeSelector()
+    }
   })
   # Fin onglet comparaison
   # ------------------------------------------------------------ #
