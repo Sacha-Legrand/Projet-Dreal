@@ -87,3 +87,7 @@ if(!require(ggpubr)){
   install.packages("ggpubr")
   library(ggpubr)
 }
+if(!require(TSA)){
+  install.packages("TSA")
+  library(TSA)
+}
