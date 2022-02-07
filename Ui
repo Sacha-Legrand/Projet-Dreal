@@ -1446,6 +1446,10 @@ dashboardPage(
                 ),
                 fluidRow(
                   actionLink(inputId = "return_to_sub_menu_map_sonde", label = "Voir la carte des sondes")
+                ),
+                fluidRow(
+                  h3("Fréquence des températures de la série bi-horaire"),
+                  plotlyOutput("freq_sonde_synthese")
                 )
               ),
               # ---------------------------------------- #
@@ -1467,14 +1471,16 @@ dashboardPage(
                 
                 fluidRow(
                   h3("Quelques statistiques"),
-                  tableOutput(outputId = "tableau_stats_sonde_synthese"),
-                  p("Commentaires sur le résumé statistiques")
+                  tableOutput(outputId = "tableau_stats_sonde_synthese")
                 ),
                 
                 fluidRow(
                   h3("Représentation de la série"),
-                  dygraphOutput(outputId = "graphe_sonde_synthese", width = "95%", height = 275),
-                  p("Commentaires sur le graphe")
+                  dygraphOutput(outputId = "graphe_sonde_synthese", width = "95%", height = 300)
+                ),
+                fluidRow(
+                  h3("Périodogramme"),
+                  plotOutput("perio_sonde_synthese", width = "95%")
                 )
               ),
               # ---------------------------------------- #
@@ -1522,7 +1528,7 @@ dashboardPage(
                        dygraphOutput("comp_bih")
                        ),
                 column(width = 6,
-                       h3("Température de l'eau moyenne par jour"),
+                       h3("Température moyenne journalière"),
                        dygraphOutput("comp_Teau")
                        )
               ),
