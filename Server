@@ -99,6 +99,18 @@ shinyServer(function(input,output,session){
                     color="#31b94a")
     }
   })
+  
+    observeEvent(input$ceau, {
+        proxy <- leafletProxy("map_sondes")
+        
+        proxy %>% 
+            clearGroup(group="ceau")
+        
+        if(input$ceau){
+            proxy %>%
+                addPolylines(data=ceau,group="ceau")
+        }
+    })
 
 
   id_sonde_reactive <- reactiveValues(
