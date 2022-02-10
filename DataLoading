@@ -1079,7 +1079,7 @@ max_date = max(db$date)
 db_xts_comp_teau_moy = data.frame(date=seq(min_date, max_date, "day"))
 
 for(id_s in unique(db$id_sonde)){
-  id_s = 813
+  #id_s = 813
   db_temp = db[which(db$id_sonde==id_s),]
   db_temp = aggregate(Teau~date,data=db_temp, FUN=mean)
   
