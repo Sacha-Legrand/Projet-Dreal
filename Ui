@@ -80,9 +80,9 @@ dashboardPage(
                              # deuxième menu : cartographie
                              
                              # les sub-menus
-                             menuSubItem("Sondes thermiques", tabName="sub_menu_sondes")
+                             menuSubItem("Sondes thermiques", tabName="sub_menu_sondes"),
                              #menuSubItem("Bassins versants", tabName="sub_menu_bv"),
-                             #menuSubItem("Cours d'eau", tabName="sub_menu_cours_eau")
+                             menuSubItem("Cours d'eau", tabName="sub_menu_cours_eau")
                              
                              
                     ), # End deuxième menu cartographie
@@ -300,83 +300,141 @@ dashboardPage(
             
             
             # -------------------------------------------------- #
-            tabItem(tabName = "sub_menu_sondes",
-                    # Carte des sondes
+      tabItem(tabName = "sub_menu_sondes",
+              # Carte des sondes
+              
+              
+              h2("Sondes thermiques"),
+              
+              # # ---------------------------------------- #
+              # fluidRow(
+              #   #box(
+              #     width = 6,
+              #     column(
+              #       width=3,
+              #       checkboxInput(inputId = "DREAL", label = "Sondes DREAL", value=TRUE)
+              #     ),
+              #     
+              #     # marge
+              #     # column(
+              #     #   width=1
+              #     # ),
+              #     # 
+              #     
+              #     column(
+              #       width = 3,
+              #       checkboxInput(inputId = "OFB", label = "Sondes OFB")
+              #     )
+              #   #) # end box
+              # ),
+              # # ---------------------------------------- #
+              
+              
+              
+              # ---------------------------------------- #
+              fluidRow(
+                
+                column(
+                  width = 8,
+                  box(
+                    # column(width = 2, checkboxInput(inputId = "DREAL", label = "Sondes DREAL", value=TRUE)),
+                    # column(width = 2, checkboxInput(inputId = "OFB", label = "Sondes OFB")),
+                    # column(width = 2, checkboxInput(inputId = "BV1", label = "Grand BV", value=F)),
+                    # column(width = 2, checkboxInput(inputId = "ceau", label = "Cours d'eau", value=F)),
                     
                     
-                    h2("Sondes thermiques"),
+                    width = 12, height = "100%",
+                    leafletOutput("map_sondes")
+                  )
+                  
+                ),
+                
+                # box(
+                #   # column(width = 2, checkboxInput(inputId = "DREAL", label = "Sondes DREAL", value=TRUE)),
+                #   # column(width = 2, checkboxInput(inputId = "OFB", label = "Sondes OFB")),
+                #   # column(width = 2, checkboxInput(inputId = "BV1", label = "Grand BV", value=F)),
+                #   # column(width = 2, checkboxInput(inputId = "ceau", label = "Cours d'eau", value=F)),
+                #   
+                #   
+                #   width = 8, height = "100%",
+                #   leafletOutput("map_sondes")
+                # ), # End box
+                
+                
+                column(
+                  width = 4,
+                  box(
+                    width = 12,
+                    checkboxInput(inputId = "DREAL", label = "Sondes DREAL", value=TRUE),
+                    checkboxInput(inputId = "OFB", label = "Sondes OFB"),
+                    checkboxInput(inputId = "BV1", label = "Grand BV", value=F),
+                    checkboxInput(inputId = "ceau", label = "Cours d'eau", value=F)
+                  ),
+                  
+                  
+                  hidden(
                     
-                    # # ---------------------------------------- #
-                    # fluidRow(
-                    #   #box(
-                    #     width = 6,
-                    #     column(
-                    #       width=3,
-                    #       checkboxInput(inputId = "DREAL", label = "Sondes DREAL", value=TRUE)
-                    #     ),
-                    #     
-                    #     # marge
-                    #     # column(
-                    #     #   width=1
-                    #     # ),
-                    #     # 
-                    #     
-                    #     column(
-                    #       width = 3,
-                    #       checkboxInput(inputId = "OFB", label = "Sondes OFB")
-                    #     )
-                    #   #) # end box
-                    # ),
-                    # # ---------------------------------------- #
+                    wellPanel(
+                      id="panel_info_sondes",
+                      style = "overflow-y:scroll; max-height: 450px; background-color: #FFFFFF;",
+                      
+                      actionButton(inputId = "closeIP", label = "X"),
+                      textOutput("ID"),
+                      
+                      h4("Image de l'emplacement de la sonde"),
+                      
+                      imageOutput("img_sonde", height = "100%"),
+                      
+                      
+                      h4("Représentation de la série"),
+                      
+                      dygraphOutput("temp_sonde"),
+                      
+                      #h4("Résumé statistique"),
+                      #tableOutput("table_sonde"),
+                      actionLink(inputId = "link_to_details_sonde", label = "Détails")
+                      
+                    )
                     
-                    
-                    
-                    # ---------------------------------------- #
-                    fluidRow(
-                        
-                        box(
-                            column(width = 2, checkboxInput(inputId = "DREAL", label = "Sondes DREAL", value=TRUE)),
-                            column(width = 2, checkboxInput(inputId = "OFB", label = "Sondes OFB")),
-                            column(width = 2, checkboxInput(inputId = "BV1", label = "Grand BV", value=F)),
-                             column(width = 2, checkboxInput(inputId = "ceau", label = "Cours d'eau", value=F)),
-                            
-                            
-                            width = 12, height = "100%",
-                            leafletOutput("map_sondes")
-                        ), # End box
-                        
-                        hidden(
-                            # Panel informatif des sondes
-                            absolutePanel(
-                                
-                                id="panel_info_sondes", class="panel panel-default", top=50,
-                                right=0, width=400, height="100%",
-                                
-                                actionButton(inputId = "closeIP", label = "X"),
-                                textOutput("ID"),
-                                h4("Graphique"),
-                                
-                                dygraphOutput("temp_sonde"),
-                                
-                                h4("Résumé statistique"),
-                                tableOutput("table_sonde"),
-                                actionLink(inputId = "link_to_details_sonde", label = "Détails")
-                                
-                                
-                            ) # End absolutePanel
-                            
-                        ) # End hidden
-                        
-                    ) # End fluidRow
-                    # ---------------------------------------- #
-                    
-                    
-                    
-                    
-                    
-                    
-            ), # End tabItem 1 (onglet 1 du menu 2)
-            # -------------------------------------------------- #
+                  )
+                  
+                ),
+                
+                
+                
+                
+                # hidden(
+                #   # Panel informatif des sondes
+                #   absolutePanel(
+                #     
+                #     id="panel_info_sondes", class="panel panel-default", top=50,
+                #     right=0, width=400, height="100%",
+                #     
+                #     actionButton(inputId = "closeIP", label = "X"),
+                #     textOutput("ID"),
+                #     h4("Graphique"),
+                #     
+                #     dygraphOutput("temp_sonde"),
+                #     
+                #     h4("Résumé statistique"),
+                #     tableOutput("table_sonde"),
+                #     actionLink(inputId = "link_to_details_sonde", label = "Détails")
+                #     
+                #     
+                #   ) # End absolutePanel
+                #   
+                # ) # End hidden
+                
+              ) # End fluidRow
+              # ---------------------------------------- #
+              
+              
+              
+              
+              
+              
+      ), # End tabItem 1 (onglet 1 du menu 2)
+      # -------------------------------------------------- #
             
             
             
@@ -419,20 +477,20 @@ dashboardPage(
             # 
             # 
             # 
-            # # -------------------------------------------------- #
-            # tabItem(tabName = "sub_menu_cours_eau",
-            #         # carte des cours d'eau
-            #         
-            #         
-            #         h2("Cours d'eau"),
-            #         
-            #         fluidRow(
-            #             leafletOutput("map_eau")
-            #         ) # End fluidRow
-            #         
-            #         
-            # ), # End tabItem 3 (onglet 3 du menu 2)
-            # # -------------------------------------------------- #
+            # -------------------------------------------------- #
+            tabItem(tabName = "sub_menu_cours_eau",
+                    # carte des cours d'eau
+
+
+                    h2("Test carte"),
+
+                    fluidRow(
+                        leafletOutput("map_eau")
+                    ) # End fluidRow
+
+
+             ), # End tabItem 3 (onglet 3 du menu 2)
+            # -------------------------------------------------- #
             
             
             
