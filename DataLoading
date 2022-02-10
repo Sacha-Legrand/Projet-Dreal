@@ -1200,35 +1200,6 @@ db_classif_moy = db_xts_comp_teau_moy
 db_classif_bih = db_xts_comp_teau_bih
 
 
-# colnames(db_classif_moy)
-# 
-# c(T, F, F, F, F, F, F, F, T, T, T, T, T, T, T, F, F, F, T, T, F, T, T, F, F, T, F, T, T, F, F)
-# c("date", "812", "813", "815", "816",
-#   "817", "818", "819",
-#   "820", "821", "823", "824",
-#   "825", "828", "830")
-# 
-# c(T, T, F, F, T, F, F, T, T, T,
-#   T, T, T, T, T, F, F, F, T, T,
-#   F, T, T, T, F, T, F, T, T, F, T)
-# c("date", 
-#   "104", "109", "762", "764", "771",
-#   "812", "813", "815", "816",
-#   "817", "818", "819",
-#   "820", "821", "823", "824",
-#   "825", "828", "830")
-# 
-# 
-# c(T, T, T, T, T, F, T, T, T, T,
-#   T, T, T, T, T, F, F, F, T, T,
-#   F, T, T, T, T, T, F, T, T, F, T)
-# c("date", 
-#   "108", "765", "768", "769",
-#   "104", "109", "762", "764", "771",
-#   "812", "813", "815", "816",
-#   "817", "818", "819",
-#   "820", "821", "823", "824",
-#   "825", "828", "830")
 
 # ### # ### # ### # ### # ### #
 # moyenne journalière
@@ -1437,6 +1408,52 @@ mixrhlp$summary()
 mixrhlp$plot()
 
 mixrhlp$stat$klas
+
+
+
+res = data.frame(cluster=mixrhlp$stat$klas)
+res$id_sonde = as.numeric(rownames(Y))
+
+
+
+
+
+for(id_s in unique(res$id_sonde)){
+  res[which(res$id_sonde == id_s),"longitude"] = db_sonde_synthese[which(db_sonde_synthese$id_sonde == id_s),]$longitude
+  res[which(res$id_sonde == id_s),"latitude"] = db_sonde_synthese[which(db_sonde_synthese$id_sonde == id_s),]$latitude
+}
+
+head(res)
+
+help("flamingos-package")
+
+res_clust1 = res[which(res$cluster == 1),]
+res_clust2 = res[which(res$cluster == 2),]
+head(res_clust2)
+
+vec_col_res = c("blue", "red", "green", "yellow", "cyan", "magenta")
+
+leaflet() %>%
+  addTiles() %>%
+  addAwesomeMarkers(data = res_clust1, 
+                    lng=res_clust1$longitude,lat=res_clust1$latitude,
+                    layerId = res_clust1$id_sonde, group=paste0("Cluster",res_clust1$cluster),
+                    icon=makeAwesomeIcon(icon='tint', library='glyphicon',
+                                         iconColor = 'white', markerColor = vec_col_res[1])) %>%
+  addAwesomeMarkers(data = res_clust2, 
+                    lng=res_clust2$longitude,lat=res_clust2$latitude,
+                    layerId = res_clust2$id_sonde, group=paste0("Cluster",res_clust2$cluster),
+                    icon=makeAwesomeIcon(icon='tint', library='glyphicon',
+                                         iconColor = 'white', markerColor = vec_col_res[2])) %>%
+  addPopups(data = res, popup = paste0("sonde : ", res$id_sonde))
+  
+
+
+
+
+
+
+
 
 # ####################################################### #
 # Fin Test Classification
