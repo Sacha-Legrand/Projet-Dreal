@@ -338,6 +338,7 @@ dashboardPage(
                             column(width = 2, checkboxInput(inputId = "DREAL", label = "Sondes DREAL", value=TRUE)),
                             column(width = 2, checkboxInput(inputId = "OFB", label = "Sondes OFB")),
                             column(width = 2, checkboxInput(inputId = "BV1", label = "Grand BV", value=F)),
+                             column(width = 2, checkboxInput(inputId = "ceau", label = "Cours d'eau", value=F)),
                             
                             
                             width = 12, height = "100%",
