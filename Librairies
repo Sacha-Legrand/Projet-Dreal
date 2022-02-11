@@ -91,3 +91,8 @@ if(!require(TSA)){
   install.packages("TSA")
   library(TSA)
 }
+
+if(!require(dashboardthemes)){
+  install.packages("dashboardthemes")
+  library(dashboardthemes)
+}
