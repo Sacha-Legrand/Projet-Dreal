@@ -1189,6 +1189,49 @@ for(id_s in unique(db$id_sonde)){
 # ####################### #
 
 
+
+
+db_temp = data.frame(id_sonde = db_sonde_synthese$id_sonde, 
+                     cours_eau = c("Monne", "Vie", "Taute", "Barge", "Grande Vallee",
+                                   "Souleuvre", "See Rousse", "Egrenne", "Durance", "See",
+                                   "Berence", "Glanon", "Vieux Ruisseau (Vingt bec)",
+                                   "Fontaine au Heron", rep("Odon", 4), rep("Orne", 3),
+                                   rep("Selune", 5), rep("Touques", 4)),
+                     pos = c(3, 4, 14, 2, 13, 9, 12, 11, 10, 17, 16, 15, 8, 6, 
+                             rep(1, 4), rep(7, 3), rep(18, 5), rep(5, 4)))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 # ----------------------------------------------------------------------------------------------- #
 # ####################################################### #
 # Base Classification 
