@@ -94,6 +94,10 @@ if(!require(dashboardthemes)){
   install.packages("dashboardthemes")
   library(dashboardthemes)
 }
+if(!require(flamingos)){
+  install.packages("flamingos")
+  library(flamingos)
+}
 #################
 # CHemin d'accès
 #################
