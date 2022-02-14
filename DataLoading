@@ -219,32 +219,32 @@ for (i in 1:dim(coursEau2)[1]){
   latitude2=vector()
   
   Name = coursEau2$Name[i]
- 
+  
   coord = coordinates(coursEau2[coursEau2@data$Name == Name,])
   
-    lng <- coord[[1]][[1]][,1]
-    longitude = coord[[1]][[1]][,1]
-    lat <- coord[[1]][[1]][,2]
-    latitude=coord[[1]][[1]][,2]
+  lng <- coord[[1]][[1]][,1]
+  longitude = coord[[1]][[1]][,1]
+  lat <- coord[[1]][[1]][,2]
+  latitude=coord[[1]][[1]][,2]
+  
+  longitude2 = longitude*(pi/180)
+  latitude2 = latitude*(pi/180)
+  
+  for (j in 1:length(latitude)){
+    d= (2 * asin( sqrt(
+      (sin((latitude2[j]-latitude2[j+1])/2))^2 + cos(latitude2[j])*cos(latitude2[j+1])* ( sin((longitude2[j]-longitude2[j+1])/2)) ^2
+    )
     
-    longitude2 = longitude*(pi/180)
-    latitude2 = latitude*(pi/180)
+    ))*6366
     
-    for (j in 1:length(latitude)){
-      d= (2 * asin( sqrt(
-        (sin((latitude2[j]-latitude2[j+1])/2))^2 + cos(latitude2[j])*cos(latitude2[j+1])* ( sin((longitude2[j]-longitude2[j+1])/2)) ^2
-        )
-      
-      ))*6366
-     
-      D=append(D,d)
-    }
-    
+    D=append(D,d)
+  }
+  
   taille= sum(D,na.rm=T)
   print(taille)
   Taille = append(Taille,taille)
   name = append(name,Name)
-
+  
 }
 Taille
 
@@ -278,7 +278,7 @@ db_temp[which(db_temp$id_sonde == 830),]$pos
 
 #te renvoie la position de la Touques dans coursEau2 par exemple
 
-coursEau2@lines[[1]]@Lines[[1]]@coords
+#coursEau2@lines[[1]]@Lines[[1]]@coords
 
 #Cette ligne te permet de récupérer le cours d'eau à la position i de coursEau2
 
@@ -339,19 +339,19 @@ db2$limiteTruite <- as.factor(db2$limiteTruite)
 
 db2$limiteBrochet <- NA
 db2$limiteBrochet = ifelse(db2$TeauMoy <= 2.5  ,
-                          db2$limiteBrochet <- "Seuil létal adulte",
-                          ifelse( db2$TeauMoy <=  5.5 ,
-                                  db2$limiteBrochet <- "Seuil létal juvéniles", 
-                            ifelse( db2$TeauMoy >=  19.5 ,
-                                  db2$limiteBrochet <- "Danger pour les embryons", 
-                                  ifelse( db2$TeauMoy <= 9.5  ,
-                                          db2$limiteBrochet <- "Danger pour juvéniles", 
-                                          ifelse( db2$TeauMoy >= 24.5  ,
-                                                  db2$limiteBrochet <- "Danger pour les larves",
-                                                  ifelse( db2$TeauMoy >= 30.5 ,
-                                                          db2$limiteBrochet <- "Seuil létal",
-                                                            db2$limiteBrochet <- "Préférendum thermique")
-                          )))))
+                           db2$limiteBrochet <- "Seuil létal adulte",
+                           ifelse( db2$TeauMoy <=  5.5 ,
+                                   db2$limiteBrochet <- "Seuil létal juvéniles", 
+                                   ifelse( db2$TeauMoy >=  19.5 ,
+                                           db2$limiteBrochet <- "Danger pour les embryons", 
+                                           ifelse( db2$TeauMoy <= 9.5  ,
+                                                   db2$limiteBrochet <- "Danger pour juvéniles", 
+                                                   ifelse( db2$TeauMoy >= 24.5  ,
+                                                           db2$limiteBrochet <- "Danger pour les larves",
+                                                           ifelse( db2$TeauMoy >= 30.5 ,
+                                                                   db2$limiteBrochet <- "Seuil létal",
+                                                                   db2$limiteBrochet <- "Préférendum thermique")
+                                                   )))))
 
 db2$limiteBrochet <- as.factor(db2$limiteBrochet)
 db2$limiteR <- "Sans Espèce"
@@ -383,25 +383,25 @@ pref$An <- as.factor(pref$An)
 
 
 pref$Espece <- factor(pref$Espece,
-                       levels = c(
-                         "limiteBrochet", "limiteR" ,"limiteTruite" 
-                       ),
-                       labels =c("Brochet","Rien","Truite")
+                      levels = c(
+                        "limiteBrochet", "limiteR" ,"limiteTruite" 
+                      ),
+                      labels =c("Brochet","Rien","Truite")
 )
 
 
 prefTouques = pref[(pref$id_sonde == 825|
-                     pref$id_sonde == 827|
-                     pref$id_sonde == 828|
-                     pref$id_sonde == 830),] 
+                      pref$id_sonde == 827|
+                      pref$id_sonde == 828|
+                      pref$id_sonde == 830),] 
 
 
 prefTouques$id_sonde <- factor(prefTouques$id_sonde,exclude=NULL)
 prefTouques$id_sonde <- factor(prefTouques$id_sonde,
-                        levels = c(
-                          "825", "827", "828", "830"
-                        ),
-                        labels =c("Touques T1","Touques T3","Touques T4","Touques T6")
+                               levels = c(
+                                 "825", "827", "828", "830"
+                               ),
+                               labels =c("Touques T1","Touques T3","Touques T4","Touques T6")
 )
 prefTouques$Espece <- factor(prefTouques$Espece,exclude=NULL)
 
@@ -1284,13 +1284,13 @@ db_xts_comp_teau_moy = data.frame(date=seq(min_date, max_date, "day"))
 
 for(id_s in unique(db$id_sonde)){
   #id_s = 813
-  db_temp = db[which(db$id_sonde==id_s),]
-  db_temp = aggregate(Teau~date,data=db_temp, FUN=mean)
+  db_tempo = db[which(db$id_sonde==id_s),]
+  db_tempo = aggregate(Teau~date,data=db_tempo, FUN=mean)
   
-  db_temp[[id_s]] = db_temp$Teau
+  db_tempo[[id_s]] = db_tempo$Teau
   
   
-  db_xts_comp_teau_moy = merge(db_xts_comp_teau_moy, db_temp[,c("date", id_s)], by="date", all=TRUE)
+  db_xts_comp_teau_moy = merge(db_xts_comp_teau_moy, db_tempo[,c("date", id_s)], by="date", all=TRUE)
   
 }
 #View(db_xts_comp_teau_moy)
@@ -1372,16 +1372,16 @@ max_t = max(db$t)
 db_xts_comp_teau_bih = data.frame(t=seq(from = min_t, to = max_t, by = "2 hour"))
 
 for(id_s in unique(db$id_sonde)){
-  db_temp = db[which(db$id_sonde==id_s),]
-  db_temp[[id_s]] = db_temp$Teau
-  db_temp$t = ymd_hms(paste0(year(db_temp$t), "-",
-                             month(db_temp$t), "-",
-                             day(db_temp$t), " ",
-                             ifelse(hour(db_temp$t)%%2==0, hour(db_temp$t), (hour(db_temp$t))-1), ":00:00"))
-  db_temp = aggregate(db_temp[id_s], by=db_temp['t'], mean)
+  db_tempo = db[which(db$id_sonde==id_s),]
+  db_tempo[[id_s]] = db_tempo$Teau
+  db_tempo$t = ymd_hms(paste0(year(db_tempo$t), "-",
+                             month(db_tempo$t), "-",
+                             day(db_tempo$t), " ",
+                             ifelse(hour(db_tempo$t)%%2==0, hour(db_tempo$t), (hour(db_tempo$t))-1), ":00:00"))
+  db_tempo = aggregate(db_tempo[id_s], by=db_tempo['t'], mean)
   
   
-  db_xts_comp_teau_bih = merge(db_xts_comp_teau_bih, db_temp[,c("t", id_s)], by="t", all=TRUE)
+  db_xts_comp_teau_bih = merge(db_xts_comp_teau_bih, db_tempo[,c("t", id_s)], by="t", all=TRUE)
   
 }
 
