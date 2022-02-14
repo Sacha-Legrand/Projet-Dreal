@@ -1,17 +1,115 @@
+# ####################
+# Libraries
+#####################
+
+if(!require(leaflet)){
+  install.packages("leaflet")
+  library(leaflet)
+}
+if(!require(dplyr)){
+  install.packages("dplyr")
+  library(dplyr)
+}
+if(!require(sf)){
+  install.packages("sf")
+  library(sf)
+}
+if(!require(leafpop)){
+  install.packages("leafpop")
+  library(leafpop)
+}
+if(!require(zoo)){
+  install.packages("zoo")
+  library(zoo)
+}
+if(!require(lubridate)){
+  install.packages("lubridate")
+  library(lubridate)
+}
+if(!require(shiny)){
+  install.packages("shiny")
+  library(shiny)
+}
+if(!require(htmlwidgets)){
+  install.packages("htmlwidgets")
+  library(htmlwidgets)
+}
+if(!require(dygraphs)){
+  install.packages("dygraphs")
+  library(dygraphs)
+}
+if(!require(devtools)){
+  install.packages("devtools")
+  library(devtools)
+}
+if(!require(xts)){
+  install.packages("xts")
+  library(xts)
+}
+if(!require(maptools)){
+  install.packages("maptools")
+  library(maptools)
+}
+if(!require(shinyjs)){
+  install.packages("shinyjs")
+  library(shinyjs)
+}
+if(!require(shinydashboard)){
+  install.packages("shinydashboard")
+  library(shinydashboard)
+}
+if(!require(reactable)){
+  install.packages("reactable")
+  library(reactable)
+}
+
+if(!require(plotly)){
+  install.packages("plotly")
+  library(plotly)
+}
+
+if(!require(rstatix)){
+  install.packages("rstatix")
+  library(rstatix)
+}
+
+if(!require(tidyr)){
+  install.packages("tidyr")
+  library(tidyr)
+}
+
+if(!require(openxlsx)){
+  install.packages("openxlsx")
+  library(openxlsx)
+}
+if(!require(ggpubr)){
+  install.packages("ggpubr")
+  library(ggpubr)
+}
+if(!require(TSA)){
+  install.packages("TSA")
+  library(TSA)
+}
+if(!require(dashboardthemes)){
+  install.packages("dashboardthemes")
+  library(dashboardthemes)
+}
+#################
+# CHemin d'accès
+#################
+
+
+
 #Intégrer le chemin d'accès au projet
 
-#path="D:/Users/Desktop/Cours/M2stat/Projet" # path Lucie
-path = "/Users/julien/Desktop/projetM2/dashboard_propre" # path Julien
-# Si tu galère
+path="D:/Users/Desktop/Cours/M2stat/Projet" # path Lucie
+#path = "/Users/julien/Desktop/projetM2/dashboard_propre" # path Julien
 
-#system.file("img",package="png")
-pathimg = system.file("img",package="png") # pathimg Lucie
-#pathimg = "/Library/Frameworks/R.framework/Versions/4.0/Resources/library/png/img/" # pathimg Julien
 setwd(path)
 
-# ###################################################################### #
+#######################################################################################
 # COMENTAIRES ET CODE PROVISOIRE
-# ###################################################################### #
+#######################################################################################
 
 # mettre cette base dans le KMLs.RData à la place de l'autre fichier kml sur les sondes DREAL
 # c'est avec le nouveau fichier kml que j'envoie
@@ -26,34 +124,25 @@ setwd(path)
 # 826, 814, 148, 147, 829, 103
 
 
-# ###################################################################### #
-# FIN COMENTAIRES ET CODE PROVISOIRE
-# ###################################################################### #
+########################################################################
+# Lecture des bases de données nécessaires
+########################################################################
 
-
-#d=2*asin(sqrt((sin((lat1-lat2)/2))^2 + cos(lat1)*cos(lat2)*(sin((lon1-lon2)/2))^2))
 
 # temperature des cours d'eau
 load("db.RData")
 str(db)
-
 # Documents KML : 
 load("KMLs.RData")
+# Document cours d'eau
 load("coursEau.RData")
-
-# # coordonnées des sondes
-# datacoord <- read.csv("https://www.data.gouv.fr/fr/datasets/r/4d471339-e7db-43af-aa65-883bb80a23dc",
-#                       header = T,sep=",", encoding = "UTF-8")
-# 
-# datacoord <- datacoord[-(nrow(datacoord)),]
-# 
-# datacoord$img <- paste(pathimg,"Sonde",datacoord$id_sonde,".png",sep="")
-# 
-# datacoord$lib <- paste(datacoord$TopoOH,": Sonde" ,datacoord$id_sonde)
-
-
+# Document comprenant les informations des sondes
 db_sonde_synthese <- openxlsx::read.xlsx("Bilan activité sondes T.xlsx",sheet=1,
                                          startRow = 5,colNames=T,rowNames = F)
+
+#######################################################################################
+# Mise au point de la base db_sonde_synthese qui contient toutes les infos des sondes
+#######################################################################################
 
 db_sonde_synthese <- db_sonde_synthese[,-c(1,6,7,9:ncol(db_sonde_synthese))]
 
@@ -87,22 +176,8 @@ modif = modif[duplicated(modif$id_sonde)==F,]
 
 
 db_sonde_synthese = merge(db_sonde_synthese,modif, by="id_sonde")
-db_sonde_synthese$img = paste(pathimg,"/Sonde",db_sonde_synthese$id_sonde,".png",sep="")
-
 
 rm(modif)
-
-# db_sonde_synthese = read.csv2("D:/Users/Desktop/Cours/M2stat/Projet/fiche_synthese.csv", sep=";", header=T)
-# head(db_sonde_synthese)
-# str(db_sonde_synthese)
-# 
-# db_sonde_synthese$longitude  <- as.character(db_sonde_synthese$longitude)
-# db_sonde_synthese$longitude  <- as.numeric(db_sonde_synthese$longitude)
-# 
-# db_sonde_synthese$latitude  <- as.character(db_sonde_synthese$latitude)
-# db_sonde_synthese$latitude  <- as.numeric(db_sonde_synthese$latitude)
-
-
 
 # ajouter 
 #  - altitude
@@ -113,6 +188,97 @@ rm(modif)
 
 
 as.character(db_sonde_synthese$id_sonde)
+
+
+coursEau2 = rgdal::readOGR(paste0(path,"/cours_eau_projet.kml"), "cours_eau_projet")
+
+
+# ######################################################################################
+# Calcul des distances
+#######################################################################################
+
+########
+# Calcul des tailles de fleuves
+########
+
+Taille=vector()
+name=vector()
+for (i in 1:dim(coursEau2)[1]){
+  lat=vector()
+  lng=vector()
+  latitude=vector()
+  longitude=vector()
+  d=vector()
+  #taille=vector()
+  D=vector()
+  longitude2=vector()
+  latitude2=vector()
+  
+  Name = coursEau2$Name[i]
+ 
+  coord = coordinates(coursEau2[coursEau2@data$Name == Name,])
+  
+    lng <- coord[[1]][[1]][,1]
+    longitude = coord[[1]][[1]][,1]
+    lat <- coord[[1]][[1]][,2]
+    latitude=coord[[1]][[1]][,2]
+    
+    longitude2 = longitude*(pi/180)
+    latitude2 = latitude*(pi/180)
+    
+    for (j in 1:length(latitude)){
+      d= (2 * asin( sqrt(
+        (sin((latitude2[j]-latitude2[j+1])/2))^2 + cos(latitude2[j])*cos(latitude2[j+1])* ( sin((longitude2[j]-longitude2[j+1])/2)) ^2
+        )
+      
+      ))*6366
+     
+      D=append(D,d)
+    }
+    
+  taille= sum(D,na.rm=T)
+  print(taille)
+  Taille = append(Taille,taille)
+  name = append(name,Name)
+
+}
+Taille
+
+
+
+Name=coursEau2@data$Name
+Name=as.character(Name)
+Name
+
+cbind(Name,Taille)
+
+########
+# Distances à la source
+########
+##########
+# BD temp
+#########
+
+db_temp = data.frame(id_sonde = db_sonde_synthese$id_sonde, 
+                     cours_eau = c("Monne", "Vie", "Taute", "Barge", "Grande Vallee",
+                                   "Souleuvre", "See Rousse", "Egrenne", "Durance", "See",
+                                   "Berence", "Glanon", "Vieux Ruisseau (Vingt bec)",
+                                   "Fontaine au Heron", rep("Odon", 4), rep("Orne", 3),
+                                   rep("Selune", 5), rep("Touques", 4)),
+                     pos = c(3, 4, 14, 2, 13, 9, 12, 11, 10, 17, 16, 15, 8, 6, 
+                             rep(1, 4), rep(7, 3), rep(18, 5), rep(5, 4)))
+
+#Cette base de données te donne la position du cours d'eau dans coursEau2
+
+db_temp[which(db_temp$id_sonde == 830),]$pos
+
+#te renvoie la position de la Touques dans coursEau2 par exemple
+
+coursEau2@lines[[1]]@Lines[[1]]@coords
+
+#Cette ligne te permet de récupérer le cours d'eau à la position i de coursEau2
+
+
 
 ################################################################################################
 # Moyennes mobiles
@@ -146,6 +312,13 @@ dbMM = db2 %>%
          
   )
 
+################################################################################################
+# Préférendums thermiques
+################################################################################################
+
+###########
+# Mise au point des données
+###########
 
 db2$limiteTruite <- NA
 db2$limiteTruite = ifelse(db2$TeauMoy <= 0.5 | db2$TeauMoy >=  25.5 ,
@@ -162,78 +335,93 @@ db2$limiteTruite <- as.factor(db2$limiteTruite)
 
 db2$limiteBrochet <- NA
 db2$limiteBrochet = ifelse(db2$TeauMoy <= 2.5  ,
-                           db2$limiteBrochet <- "Seuil létal adulte",
-                           ifelse( db2$TeauMoy <=  5.5 ,
-                                   db2$limiteBrochet <- "Seuil létal juvéniles", 
-                                   ifelse( db2$TeauMoy >=  19.5 ,
-                                           db2$limiteBrochet <- "Danger pour les embryons", 
-                                           ifelse( db2$TeauMoy <= 9.5  ,
-                                                   db2$limiteBrochet <- "Danger pour juvéniles", 
-                                                   ifelse( db2$TeauMoy >= 24.5  ,
-                                                           db2$limiteBrochet <- "Danger pour les larves",
-                                                           ifelse( db2$TeauMoy >= 30.5 ,
-                                                                   db2$limiteBrochet <- "Seuil létal",
-                                                                   db2$limiteBrochet <- "Préférendum thermique")
-                                                   )))))
+                          db2$limiteBrochet <- "Seuil létal adulte",
+                          ifelse( db2$TeauMoy <=  5.5 ,
+                                  db2$limiteBrochet <- "Seuil létal juvéniles", 
+                            ifelse( db2$TeauMoy >=  19.5 ,
+                                  db2$limiteBrochet <- "Danger pour les embryons", 
+                                  ifelse( db2$TeauMoy <= 9.5  ,
+                                          db2$limiteBrochet <- "Danger pour juvéniles", 
+                                          ifelse( db2$TeauMoy >= 24.5  ,
+                                                  db2$limiteBrochet <- "Danger pour les larves",
+                                                  ifelse( db2$TeauMoy >= 30.5 ,
+                                                          db2$limiteBrochet <- "Seuil létal",
+                                                            db2$limiteBrochet <- "Préférendum thermique")
+                          )))))
 
 db2$limiteBrochet <- as.factor(db2$limiteBrochet)
-
+db2$limiteR <- "Sans Espèce"
 
 db2 <- db2 %>%
-  gather(key="Espece",value="Pref",c(7:8)) %>%
+  gather(key="Espece",value="Pref",c(7:9)) %>%
   convert_as_factor(Espece)
 
 db2$An <- year(db2$date)
 colnames(db2)[6] = "Température moyenne"
 
-# dbMM<-rename(dbMM,"Température minimale" ="TeauMin",
-#              "Température minimale MM7" ="TeauMinMM7",
-#              "Température minimale MM30" ="TeauMinMM30",
-#              "Température minimale MM365" ="TeauMinMM7",
-#              "Température maximale" ="TeauMax",
-#               "Température maximale MM7" ="TeauMaxMM7",
-#               "Température maximale MM30" ="TeauMaxMM30",
-#               "Température maximale MM365" ="TeauMaxMM7",
-#               "Température moyenne" ="TeauMoy",
-#              "Température moyenne MM7" ="TeauMeanMM7",
-#              "Température moyenne MM30" ="TeauMeanMM30",
-#              "Température moyenne MM365" ="TeauMeanMM7")
-##########
+############
+# Mise au point du tableau de récap des données pour seuil thermiques
+############
+
+db3 = db2
+db3$nb = 1
+
+pref = db3[db3$Espece=="limiteTruite" | db3$Espece=="limiteBrochet" ,] %>%
+  group_by(An,id_sonde,Pref,Espece)%>%
+  mutate(Somme = sum(nb))
+
+pref=pref[,c(1,7,8,9,11)]
+pref=pref[which(duplicated(pref)==F),]
+
+pref$Espece <- as.factor(pref$Espece)
+pref$Pref <- as.factor(pref$Pref)
+pref$An <- as.factor(pref$An)
+
+
+pref$Espece <- factor(pref$Espece,
+                       levels = c(
+                         "limiteBrochet", "limiteR" ,"limiteTruite" 
+                       ),
+                       labels =c("Brochet","Rien","Truite")
+)
+
+
+prefTouques = pref[(pref$id_sonde == 825|
+                     pref$id_sonde == 827|
+                     pref$id_sonde == 828|
+                     pref$id_sonde == 830),] 
+
+
+prefTouques$id_sonde <- factor(prefTouques$id_sonde,exclude=NULL)
+prefTouques$id_sonde <- factor(prefTouques$id_sonde,
+                        levels = c(
+                          "825", "827", "828", "830"
+                        ),
+                        labels =c("Touques T1","Touques T3","Touques T4","Touques T6")
+)
+prefTouques$Espece <- factor(prefTouques$Espece,exclude=NULL)
+
+prefTouques$Pref=factor(prefTouques$Pref,exclude=NULL)
+
+prefTouques$An =factor(prefTouques$An,exclude=NULL)
+
+
+colnames(prefTouques) = c("Sonde","Espèce","Seuils thermiques","Années","Nombre d'occurence")
+
+
+#########################################################################################
+# Mise au point des bases de données pour les dygraphs de la partie "cours d'eau"
+#########################################################################################
+
+##################################
 # Sondes Touques
-##########
+##################################
 
-###
-# Sonde 825
-###
+###########
+# Sonde 825 Touques T1
+###########
 dbsonde825MM <- dbMM[dbMM$id_sonde==825,]
-
-db_Truite <- as.data.frame(cbind(rep(0.5,nrow(dbsonde825MM)),
-                                 rep(4.5,nrow(dbsonde825MM)),
-                                 rep(16.5,nrow(dbsonde825MM)),
-                                 rep(19.5,nrow(dbsonde825MM)),
-                                 rep(25.5,nrow(dbsonde825MM)),
-                                 rep(30,nrow(dbsonde825MM))
-))
-
-colnames(db_Truite) <- c("Seuil létal",
-                         "Danger pour juvéniles",
-                         "Preferendum thermique",
-                         "Danger pour juvéniles ",
-                         "Seuil critique",
-                         "Seuil létal")
-
-
 db_xts_date825 = dbsonde825MM$date
-db_Truite_xts = xts(db_Truite, order.by=db_xts_date825)
-
-
-#
-# dbsonde825MM$truiteseuilletalmin <- 0.5
-# dbsonde825MM$truiteseuilletalmax <- 25.5
-# dbsonde825MM$truiteDangerJuv1 <- 4.5
-# dbsonde825MM$truitePref <- 16.5
-# dbsonde825MM$truiteDangerJuv2 <- 0.5
-
 
 # Calcule droite de régression MM30
 dbsonde825MMReg <- as.data.frame(cbind(dbsonde825MM$date,dbsonde825MM$TeauMinMM30,dbsonde825MM$TeauMaxMM30))
@@ -275,9 +463,9 @@ rm(dbsonde825MMReg)
 
 
 
-###
-# Sonde 827
-###
+###########
+# Sonde 827 Touques T3
+###########
 dbsonde827MM <- dbMM[dbMM$id_sonde==827,]
 
 # Calcule droite de régression MM30
@@ -316,9 +504,10 @@ db_xts_sonde827c = db_xts_sonde827[,c(7,13,10,19,20)]
 db_xts_sonde827c = db_xts_sonde827c[is.na(db_xts_sonde827c$TeauMinMM365)==F,]
 
 rm(dbsonde827MMReg)
-###
-# Sonde 828
-###
+
+###########
+# Sonde 828 Touques T4
+###########
 dbsonde828MM <- dbMM[dbMM$id_sonde==828,]
 
 # Calcule droite de régression MM30
@@ -358,9 +547,9 @@ db_xts_sonde828c = db_xts_sonde828c[is.na(db_xts_sonde828c$TeauMinMM365)==F,]
 
 rm(dbsonde828MMReg)
 
-###
-# Sonde 830
-###
+###########
+# Sonde 830 Touques T6
+###########
 dbsonde830MM <- dbMM[dbMM$id_sonde==830,]
 
 # Calcule droite de régression MM30
@@ -403,12 +592,16 @@ rm(dbsonde830MMReg)
 rm(dbsonde825MM,dbsonde827MM,dbsonde828MM,dbsonde830MM,
    db_xts_date825,db_xts_date827,db_xts_date828,db_xts_date830)
 
-
+####################
+# Regroupement des sondes
+####################
 
 db_xts_sonde825a$id_sonde = 825
 db_xts_sonde827a$id_sonde = 827
 db_xts_sonde828a$id_sonde = 828
 db_xts_sonde830a$id_sonde = 830
+
+
 
 db_Touques_xtsa = rbind(db_xts_sonde825a,db_xts_sonde827a,db_xts_sonde828a,db_xts_sonde830a)
 
@@ -440,13 +633,13 @@ nameColc = c("Température minimale MM365","Température moyenne MM365","Tempér
 colnames(db_Touques_xtsc) = nameColc
 
 
-##########
+##################################
 # Sondes Orne
-##########
+##################################
 
-###
+###########
 # Sonde 817
-###
+###########
 dbsonde817MM <- dbMM[dbMM$id_sonde==817,]
 
 # Calcule droite de régression MM30
@@ -488,9 +681,9 @@ rm(dbsonde817MMReg)
 
 
 
-###
+###########
 # Sonde 818
-###
+###########
 dbsonde818MM <- dbMM[dbMM$id_sonde==818,]
 
 # Calcule droite de régression MM30
@@ -529,9 +722,9 @@ db_xts_sonde818c = db_xts_sonde818[,c(7,13,10,19,20)]
 db_xts_sonde818c = db_xts_sonde818c[is.na(db_xts_sonde818c$TeauMinMM365)==F,]
 
 rm(dbsonde818MMReg)
-###
+###########
 # Sonde 819
-###
+###########
 dbsonde819MM <- dbMM[dbMM$id_sonde==819,]
 
 # Calcule droite de régression MM30
@@ -575,7 +768,9 @@ rm(dbsonde819MMReg)
 rm(dbsonde817MM,dbsonde818MM,dbsonde819MM,dbsonde830MM,
    db_xts_date817,db_xts_date818,db_xts_date819,db_xts_date830)
 
-
+####################
+# Regroupement des sondes
+####################
 
 db_xts_sonde817a$id_sonde = 817
 db_xts_sonde818a$id_sonde = 818
@@ -597,13 +792,13 @@ db_Orne_xtsc = rbind(db_xts_sonde817c,db_xts_sonde818c,db_xts_sonde819c)
 
 
 
-##########
+##################################
 # Sondes Odon
-##########
+##################################
 
-###
+###########
 # Sonde 812
-###
+###########
 dbsonde812MM <- dbMM[dbMM$id_sonde==812,]
 
 # Calcule droite de régression MM30
@@ -645,9 +840,9 @@ rm(dbsonde812MMReg)
 
 
 
-###
+###########
 # Sonde 813
-###
+###########
 dbsonde813MM <- dbMM[dbMM$id_sonde==813,]
 
 # Calcule droite de régression MM30
@@ -686,9 +881,9 @@ db_xts_sonde813c = db_xts_sonde813[,c(7,13,10,19,20)]
 db_xts_sonde813c = db_xts_sonde813c[is.na(db_xts_sonde813c$TeauMinMM365)==F,]
 
 rm(dbsonde813MMReg)
-###
+###########
 # Sonde 815
-###
+###########
 dbsonde815MM <- dbMM[dbMM$id_sonde==815,]
 
 # Calcule droite de régression MM30
@@ -728,9 +923,9 @@ db_xts_sonde815c = db_xts_sonde815c[is.na(db_xts_sonde815c$TeauMinMM365)==F,]
 
 rm(dbsonde815MMReg)
 
-###
+###########
 # Sonde 816
-###
+###########
 dbsonde816MM <- dbMM[dbMM$id_sonde==816,]
 
 # Calcule droite de régression MM30
@@ -773,6 +968,11 @@ rm(dbsonde816MMReg)
 rm(dbsonde812MM,dbsonde813MM,dbsonde815MM,dbsonde816MM,
    db_xts_date812,db_xts_date813,db_xts_date815,db_xts_date816)
 
+####################
+# Regroupement des sondes
+####################
+
+
 db_xts_sonde812a$id_sonde = 812
 db_xts_sonde813a$id_sonde = 813
 db_xts_sonde815a$id_sonde = 815
@@ -793,13 +993,13 @@ db_xts_sonde815c$id_sonde = 815
 db_xts_sonde816c$id_sonde = 816
 
 db_Odon_xtsc = rbind(db_xts_sonde812c,db_xts_sonde813c,db_xts_sonde815c,db_xts_sonde816c)
-##########
+##################################
 # Sondes Sélune
-##########
+##################################
 
-###
+###########
 # Sonde 824
-###
+###########
 dbsonde824MM <- dbMM[dbMM$id_sonde==824,]
 
 # Calcule droite de régression MM30
@@ -841,9 +1041,9 @@ rm(dbsonde824MMReg)
 
 
 
-###
+###########
 # Sonde 821
-###
+###########
 dbsonde821MM <- dbMM[dbMM$id_sonde==821,]
 
 # Calcule droite de régression MM30
@@ -882,9 +1082,9 @@ db_xts_sonde821c = db_xts_sonde821[,c(7,13,10,19,20)]
 db_xts_sonde821c = db_xts_sonde821c[is.na(db_xts_sonde821c$TeauMinMM365)==F,]
 
 rm(dbsonde821MMReg)
-###
+###########
 # Sonde 822
-###
+###########
 dbsonde822MM <- dbMM[dbMM$id_sonde==822,]
 
 # Calcule droite de régression MM30
@@ -924,9 +1124,9 @@ db_xts_sonde822c = db_xts_sonde822c[is.na(db_xts_sonde822c$TeauMinMM365)==F,]
 
 rm(dbsonde822MMReg)
 
-###
+###########
 # Sonde 820
-###
+###########
 dbsonde820MM <- dbMM[dbMM$id_sonde==820,]
 
 # Calcule droite de régression MM30
@@ -970,9 +1170,9 @@ rm(dbsonde824MM,dbsonde821MM,dbsonde822MM,dbsonde820MM,
    db_xts_date824,db_xts_date821,db_xts_date822,db_xts_date820)
 
 
-###
+###########
 # Sonde 823
-###
+###########
 dbsonde823MM <- dbMM[dbMM$id_sonde==823,]
 
 # Calcule droite de régression MM30
@@ -1014,7 +1214,9 @@ rm(dbsonde823MMReg)
 
 rm(dbsonde824MM,dbsonde821MM,dbsonde822MM,dbsonde823MM,
    db_xts_date824,db_xts_date821,db_xts_date822,db_xts_date823)
-
+####################
+# Regroupement des sondes
+###################
 
 db_xts_sonde820a$id_sonde = 820
 db_xts_sonde821a$id_sonde = 821
@@ -1065,31 +1267,65 @@ db_Selune_xtsc = rbind(db_xts_sonde820c,db_xts_sonde821c,db_xts_sonde822c,db_xts
 
 
 
-# ####################### #
+#######################################################################################
 # Comparaison sondes
-# ####################### #
+#######################################################################################
 
-# ####################### #
-# moyenne journalière
-# ####################### #
+min_date = min(db$date)-1
+max_date = max(db$date)+1
 
-min_date = min(db$date)
-max_date = max(db$date)
+periode_date = interval(start = min_date, end = max_date)
+duree_periode = time_length(periode_date, unit = "days")
 
-db_xts_comp_teau_moy = data.frame(date=seq(min_date, max_date, "day"))
+date_xts = c(min_date)
+for(i in 1:duree_periode){
+  date_xts = c(date_xts, min_date+i)
+}
 
+summary(date_xts)
+head(date_xts)
+
+
+db_xts_comp_teau_moy = data.frame(date=date_xts)
 for(id_s in unique(db$id_sonde)){
-  #id_s = 813
   db_temp = db[which(db$id_sonde==id_s),]
   db_temp = aggregate(Teau~date,data=db_temp, FUN=mean)
   
-  db_temp[[id_s]] = db_temp$Teau
+  
+  #print(id_s)
+  #print(db_xts_comp_teau_moy$date[]==db_temp$date[i])
   
   
-  db_xts_comp_teau_moy = merge(db_xts_comp_teau_moy, db_temp[,c("date", id_s)], by="date", all=TRUE)
-  
+  j = 1
+  for(i in 1:length(db_xts_comp_teau_moy$date)){
+    #print(db_xts_comp_teau_moy$date[i]==db_temp$date[j])
+    if(db_xts_comp_teau_moy$date[i]==db_temp$date[j]){
+      db_xts_comp_teau_moy[[id_s]][i] = db_temp$Teau[j]
+      if(j < length(db_temp$date)){
+        j = j+1
+      }
+    }
+    else{
+      db_xts_comp_teau_moy[[id_s]][i] = NA
+    }
+    
+  }
+  #print("ok")
+  #db_xts_comp_teau_moy$id_s = xts(db_temp$Teau, order.by = db_temp$date)
 }
-#View(db_xts_comp_teau_moy)
+
+head(date_xts)
+head(db_xts_comp_teau_moy)
+
+#db_temp = db[which(db$id_sonde==104),]
+#test=aggregate(Teau~date,data=db_temp, FUN=mean)
+
+
+#db_xts_comp_teau_moy = xts(db_xts_comp_teau_moy[,-1], order.by = db_xts_comp_teau_moy$date)
+
+#head(db_xts_comp_teau_moy["104"])
+
+#dygraph(db_xts_comp_teau_moy)
 
 
 choix = c("104", "818", "817")#, "300", "109")
@@ -1104,9 +1340,9 @@ dygraph(df_xts_choix)
 
 
 
-# ############################### #
+#################################
 # MM30
-# ############################### #
+################################
 
 
 db_xts_comp_teau_MM30 = db_xts_comp_teau_moy
@@ -1130,9 +1366,9 @@ df_xts_choix = xts(df_choix[,-1], order.by=df_choix$date)
 dygraph(df_xts_choix)
 
 
-# ############################### #
+#################################
 # MM365
-# ############################### #
+#################################
 
 
 db_xts_comp_teau_MM365 = db_xts_comp_teau_moy
@@ -1158,357 +1394,65 @@ dygraph(df_xts_choix)
 
 
 
-# ####################### #
+#########################
 # bi-horaire
-# ####################### #
+#########################
+
+for(i in unique(db$id_sonde)){
+  print(i)
+  print(head(db[which(db$id_sonde==i),1]))
+}
 
 
-min_t = min(db$t)
-max_t = max(db$t)
-db_xts_comp_teau_bih = data.frame(t=seq(from = min_t, to = max_t, by = "2 hour"))
 
+min_t = min(db$t)-3600*2
+max_t = max(db$t)+3600*2
+
+min_t
+max_t
+
+periode_t = interval(start = min_t, end = max_t)
+duree_periode_t = time_length(periode_date, unit = "hours")
+
+duree_periode_t
+
+
+t_xts = c(min_t)
+for(i in 1:(1+duree_periode_t%/%2)){
+  t_xts = c(t_xts, t_xts[i]+2*3600)
+}
+
+summary(t_xts)
+head(t_xts)
+
+
+db_xts_comp_teau_bih = data.frame(t=t_xts)
 for(id_s in unique(db$id_sonde)){
   db_temp = db[which(db$id_sonde==id_s),]
-  db_temp[[id_s]] = db_temp$Teau
   db_temp$t = ymd_hms(paste0(year(db_temp$t), "-",
                              month(db_temp$t), "-",
                              day(db_temp$t), " ",
                              ifelse(hour(db_temp$t)%%2==0, hour(db_temp$t), (hour(db_temp$t))-1), ":00:00"))
-  db_temp = aggregate(db_temp[id_s], by=db_temp['t'], mean)
   
-  
-  db_xts_comp_teau_bih = merge(db_xts_comp_teau_bih, db_temp[,c("t", id_s)], by="t", all=TRUE)
+  j = 1
+  for(i in 1:length(db_xts_comp_teau_bih$t)){
+    #print(db_xts_comp_teau_moy$date[i]==db_temp$date[j])
+    if(db_temp$t[j]== db_xts_comp_teau_bih$t[i]){
+      db_xts_comp_teau_bih[[id_s]][i] = db_temp$Teau[j]
+      if(j < length(db_temp$t)){
+        j = j+1
+      }
+      else{
+        break
+      }
+    }
+    else{
+      db_xts_comp_teau_bih[[id_s]][i] = NA
+    }
+    
+  }
   
 }
-
-#View(db_xts_comp_teau_bih)
-
-
-# ####################### #
-# fin bi-horaire
-# ####################### #
-
-
-
-
-db_temp = data.frame(id_sonde = db_sonde_synthese$id_sonde, 
-                     cours_eau = c("Monne", "Vie", "Taute", "Barge", "Grande Vallee",
-                                   "Souleuvre", "See Rousse", "Egrenne", "Durance", "See",
-                                   "Berence", "Glanon", "Vieux Ruisseau (Vingt bec)",
-                                   "Fontaine au Heron", rep("Odon", 4), rep("Orne", 3),
-                                   rep("Selune", 5), rep("Touques", 4)),
-                     pos = c(3, 4, 14, 2, 13, 9, 12, 11, 10, 17, 16, 15, 8, 6, 
-                             rep(1, 4), rep(7, 3), rep(18, 5), rep(5, 4)))
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# ----------------------------------------------------------------------------------------------- #
-# ####################################################### #
-# Base Classification 
-# ####################################################### #
-
-
-
-db_classif_moy = db_xts_comp_teau_moy
-db_classif_bih = db_xts_comp_teau_bih
-
-
-
-# ### # ### # ### # ### # ### #
-# moyenne journalière
-# ### # ### # ### # ### # ### #
-
-# base 1 : sondes Orne Odon Touques Sélune
-db_classif_moy1 = db_classif_moy[,c("date", "812", "813", "815", "816",
-                                    "817", "818", "819",
-                                    "820", "821", "823", "824",
-                                    "825", "828", "830")]
-
-head(db_classif_moy1)
-dim(db_classif_moy1)
-
-
-
-i_deb = which.max(!rowSums(is.na(db_classif_moy1)))
-i_fin = nrow(db_classif_moy1)-(which.max(!rowSums(is.na(db_classif_moy1[nrow(db_classif_moy1):1,])))-1)
-db_classif_moy1 = db_classif_moy1[i_deb:i_fin,]
-db_classif_moy1 = na.locf(na.locf(db_classif_moy1),fromLast=TRUE)
-
-dim(db_classif_moy1)
-
-
-
-
-
-# base 2
-db_classif_moy2 = db_classif_moy[,c("date", 
-                                    "104", "109", "762", "764", "771",
-                                    "812", "813", "815", "816",
-                                    "817", "818", "819",
-                                    "820", "821", "823", "824",
-                                    "825", "828", "830")]
-
-
-
-i_deb = which.max(!rowSums(is.na(db_classif_moy2)))
-i_fin = nrow(db_classif_moy2)-(which.max(!rowSums(is.na(db_classif_moy2[nrow(db_classif_moy2):1,])))-1)
-db_classif_moy2 = db_classif_moy2[i_deb:i_fin,]
-db_classif_moy2 = na.locf(na.locf(db_classif_moy2),fromLast=TRUE)
-
-dim(db_classif_moy2)
-
-
-
-
-# base 3
-db_classif_moy3 = db_classif_moy[,c("date", 
-                                    "108", "765", "768", "769",
-                                    "104", "109", "762", "764", "771",
-                                    "812", "813", "815", "816",
-                                    "817", "818", "819",
-                                    "820", "821", "823", "824",
-                                    "825", "828", "830")]
-
-
-i_deb = which.max(!rowSums(is.na(db_classif_moy3)))
-i_fin = nrow(db_classif_moy3)-(which.max(!rowSums(is.na(db_classif_moy3[nrow(db_classif_moy3):1,])))-1)
-db_classif_moy3 = db_classif_moy3[i_deb:i_fin,]
-db_classif_moy3 = na.locf(na.locf(db_classif_moy3),fromLast=TRUE)
-
-dim(db_classif_moy3)
-
-
-
-
-
-#help(na.aggregate)
-
-
-# ### # ### # ### # ### # ### #
-# relevé bi-horaire
-# ### # ### # ### # ### # ### #
-
-
-# base 1 : sondes Orne Odon Touques Sélune
-db_classif_bih1 = db_classif_bih[,c("t", "812", "813", "815", "816",
-                                    "817", "818", "819",
-                                    "820", "821", "823", "824",
-                                    "825", "828", "830")]
-
-
-head(db_classif_bih1)
-dim(db_classif_bih1)
-
-
-
-i_deb = which.max(!rowSums(is.na(db_classif_bih1)))
-i_fin = nrow(db_classif_bih1)-(which.max(!rowSums(is.na(db_classif_bih1[nrow(db_classif_bih1):1,])))-1)
-db_classif_bih1 = db_classif_bih1[i_deb:i_fin,]
-db_classif_bih1 = na.locf(na.locf(db_classif_bih1),fromLast=TRUE)
-
-dim(db_classif_bih1)
-tail(db_classif_bih1)
-
-
-
-# base 2
-db_classif_bih2 = db_classif_bih[,c("t",
-                                    "104", "109", "762", "764", "771",
-                                    "812", "813", "815", "816",
-                                    "817", "818", "819",
-                                    "820", "821", "823", "824",
-                                    "825", "828", "830")]
-
-head(db_classif_bih2)
-dim(db_classif_bih2)
-
-
-
-i_deb = which.max(!rowSums(is.na(db_classif_bih2)))
-i_fin = nrow(db_classif_bih2)-(which.max(!rowSums(is.na(db_classif_bih2[nrow(db_classif_bih2):1,])))-1)
-db_classif_bih2 = db_classif_bih2[i_deb:i_fin,]
-db_classif_bih2 = na.locf(na.locf(db_classif_bih2),fromLast=TRUE)
-
-dim(db_classif_bih2)
-
-
-
-# base 3
-db_classif_bih3 = db_classif_bih[,c("t",
-                                    "108", "765", "768", "769",
-                                    "104", "109", "762", "764", "771",
-                                    "812", "813", "815", "816",
-                                    "817", "818", "819",
-                                    "820", "821", "823", "824",
-                                    "825", "828", "830")]
-
-head(db_classif_bih3)
-dim(db_classif_bih3)
-
-
-
-i_deb = which.max(!rowSums(is.na(db_classif_bih3)))
-i_fin = nrow(db_classif_bih3)-(which.max(!rowSums(is.na(db_classif_bih3[nrow(db_classif_bih3):1,])))-1)
-db_classif_bih3 = db_classif_bih3[i_deb:i_fin,]
-db_classif_bih3 = na.locf(na.locf(db_classif_bih3),fromLast=TRUE)
-
-dim(db_classif_bih3)
-
-
-
-
-# ####################################################### #
-# Fin Base Classification
-# ####################################################### #
-
-
-# ####################################################### #
-# Test Classification
-# ####################################################### #
-library(flamingos)
-
-# dbEssai = db_xts_comp_teau_moy
-# 
-# na = vector()
-# for (i in 2:ncol(dbEssai)){
-#   Na = sum(is.na(dbEssai[,i]))
-#   na = append(na,Na)
-# }
-# 
-# na
-# 
-# dbEssai = dbEssai[,na <= 500]
-# dbEssai = na.omit(dbEssai)
-# dim(dbEssai)
-# 
-# head(dbEssai)
-
-db_classif_moy1
-db_classif_moy2
-db_classif_moy3
-
-db_classif_bih1
-db_classif_bih2
-db_classif_bih3
-
-
-
-Y <- t(db_classif_bih3[,2:ncol(db_classif_bih3)])
-
-
-x <-as.numeric(1:nrow(db_classif_bih3))
-
-
-K <- 2 # Number of clusters
-R <- 8 # Number of regimes (polynomial regression components)
-p <- 1 # Degree of the polynomials
-q <- 1 # Order of the logistic regression (by default 1 for contiguous segmentation)
-variance_type <- "heteroskedastic" # "heteroskedastic" or "homoskedastic" model
-
-n_tries <- 1
-max_iter <- 1000
-threshold <- 1e-5
-verbose <- TRUE
-verbose_IRLS <- FALSE
-init_kmeans <- TRUE
-
-mixrhlp <- emMixRHLP(X = x, Y = Y, K, R, p, q, variance_type, init_kmeans, 
-                     n_tries, max_iter, threshold, verbose, verbose_IRLS)
-
-mixrhlp$summary()
-
-
-mixrhlp$plot()
-
-mixrhlp$stat$klas
-
-
-
-res = data.frame(cluster=mixrhlp$stat$klas)
-res$id_sonde = as.numeric(rownames(Y))
-
-
-
-
-
-for(id_s in unique(res$id_sonde)){
-  res[which(res$id_sonde == id_s),"longitude"] = db_sonde_synthese[which(db_sonde_synthese$id_sonde == id_s),]$longitude
-  res[which(res$id_sonde == id_s),"latitude"] = db_sonde_synthese[which(db_sonde_synthese$id_sonde == id_s),]$latitude
-}
-
-head(res)
-
-help("flamingos-package")
-
-res_clust1 = res[which(res$cluster == 1),]
-res_clust2 = res[which(res$cluster == 2),]
-head(res_clust2)
-
-vec_col_res = c("blue", "red", "green", "yellow", "cyan", "magenta")
-
-leaflet() %>%
-  addTiles() %>%
-  addAwesomeMarkers(data = res_clust1, 
-                    lng=res_clust1$longitude,lat=res_clust1$latitude,
-                    layerId = res_clust1$id_sonde, group=paste0("Cluster",res_clust1$cluster),
-                    icon=makeAwesomeIcon(icon='tint', library='glyphicon',
-                                         iconColor = 'white', markerColor = vec_col_res[1])) %>%
-  addAwesomeMarkers(data = res_clust2, 
-                    lng=res_clust2$longitude,lat=res_clust2$latitude,
-                    layerId = res_clust2$id_sonde, group=paste0("Cluster",res_clust2$cluster),
-                    icon=makeAwesomeIcon(icon='tint', library='glyphicon',
-                                         iconColor = 'white', markerColor = vec_col_res[2])) %>%
-  addPopups(data = res, popup = paste0("sonde : ", res$id_sonde))
-  
-
-
-
-
-
-
-
-
-# ####################################################### #
-# Fin Test Classification
-# ####################################################### #
-
-
-
-
-
-
-
-
 
 
 
