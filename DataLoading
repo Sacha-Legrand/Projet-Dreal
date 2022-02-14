@@ -1265,67 +1265,31 @@ db_Selune_xtsc = rbind(db_xts_sonde820c,db_xts_sonde821c,db_xts_sonde822c,db_xts
 
 
 
-
-
-#######################################################################################
+# ####################### #
 # Comparaison sondes
-#######################################################################################
+# ####################### #
 
-min_date = min(db$date)-1
-max_date = max(db$date)+1
+# ####################### #
+# moyenne journalière
+# ####################### #
 
-periode_date = interval(start = min_date, end = max_date)
-duree_periode = time_length(periode_date, unit = "days")
+min_date = min(db$date)
+max_date = max(db$date)
 
-date_xts = c(min_date)
-for(i in 1:duree_periode){
-  date_xts = c(date_xts, min_date+i)
-}
+db_xts_comp_teau_moy = data.frame(date=seq(min_date, max_date, "day"))
 
-summary(date_xts)
-head(date_xts)
-
-
-db_xts_comp_teau_moy = data.frame(date=date_xts)
 for(id_s in unique(db$id_sonde)){
+  #id_s = 813
   db_temp = db[which(db$id_sonde==id_s),]
   db_temp = aggregate(Teau~date,data=db_temp, FUN=mean)
   
-  
-  #print(id_s)
-  #print(db_xts_comp_teau_moy$date[]==db_temp$date[i])
+  db_temp[[id_s]] = db_temp$Teau
   
   
-  j = 1
-  for(i in 1:length(db_xts_comp_teau_moy$date)){
-    #print(db_xts_comp_teau_moy$date[i]==db_temp$date[j])
-    if(db_xts_comp_teau_moy$date[i]==db_temp$date[j]){
-      db_xts_comp_teau_moy[[id_s]][i] = db_temp$Teau[j]
-      if(j < length(db_temp$date)){
-        j = j+1
-      }
-    }
-    else{
-      db_xts_comp_teau_moy[[id_s]][i] = NA
-    }
-    
-  }
-  #print("ok")
-  #db_xts_comp_teau_moy$id_s = xts(db_temp$Teau, order.by = db_temp$date)
+  db_xts_comp_teau_moy = merge(db_xts_comp_teau_moy, db_temp[,c("date", id_s)], by="date", all=TRUE)
+  
 }
-
-head(date_xts)
-head(db_xts_comp_teau_moy)
-
-#db_temp = db[which(db$id_sonde==104),]
-#test=aggregate(Teau~date,data=db_temp, FUN=mean)
-
-
-#db_xts_comp_teau_moy = xts(db_xts_comp_teau_moy[,-1], order.by = db_xts_comp_teau_moy$date)
-
-#head(db_xts_comp_teau_moy["104"])
-
-#dygraph(db_xts_comp_teau_moy)
+#View(db_xts_comp_teau_moy)
 
 
 choix = c("104", "818", "817")#, "300", "109")
@@ -1340,9 +1304,9 @@ dygraph(df_xts_choix)
 
 
 
-#################################
+# ############################### #
 # MM30
-################################
+# ############################### #
 
 
 db_xts_comp_teau_MM30 = db_xts_comp_teau_moy
@@ -1366,9 +1330,9 @@ df_xts_choix = xts(df_choix[,-1], order.by=df_choix$date)
 dygraph(df_xts_choix)
 
 
-#################################
+# ############################### #
 # MM365
-#################################
+# ############################### #
 
 
 db_xts_comp_teau_MM365 = db_xts_comp_teau_moy
@@ -1394,65 +1358,307 @@ dygraph(df_xts_choix)
 
 
 
-#########################
+# ####################### #
 # bi-horaire
-#########################
-
-for(i in unique(db$id_sonde)){
-  print(i)
-  print(head(db[which(db$id_sonde==i),1]))
-}
+# ####################### #
 
 
+min_t = min(db$t)
+max_t = max(db$t)
+db_xts_comp_teau_bih = data.frame(t=seq(from = min_t, to = max_t, by = "2 hour"))
 
-min_t = min(db$t)-3600*2
-max_t = max(db$t)+3600*2
-
-min_t
-max_t
-
-periode_t = interval(start = min_t, end = max_t)
-duree_periode_t = time_length(periode_date, unit = "hours")
-
-duree_periode_t
-
-
-t_xts = c(min_t)
-for(i in 1:(1+duree_periode_t%/%2)){
-  t_xts = c(t_xts, t_xts[i]+2*3600)
-}
-
-summary(t_xts)
-head(t_xts)
-
-
-db_xts_comp_teau_bih = data.frame(t=t_xts)
 for(id_s in unique(db$id_sonde)){
   db_temp = db[which(db$id_sonde==id_s),]
+  db_temp[[id_s]] = db_temp$Teau
   db_temp$t = ymd_hms(paste0(year(db_temp$t), "-",
                              month(db_temp$t), "-",
                              day(db_temp$t), " ",
                              ifelse(hour(db_temp$t)%%2==0, hour(db_temp$t), (hour(db_temp$t))-1), ":00:00"))
+  db_temp = aggregate(db_temp[id_s], by=db_temp['t'], mean)
   
-  j = 1
-  for(i in 1:length(db_xts_comp_teau_bih$t)){
-    #print(db_xts_comp_teau_moy$date[i]==db_temp$date[j])
-    if(db_temp$t[j]== db_xts_comp_teau_bih$t[i]){
-      db_xts_comp_teau_bih[[id_s]][i] = db_temp$Teau[j]
-      if(j < length(db_temp$t)){
-        j = j+1
-      }
-      else{
-        break
-      }
-    }
-    else{
-      db_xts_comp_teau_bih[[id_s]][i] = NA
-    }
-    
-  }
+  
+  db_xts_comp_teau_bih = merge(db_xts_comp_teau_bih, db_temp[,c("t", id_s)], by="t", all=TRUE)
   
 }
+
+#View(db_xts_comp_teau_bih)
+
+
+# ####################### #
+# fin bi-horaire
+# ####################### #
+
+
+# ----------------------------------------------------------------------------------------------- #
+# ####################################################### #
+# Base Classification 
+# ####################################################### #
+
+
+
+db_classif_moy = db_xts_comp_teau_moy
+db_classif_bih = db_xts_comp_teau_bih
+
+
+
+# ### # ### # ### # ### # ### #
+# moyenne journalière
+# ### # ### # ### # ### # ### #
+
+# base 1 : sondes Orne Odon Touques Sélune
+db_classif_moy1 = db_classif_moy[,c("date", "812", "813", "815", "816",
+                                    "817", "818", "819",
+                                    "820", "821", "823", "824",
+                                    "825", "828", "830")]
+
+head(db_classif_moy1)
+dim(db_classif_moy1)
+
+
+
+i_deb = which.max(!rowSums(is.na(db_classif_moy1)))
+i_fin = nrow(db_classif_moy1)-(which.max(!rowSums(is.na(db_classif_moy1[nrow(db_classif_moy1):1,])))-1)
+db_classif_moy1 = db_classif_moy1[i_deb:i_fin,]
+db_classif_moy1 = na.locf(na.locf(db_classif_moy1),fromLast=TRUE)
+
+dim(db_classif_moy1)
+
+
+
+
+
+# base 2
+db_classif_moy2 = db_classif_moy[,c("date", 
+                                    "104", "109", "762", "764", "771",
+                                    "812", "813", "815", "816",
+                                    "817", "818", "819",
+                                    "820", "821", "823", "824",
+                                    "825", "828", "830")]
+
+
+
+i_deb = which.max(!rowSums(is.na(db_classif_moy2)))
+i_fin = nrow(db_classif_moy2)-(which.max(!rowSums(is.na(db_classif_moy2[nrow(db_classif_moy2):1,])))-1)
+db_classif_moy2 = db_classif_moy2[i_deb:i_fin,]
+db_classif_moy2 = na.locf(na.locf(db_classif_moy2),fromLast=TRUE)
+
+dim(db_classif_moy2)
+
+
+
+
+# base 3
+db_classif_moy3 = db_classif_moy[,c("date", 
+                                    "108", "765", "768", "769",
+                                    "104", "109", "762", "764", "771",
+                                    "812", "813", "815", "816",
+                                    "817", "818", "819",
+                                    "820", "821", "823", "824",
+                                    "825", "828", "830")]
+
+
+i_deb = which.max(!rowSums(is.na(db_classif_moy3)))
+i_fin = nrow(db_classif_moy3)-(which.max(!rowSums(is.na(db_classif_moy3[nrow(db_classif_moy3):1,])))-1)
+db_classif_moy3 = db_classif_moy3[i_deb:i_fin,]
+db_classif_moy3 = na.locf(na.locf(db_classif_moy3),fromLast=TRUE)
+
+dim(db_classif_moy3)
+
+
+
+
+
+#help(na.aggregate)
+
+
+# ### # ### # ### # ### # ### #
+# relevé bi-horaire
+# ### # ### # ### # ### # ### #
+
+
+# base 1 : sondes Orne Odon Touques Sélune
+db_classif_bih1 = db_classif_bih[,c("t", "812", "813", "815", "816",
+                                    "817", "818", "819",
+                                    "820", "821", "823", "824",
+                                    "825", "828", "830")]
+
+
+head(db_classif_bih1)
+dim(db_classif_bih1)
+
+
+
+i_deb = which.max(!rowSums(is.na(db_classif_bih1)))
+i_fin = nrow(db_classif_bih1)-(which.max(!rowSums(is.na(db_classif_bih1[nrow(db_classif_bih1):1,])))-1)
+db_classif_bih1 = db_classif_bih1[i_deb:i_fin,]
+db_classif_bih1 = na.locf(na.locf(db_classif_bih1),fromLast=TRUE)
+
+dim(db_classif_bih1)
+tail(db_classif_bih1)
+
+
+
+# base 2
+db_classif_bih2 = db_classif_bih[,c("t",
+                                    "104", "109", "762", "764", "771",
+                                    "812", "813", "815", "816",
+                                    "817", "818", "819",
+                                    "820", "821", "823", "824",
+                                    "825", "828", "830")]
+
+head(db_classif_bih2)
+dim(db_classif_bih2)
+
+
+
+i_deb = which.max(!rowSums(is.na(db_classif_bih2)))
+i_fin = nrow(db_classif_bih2)-(which.max(!rowSums(is.na(db_classif_bih2[nrow(db_classif_bih2):1,])))-1)
+db_classif_bih2 = db_classif_bih2[i_deb:i_fin,]
+db_classif_bih2 = na.locf(na.locf(db_classif_bih2),fromLast=TRUE)
+
+dim(db_classif_bih2)
+
+
+
+# base 3
+db_classif_bih3 = db_classif_bih[,c("t",
+                                    "108", "765", "768", "769",
+                                    "104", "109", "762", "764", "771",
+                                    "812", "813", "815", "816",
+                                    "817", "818", "819",
+                                    "820", "821", "823", "824",
+                                    "825", "828", "830")]
+
+head(db_classif_bih3)
+dim(db_classif_bih3)
+
+
+
+i_deb = which.max(!rowSums(is.na(db_classif_bih3)))
+i_fin = nrow(db_classif_bih3)-(which.max(!rowSums(is.na(db_classif_bih3[nrow(db_classif_bih3):1,])))-1)
+db_classif_bih3 = db_classif_bih3[i_deb:i_fin,]
+db_classif_bih3 = na.locf(na.locf(db_classif_bih3),fromLast=TRUE)
+
+dim(db_classif_bih3)
+
+
+
+
+# ####################################################### #
+# Fin Base Classification
+# ####################################################### #
+
+
+# ####################################################### #
+# Test Classification
+# ####################################################### #
+library(flamingos)
+
+# dbEssai = db_xts_comp_teau_moy
+# 
+# na = vector()
+# for (i in 2:ncol(dbEssai)){
+#   Na = sum(is.na(dbEssai[,i]))
+#   na = append(na,Na)
+# }
+# 
+# na
+# 
+# dbEssai = dbEssai[,na <= 500]
+# dbEssai = na.omit(dbEssai)
+# dim(dbEssai)
+# 
+# head(dbEssai)
+
+db_classif_moy1
+db_classif_moy2
+db_classif_moy3
+
+db_classif_bih1
+db_classif_bih2
+db_classif_bih3
+
+
+
+Y <- t(db_classif_bih3[,2:ncol(db_classif_bih3)])
+
+
+x <-as.numeric(1:nrow(db_classif_bih3))
+
+
+K <- 2 # Number of clusters
+R <- 8 # Number of regimes (polynomial regression components)
+p <- 1 # Degree of the polynomials
+q <- 1 # Order of the logistic regression (by default 1 for contiguous segmentation)
+variance_type <- "heteroskedastic" # "heteroskedastic" or "homoskedastic" model
+
+n_tries <- 1
+max_iter <- 1000
+threshold <- 1e-5
+verbose <- TRUE
+verbose_IRLS <- FALSE
+init_kmeans <- TRUE
+
+mixrhlp <- emMixRHLP(X = x, Y = Y, K, R, p, q, variance_type, init_kmeans, 
+                     n_tries, max_iter, threshold, verbose, verbose_IRLS)
+
+mixrhlp$summary()
+
+
+mixrhlp$plot()
+
+mixrhlp$stat$klas
+
+
+
+res = data.frame(cluster=mixrhlp$stat$klas)
+res$id_sonde = as.numeric(rownames(Y))
+
+
+
+
+
+for(id_s in unique(res$id_sonde)){
+  res[which(res$id_sonde == id_s),"longitude"] = db_sonde_synthese[which(db_sonde_synthese$id_sonde == id_s),]$longitude
+  res[which(res$id_sonde == id_s),"latitude"] = db_sonde_synthese[which(db_sonde_synthese$id_sonde == id_s),]$latitude
+}
+
+head(res)
+
+help("flamingos-package")
+
+res_clust1 = res[which(res$cluster == 1),]
+res_clust2 = res[which(res$cluster == 2),]
+head(res_clust2)
+
+vec_col_res = c("blue", "red", "green", "yellow", "cyan", "magenta")
+
+leaflet() %>%
+  addTiles() %>%
+  addAwesomeMarkers(data = res_clust1, 
+                    lng=res_clust1$longitude,lat=res_clust1$latitude,
+                    layerId = res_clust1$id_sonde, group=paste0("Cluster",res_clust1$cluster),
+                    icon=makeAwesomeIcon(icon='tint', library='glyphicon',
+                                         iconColor = 'white', markerColor = vec_col_res[1])) %>%
+  addAwesomeMarkers(data = res_clust2, 
+                    lng=res_clust2$longitude,lat=res_clust2$latitude,
+                    layerId = res_clust2$id_sonde, group=paste0("Cluster",res_clust2$cluster),
+                    icon=makeAwesomeIcon(icon='tint', library='glyphicon',
+                                         iconColor = 'white', markerColor = vec_col_res[2])) %>%
+  addPopups(data = res, popup = paste0("sonde : ", res$id_sonde))
+
+
+
+
+
+
+
+
+
+# ####################################################### #
+# Fin Test Classification
+# ####################################################### #
+
 
 
 
