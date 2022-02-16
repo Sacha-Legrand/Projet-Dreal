@@ -87,6 +87,7 @@ if(!require(ggpubr)){
   install.packages("ggpubr")
   library(ggpubr)
 }
+
 if(!require(TSA)){
   install.packages("TSA")
   library(TSA)
@@ -95,4 +96,16 @@ if(!require(TSA)){
 if(!require(dashboardthemes)){
   install.packages("dashboardthemes")
   library(dashboardthemes)
+}
+if(!require(flamingos)){
+  install.packages("flamingos")
+  library(flamingos)
+}
+if(!require(raster)){
+  install.packages("raster")
+  library(raster)
+}
+if(!require(ncdf4)){
+  install.packages("ncdf4")
+  library(ncdf4)
 }
