@@ -1,4 +1,4 @@
-# ####################
+#####################
 # Libraries
 #####################
 
@@ -98,6 +98,14 @@ if(!require(flamingos)){
   install.packages("flamingos")
   library(flamingos)
 }
+if(!require(raster)){
+  install.packages("raster")
+  library(raster)
+}
+if(!require(ncdf4)){
+  install.packages("ncdf4")
+  library(ncdf4)
+}
 #################
 # CHemin d'accès
 #################
@@ -106,8 +114,8 @@ if(!require(flamingos)){
 
 #Intégrer le chemin d'accès au projet
 
-path="D:/Users/Desktop/Cours/M2stat/Projet" # path Lucie
-#path = "/Users/julien/Desktop/projetM2/dashboard_propre" # path Julien
+#path="D:/Users/Desktop/Cours/M2stat/Projet" # path Lucie
+path = "/Users/julien/Desktop/projetM2/dashboard_propre" # path Julien
 
 setwd(path)
 
@@ -156,6 +164,8 @@ colnames(db_sonde_synthese) <- c("id_sonde","label","latitude","longitude","Alti
 str(db_sonde_synthese)
 
 
+
+
 for (i in 1:nrow(db_sonde_synthese)){
   if (db_sonde_synthese$id_sonde[i] %in% unique(db$id_sonde))
   {
@@ -193,8 +203,15 @@ rm(modif)
 
 as.character(db_sonde_synthese$id_sonde)
 
+#str(db_sonde_synthese)
+#db_sonde_synthese = na.omit(db_sonde_synthese)
 
-coursEau2 = rgdal::readOGR(paste0(path,"/cours_eau_projet.kml"), "cours_eau_projet")
+#coursEau2 = rgdal::readOGR(paste0(path,"/cours_eau_projet.kml"), "cours_eau_projet")# lucie
+coursEau2 = rgdal::readOGR("/Users/julien/Desktop/projetM2/datavizPM2/cours_eau_projet.kml", "cours_eau_projet")# julien
+nc_tair = brick("/Users/julien/Desktop/projetM2/data_eobs/tg_ens_mean_0.1deg_reg_2011-2021_v24.0e.nc")# julien
+nc_rr = brick("/Users/julien/Desktop/projetM2/data_eobs/rr_ens_mean_0.1deg_reg_2011-2021_v24.0e.nc")# julien
+nc_tair_max = brick("/Users/julien/Desktop/projetM2/data_eobs/tx_ens_mean_0.1deg_reg_2011-2021_v24.0e.nc")# julien
+nc_tair_min = brick("/Users/julien/Desktop/projetM2/data_eobs/tn_ens_mean_0.1deg_reg_2011-2021_v24.0e.nc")# julien
 
 
 # ######################################################################################
@@ -1269,9 +1286,9 @@ db_Selune_xtsc = rbind(db_xts_sonde820c,db_xts_sonde821c,db_xts_sonde822c,db_xts
 
 
 
-# ####################### #
+#########################
 # Comparaison sondes
-# ####################### #
+#########################
 
 # ####################### #
 # moyenne journalière
@@ -1375,9 +1392,9 @@ for(id_s in unique(db$id_sonde)){
   db_tempo = db[which(db$id_sonde==id_s),]
   db_tempo[[id_s]] = db_tempo$Teau
   db_tempo$t = ymd_hms(paste0(year(db_tempo$t), "-",
-                             month(db_tempo$t), "-",
-                             day(db_tempo$t), " ",
-                             ifelse(hour(db_tempo$t)%%2==0, hour(db_tempo$t), (hour(db_tempo$t))-1), ":00:00"))
+                              month(db_tempo$t), "-",
+                              day(db_tempo$t), " ",
+                              ifelse(hour(db_tempo$t)%%2==0, hour(db_tempo$t), (hour(db_tempo$t))-1), ":00:00"))
   db_tempo = aggregate(db_tempo[id_s], by=db_tempo['t'], mean)
   
   
@@ -1393,10 +1410,199 @@ for(id_s in unique(db$id_sonde)){
 # ####################### #
 
 
+#########################################################
+# Test Temp Air et Pluvio
+#########################################################
+
+
+
+sonde_lon = db_sonde_synthese$longitude
+sonde_lon
+
+sonde_lat = db_sonde_synthese$latitude
+sonde_lat
+
+sonde_coord = cbind(sonde_lon, sonde_lat)
+
+
+
+rownames(sonde_coord) = db_sonde_synthese$id_sonde
+
+head(sonde_coord)
+
+
+ext_norm = extent(-2, 3, 48, 50)
+ext_norm 
+
+# ####################################################### #
+# base de données température de l'air moyenne par jour
+
+
+
+
+
+
+
+
+
+
+Tair_crop = crop(nc_tair, ext_norm)
+View(Tair_crop)
+
+db_Tair_moy = extract(Tair_crop, sonde_coord, method = "bilinear")
+View(db_Tair_moy)
+
+rownames(db_Tair_moy) = db_sonde_synthese$id_sonde
+
+
+db_Tair_moy_temp = t(db_Tair_moy)
+head(db_Tair_moy_temp)
+
+
+db_Tair_moy = as.data.frame(db_Tair_moy_temp)
+db_Tair_moy$date = ymd(substring(rownames(db_Tair_moy),2))
+
+# ####################################################### #
+# base de données pluviométrie
+
+
+
+
+
+
+rr_crop = crop(nc_rr, ext_norm)
+#View(rr_crop)
+
+db_rr = extract(rr_crop, sonde_coord, method = "bilinear")
+#View(db_rr)
+
+rownames(db_rr) = db_sonde_synthese$id_sonde
+
+
+db_rr = t(db_rr)
+head(db_rr)
+
+
+db_rr = as.data.frame(db_rr)
+db_rr$date = ymd(substring(rownames(db_rr),2))
+
+head(db_rr)
+
+
+
+# ####################################################### #
+# base de données TairMax
+
+
+
+
+
+
+tair_max_crop = crop(nc_tair_max, ext_norm)
+#View(rr_crop)
+
+db_TairMax = extract(tair_max_crop, sonde_coord, method = "bilinear")
+#View(db_rr)
+
+rownames(db_TairMax) = db_sonde_synthese$id_sonde
+
+
+db_TairMax = t(db_TairMax)
+head(db_TairMax)
+
+
+db_TairMax = as.data.frame(db_TairMax)
+db_TairMax$date = ymd(substring(rownames(db_TairMax),2))
+
+head(db_TairMax)
+
+
+
+# ####################################################### #
+# base de données TairMin
+
+
+
+
+tair_min_crop = crop(nc_tair_min, ext_norm)
+#View(rr_crop)
+
+db_TairMin = extract(tair_min_crop, sonde_coord, method = "bilinear")
+#View(db_rr)
+
+rownames(db_TairMin) = db_sonde_synthese$id_sonde
+
+
+db_TairMin = t(db_TairMin)
+head(db_TairMin)
+
+
+db_TairMin = as.data.frame(db_TairMin)
+db_TairMin$date = ymd(substring(rownames(db_TairMin),2))
+
+head(db_TairMin)
+
+
+
+# ####################################################### #
+# test dygraph
+
+
+# sonde 817
+
+sous_db_s817 = merge(db_xts_comp_teau_moy[,c("date","817")], db_Tair_moy[,c("date","817")], 
+                     all.x=TRUE, suffixes=c("", "Tair"), by="date")
+sous_db_s817 = merge(sous_db_s817, db_rr[,c("date","817")], 
+                     all.x=TRUE, suffixes=c("", "Pluvio"), by="date")
+sous_db_s817 = merge(sous_db_s817, db_TairMax[,c("date","817")], 
+                     all.x=TRUE, suffixes=c("", "TairMax"), by="date")
+sous_db_s817 = merge(sous_db_s817, db_TairMin[,c("date","817")], 
+                     all.x=TRUE, suffixes=c("", "TairMin"), by="date")
+
+sous_db_s817 = na.omit(sous_db_s817)
+
+head(sous_db_s817)
+
+#rm(sous_db_s817)
+
+# tail(db_Tair_moy$date)
+# tail(db_xts_comp_teau_moy$date)
+# 
+# 
+# db_teau_tair = db_xts_comp_teau_moy
+# help(merge)
+# 
+# db_teau_tair = merge(db_teau_tair, db_Tair_moy, all.x=TRUE, suffixes=c("Teau", "Tair"), by="date")
+# View(db_teau_tair)
+# 
+# 
+# teau_tair_817 = db_teau_tair[,c("date", "817Teau", "817Tair")]
+# teau_tair_817 = na.omit(teau_tair_817)
+# head(teau_tair_817)
+
+dytry = xts(sous_db_s817[,c(F, T, T, T, T, T)], order.by = sous_db_s817[,c(T, F, F, F, F, F)])
+dygraph(dytry) %>%
+  dyOptions(colors = c("green", "purple", "pink", "red", "blue")) %>%
+  dyHighlight(highlightCircleSize = 5, 
+              highlightSeriesBackgroundAlpha = 0.7,
+              highlightSeriesOpts = list(strokeWidth = 1),
+              hideOnMouseOut = TRUE) %>%
+  dySeries("817Pluvio", axis="y2")
+
+
+
+
+
+
+# ####################################################### #
+# Fin Test Temp Air et Pluvio
+# ####################################################### #
+
+
 # ----------------------------------------------------------------------------------------------- #
-# ####################################################### #
+#########################################################
 # Base Classification 
-# ####################################################### #
+#########################################################
 
 
 
