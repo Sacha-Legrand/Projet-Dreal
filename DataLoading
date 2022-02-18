@@ -363,6 +363,27 @@ db_temp[which(db_temp$id_sonde == 830),]$pos
 
 #Cette ligne te permet de récupérer le cours d'eau à la position i de coursEau2
 
+
+db_sonde_synthese$label
+  
+riv=c("La Monne","La Vie","La Taute","La Barges",
+        "Ruisseau de la Grande Vallée", "La Souleuvre","La Sée Rousse","L’Egrenne",
+        "La Durance","La Sée","La Bérence", "Le Glanon",
+        "Ruisseau de Vingt Bec","La Fontaine au Héron","L'Odon T1","L'Odon T2",
+        "L'Odon T4","L'Odon T5","L'Orne T1","L'Orne T3","L'Orne T2",
+        "La Sélune T4","La Sélune T2","La Sélune T3","La Sélune T5","La Sélune T1",
+        "La Touques T1","La Touques T3","La Touques T4","La Touques T6"
+  )
+  
+db_sonde_synthese$label = as.factor(db_sonde_synthese$label)
+
+db_sonde_synthese$label <- factor(db_sonde_synthese$label,
+                      levels = db_sonde_synthese$label,
+                      labels =riv
+)
+db_sonde_synthese$label <- as.character(db_sonde_synthese$label)
+
+
 #######################################
 # Tableau Stat
 #######################################
