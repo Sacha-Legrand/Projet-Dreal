@@ -276,6 +276,70 @@ cbind(Name,Taille)
 ########
 # Distances à la source
 ########
+ 
+db_sonde_synthese$label2 = gsub(" T\\d+","",db_sonde_synthese$label)
+coursEau3 <- coursEau2
+coursEau3@data$Name <- as.character(coursEau3@data$Name)
+coursEau3@data$Name[coursEau3@data$Name == "Fontaine au HÃ©ron"] = "Fontaine au Héron" 
+coursEau3@data$Name[coursEau3@data$Name == "Grande Vallee"] = "Grande Vallée" 
+coursEau3@data$Name[coursEau3@data$Name == "Vieux Ruisseau (Vingt bec)"] = "Vingt Bec"
+
+coord_sondes = as.data.frame(cbind(as.character(db_sonde_synthese$id_sonde),
+                     db_sonde_synthese$label2,
+                     db_sonde_synthese$longitude,db_sonde_synthese$latitude))
+colnames(coord_sondes)=c("id_sonde","label","longitude","latitude")
+
+
+coord_sondes$latitude <- as.character(coord_sondes$latitude)
+coord_sondes$latitude <- as.numeric(coord_sondes$latitude)
+coord_sondes$longitude <- as.character(coord_sondes$longitude)
+coord_sondes$longitude <- as.numeric(coord_sondes$longitude)
+coord_sondes$dist = NA
+for (i in 1:nrow(coord_sondes)){
+  print(i)
+  c_eau = coursEau3
+  c_eau = coordinates(c_eau[c_eau@data$Name == as.character(coord_sondes$label[i]),])
+  c_eau$d = NA
+  c_eau$di = NA
+  
+  
+  longitude = c_eau[[1]][[1]][,1]
+  latitude = c_eau[[1]][[1]][,2]
+  
+  longitude2 = longitude*(pi/180)
+  latitude2 = latitude*(pi/180)
+  
+  for (j in 1:length(latitude)){
+    
+    c_eau$d[j]= (2 * asin( sqrt(
+      (sin((latitude2[j]-latitude2[j+1])/2))^2 + cos(latitude2[j])*cos(latitude2[j+1])* ( sin((longitude2[j]-longitude2[j+1])/2)) ^2
+    )
+    
+    ))*6366
+    
+    c_eau$di[j] = (2 * asin( sqrt(
+      (sin((latitude2[j]-(coord_sondes$latitude[i]*(pi/180)))/2))^2 + 
+        cos(latitude2[j])*cos((coord_sondes$latitude[i]*(pi/180)))* 
+        ( sin((longitude2[j]-(coord_sondes$longitude[i]*(pi/180)))/2)) ^2
+      )
+      )
+      )*6366
+    
+    }
+  dist = c_eau$d[1:which(c_eau$di== min(c_eau$di))]
+  coord_sondes$dist[i]=sum(dist)
+  print(sum(dist))
+  
+ } 
+
+
+db_sonde_synthese$distance_source = round(coord_sondes$dist)
+View(db_sonde_synthese$distance_source)
+db_sonde_synthese = db_sonde_synthese[,-9]
+
+rm(coursEau3)
+
+
 ##########
 # BD temp
 #########
@@ -298,6 +362,60 @@ db_temp[which(db_temp$id_sonde == 830),]$pos
 #coursEau2@lines[[1]]@Lines[[1]]@coords
 
 #Cette ligne te permet de récupérer le cours d'eau à la position i de coursEau2
+
+#######################################
+# Tableau Stat
+#######################################
+db_stats = db
+db_stats$an = year(db_stats$date)
+db_stats = db_stats %>%
+  group_by(id_sonde,date) %>%
+  mutate(Min=min(Teau),
+         #t10 = quantile(Teau,.1),
+         #t25 = quantile(Teau,.25),
+         Mediane = median(Teau),
+         Moyenne = mean(Teau),
+         sd = sd(Teau),
+         #t75 = quantile(Teau,.75),
+         #t90 = quantile(Teau,.90),
+         Max = max(Teau),
+        Amplitude =  Max - Min
+         )
+
+db_stats$Amplitude = db_stats$Max - db_stats$Min
+
+
+db_stats = db_stats[,-c(1,3,4)]
+db_stats = db_stats[which(duplicated(db_stats)==F),]
+
+db_stats <- db_stats %>%
+  gather(key="Statistiques",value="Valeurs",c(3:ncol(db_stats))) %>%
+  convert_as_factor(Statistiques)
+db_stats$Valeurs = round(db_stats$Valeurs,3)
+db_stats$id_sonde <- as.factor(db_stats$id_sonde)
+
+
+
+db_stats$label <- factor(db_stats$id_sonde ,
+                            levels =levels(db_stats$id_sonde),
+                            labels =riv
+)
+db_stats$Statistiques <- as.factor(db_stats$Statistiques)
+db_stats$an <- as.factor(db_stats$an)
+db_stats= db_stats[,c(1,5,2,3,4)]
+
+
+colnames(db_stats) = c("id_sonde","Sondes","Années","Statistiques","Valeurs")
+
+
+
+
+db_stats_Touques = db_stats[db_stats$Sondes == "La Touques T1" |
+                              db_stats$Sondes == "La Touques T3" |
+                              db_stats$Sondes == "La Touques T4" |
+                              db_stats$Sondes == "La Touques T6" ,]
+db_stats_Touques$Sondes <- factor(db_stats_Touques$Sondes,exclude=NULL)
+db_stats_Touques = db_stats_Touques[,-1]
 
 
 
@@ -1282,7 +1400,62 @@ db_Selune_xtsc = rbind(db_xts_sonde820c,db_xts_sonde821c,db_xts_sonde822c,db_xts
 #   
 # mean(dbMM365$Diff, na.rm=T)
 
+####################
+# Stats avec MM30 pour tableau récap moyenne mensuelle et annuelles
+####################
+db_Touques_stats_MM30 = dbMM[dbMM$id_sonde == 825 |
+                               dbMM$id_sonde == 827 |
+                               dbMM$id_sonde == 828 |
+                               dbMM$id_sonde == 830 ,c( 1,2,8,11 )]
 
+db_Touques_stats_MM30 = db_Touques_stats_MM30[
+  is.na(db_Touques_stats_MM30$TeauMaxMM30)==F,
+]
+
+db_Touques_stats_MM30$id_sonde <- factor(db_Touques_stats_MM30$id_sonde,exclude=NULL)
+db_Touques_stats_MM30$id_sonde <- factor(db_Touques_stats_MM30$id_sonde,
+                                              levels = c(
+                                                "825", "827", "828", "830"
+                                              ),
+                                              labels =c("Touques T1","Touques T3","Touques T4","Touques T6")
+)
+
+str(db_Touques_stats_MM30)
+
+
+
+db_Touques_stats_MM30$mois = month(db_Touques_stats_MM30$date)
+db_Touques_stats_MM30$mois = as.factor(db_Touques_stats_MM30$mois)
+db_Touques_stats_MM30$An = year(db_Touques_stats_MM30$date)
+db_Touques_stats_MM30$An = as.factor(db_Touques_stats_MM30$An)
+
+
+db_Touques_stats_MM30_mois = db_Touques_stats_MM30%>%
+  group_by(id_sonde,mois,An)%>%
+  mutate(MoyenneMaxMM30Mens = mean(TeauMaxMM30),
+         MoyenneMinMM30Mens=mean(TeauMinMM30))
+
+db_Touques_stats_MM30_mois=db_Touques_stats_MM30_mois[,-c(2,3,4)]
+db_Touques_stats_MM30_mois=db_Touques_stats_MM30_mois[
+  duplicated(db_Touques_stats_MM30_mois)==F,
+]
+
+colnames(db_Touques_stats_MM30_mois) = c("Sondes","Mois","Années",
+                                         "Maximum",
+                                         "Minimum")
+
+db_Touques_stats_MM30_An = db_Touques_stats_MM30_mois %>%
+  group_by(Sondes,Années)%>%
+  mutate(MoyenneMaxMM30An = mean(Maximum),
+         MoyenneMinMM30An=mean(Minimum))
+
+db_Touques_stats_MM30_An=db_Touques_stats_MM30_An[,-c(2,4,5)]
+db_Touques_stats_MM30_An=db_Touques_stats_MM30_An[
+  duplicated(db_Touques_stats_MM30_An)==F,
+]
+colnames(db_Touques_stats_MM30_An) = c("Sondes","Années",
+                                         "Maximum",
+                                         "Minimum")
 
 
 
