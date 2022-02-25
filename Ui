@@ -29,9 +29,9 @@ dashboardPage(
     
     
     
-    # ---------------------------------------------------------------------- #
+    ##########################################################################
     # ----------------------------- EN TÊTE -------------------------------- #
-    # ---------------------------------------------------------------------- #
+    ##########################################################################
     # En tête du dashboard
     dashboardHeader(title = "Hydrologie des cours d'eau Normand",
                     titleWidth = 350),
@@ -44,9 +44,9 @@ dashboardPage(
     
     
     
-    # ---------------------------------------------------------------------- #
+    ##########################################################################
     # --------------- BARRE LATÉRALE / MENU DE NAVIGATION ------------------ #
-    # ---------------------------------------------------------------------- #
+    ##########################################################################
     # Barre Latérale / Menu de navigation
     dashboardSidebar(
         # Barre latéral du dashboard
@@ -54,9 +54,6 @@ dashboardPage(
         width=350,
         sidebarMenu(id="menu_principal",
                     # Menu de navigation
-                    
-                    
-                    
                     
                     # ------------------------------------------------------------ #
                     menuItem("Introduction", tabName = "menu_intro", icon=icon("home"),
@@ -117,19 +114,16 @@ dashboardPage(
                     # ------------------------------------------------------------ #
                     menuItem("Analyse de données",tabName = "menu_stats_avancees",
                              icon = icon("stats", lib = "glyphicon"),
-                             # Quatrième  menu : Les sondes
-                             
-                             
+                             # Cinquième  menu : Analyse de données
+
                              # les sub-menus
-                             menuSubItem("Descriptif", tabName = "sub_menu_sondes_synthese"),
-                             menuSubItem("Comparaisons", tabName = "sub_menu_comparaison")
+                             menuSubItem("O'Driscoll", tabName = "ODriscoll")
                              
-                             
-                    ), # End  Quatrième  menu : Les sondes
+                    ), # End  Cinquième  menu : Analyse de données
                     # ------------------------------------------------------------ #
                     
                     # ------------------------------------------------------------ #
-                    menuItem("Références",tabName = "menu_stats",
+                    menuItem("Références",tabName = "Reference",
                              icon = icon("pencil", lib = "glyphicon")
                              # Cinquième  menu : Référence
                              
@@ -151,12 +145,16 @@ dashboardPage(
     
     
     
-    # ---------------------------------------------------------------------- #
+    ##########################################################################
     # ------------------------------ CORPS --------------------------------- #
-    # ---------------------------------------------------------------------- #
+    ##########################################################################
     dashboardBody(
         #corps du dashboard
         
+        
+        #########################################################
+        # Styles
+        #########################################################
         shinyDashboardThemes(
             theme = "poor_mans_flatly"
         ),
@@ -165,27 +163,6 @@ dashboardPage(
         # ------------------------------------------------------------ #
         # HTML / CSS / javascript
         useShinyjs(),
-        # tags$header(
-        #   tags$style(
-        #     HTML(
-        #       '.skin-blue .main-header .logo {background-color: #31b94a;}',
-        #       '.skin-blue .main-header .logo:hover {background-color: #31b94a;}',
-        #       '.skin-blue .main-header .navbar {background-color: #31b94a;}',
-        #       '.box.box-solid.box-primary>.box-header {
-        #                 color:#fff;
-        #                 background:#FFFFFF
-        #                 }
-        #                 .box.box-solid.box-primary{
-        #                 border-bottom-color:#FFFFFF;
-        #                 border-left-color:#FFFFFF;
-        #                 border-right-color:#FFFFFF;
-        #                 border-top-color:#FFFFFF;
-        #                 background:#FFFFFF
-        #                 } ',
-        #       'a {text-decoration: none; color: #aba5aa;}'
-        #     )
-        #   )
-        # ),
         
         tags$body(
             tags$style(
@@ -205,15 +182,19 @@ dashboardPage(
         ),
         # ------------------------------------------------------------ #
         
-        
+        #########################################################
+        # TabsItems
+        #########################################################
         
         # ------------------------------------------------------------ #
         tabItems(
-            # ################################################## #
+            ####################################################
             # Premier Menu : Introduction
-            # ################################################## #
+            ####################################################
             
-            
+            ####################################
+            # Sous-menu : Contexte
+            ####################################
             # -------------------------------------------------- #
             tabItem(tabName = "sub_menu_contexte",
                     # Premier onglet du Menu 1 Introduction : Contexte de l'étude
@@ -231,7 +212,9 @@ dashboardPage(
             
             
             
-            
+            ####################################
+            # Sous-menu : Données de l'étude
+            ####################################
             # -------------------------------------------------- #
             tabItem(tabName = "sub_menu_data",
                     # Onglet 2 du Menu 1 Introduction : Données de l'étude
@@ -280,7 +263,9 @@ dashboardPage(
             # -------------------------------------------------- #
             
             
-            
+            ####################################
+            # Sous-menu : Lexique
+            ####################################
             
             # -------------------------------------------------- #
             tabItem(tabName = "sub_menu_lexique",
@@ -297,7 +282,9 @@ dashboardPage(
             ), # End tabItem 3 (onglet 3 du menu 1)
             # -------------------------------------------------- #
             
-            
+            ####################################
+            # Sous-menu : Bibliographie
+            ####################################
             # -------------------------------------------------- #
             tabItem(tabName = "sub_menu_biblio",
                     # Onglet 4 du Menu 1 Introduction : Bibliographie
@@ -325,9 +312,9 @@ dashboardPage(
             
             
 
-            # ################################################## #
+            ####################################################
             # Deuxième Menu : Cartographie
-            # ################################################## #
+            ####################################################
             
             
             
@@ -422,85 +409,18 @@ dashboardPage(
                     
                     
             ), # End tabItem 1 (onglet 1 du menu 2)
-            # -------------------------------------------------- #
-            
-            
-            
-            
-            
-            # -------------------------------------------------- #
-            # tabItem(tabName = "sub_menu_bv",
-            #         # Carte des bassins versants
-            #         
-            #         
-            #         h2("Bassins versants"),
-            #         
-            #         # ---------------------------------------- #
-            #         fluidRow(
-            #             box(
-            #                 #column(width = 2, checkboxInput(inputId = "BV1", label = "Grand BV", value=TRUE)),
-            #                 column(width = 2, checkboxInput(inputId = "BV2", label = "Moyen BV")),
-            #                 column(width = 2, checkboxInput(inputId = "BV3", label = "Petit BV")),
-            #                 
-            #                 width = 12, height = "100%",
-            #                 leafletOutput("map_BV")
-            #             ) # End box
-            #             
-            #             # box(
-            #             #   width = 4,
-            #             #   checkboxInput(inputId = "BV1", label = "Grand BV", value=TRUE),
-            #             #   checkboxInput(inputId = "BV2", label = "Moyen BV"),
-            #             #   checkboxInput(inputId = "BV3", label = "Petit BV")
-            #             # ) # End box
-            #             
-            #             
-            #         ) # End fluidRow
-            #         # ---------------------------------------- #
-            #         
-            #         
-            # ), # End tabItem 2 (onglet 2 du menu 2)
-            # # -------------------------------------------------- #
-            # 
-            # 
-            # 
-            # 
-            # 
-            # -------------------------------------------------- #
-            # tabItem(tabName = "sub_menu_cours_eau",
-            #         # carte des cours d'eau
-            # 
-            # 
-            #         h2("Test carte"),
-            # 
-            #         fluidRow(
-            #             leafletOutput("map_eau")
-            #         ) # End fluidRow
-            # 
-            # 
-            # ), # End tabItem 3 (onglet 3 du menu 2)
-            # -------------------------------------------------- #
+   
             
             
             
             # ################################################## #
             # Fin du Menu 2 : Cartographie
             # ################################################## #                        
+
             
-            
-            
-            
-            
-            # ################################################## #
-            # Fin du Menu 2 : Cartographie
-            # ################################################## #
-            
-            
-            
-            
-            
-            # ################################################## #
-            # Troisième Menu : Analyse des températures
-            # ################################################## #
+            ####################################################
+            # Troisième Menu : Cours d'eau
+            ####################################################
             
             
             
@@ -740,8 +660,64 @@ dashboardPage(
                                  h3("Tableau récapitulatif des seuils thermiques"),
                                  DT::dataTableOutput("TableTouquesFreq")
                         ),
-                        tabPanel(strong("Corrélations"))
-                        
+                        tabPanel(strong("Corrélations"),
+                                 fluidRow(
+                                 box(width=6,
+                                     h3(strong("Touques T1")),
+                                     
+                                     plotlyOutput("Reg825"),
+                                     
+                                     h5(paste("f(x) = ",
+                                              round(dataRegCoeff[1,c("825")],3)," + ", 
+                                              round(dataRegCoeff[2,c("825")],3),"x"
+                                     ), style = "color:red"),
+                                     h5(paste("R²adj = ",
+                                              round(dataRegCoeff[3,c("825")],3)))
+                                     
+                                     ),
+                                 
+                                 box(width=6,
+                                     h3(strong("Touques T3")),
+                                     
+                                     plotlyOutput("Reg827"),
+                                     
+                                     h5(paste("f(x) = ",
+                                              round(dataRegCoeff[1,c("827")],3)," + ", 
+                                              round(dataRegCoeff[2,c("827")],3),"x"
+                                     ), style = "color:red"),
+                                     h5(paste("R²adj = ",
+                                              round(dataRegCoeff[3,c("827")],3)))
+                                     
+                                 ),
+                                 
+                                 box(width=6,
+                                     h3(strong("Touques T4")),
+                                     
+                                     plotlyOutput("Reg828"),
+                                     
+                                     h5(paste("f(x) = ",
+                                              round(dataRegCoeff[1,c("828")],3)," + ", 
+                                              round(dataRegCoeff[2,c("828")],3),"x"
+                                     ), style = "color:red"),
+                                     h5(paste("R²adj = ",
+                                              round(dataRegCoeff[3,c("828")],3)))
+                                     
+                                 ),
+                                 box(width=6,
+                                     h3(strong("Touques T6")),
+                                     
+                                     plotlyOutput("Reg830"),
+                                     
+                                     h5(paste("f(x) = ",
+                                              round(dataRegCoeff[1,c("830")],3)," + ", 
+                                              round(dataRegCoeff[2,c("830")],3),"x"
+                                     ), style = "color:red"),
+                                     h5(paste("R²adj = ",
+                                              round(dataRegCoeff[3,c("830")],3)))
+                                     
+                                 )
+                                 )
+                        )
                     )  # End tabsetPanel
                     
                     
@@ -1501,7 +1477,9 @@ dashboardPage(
             
             
             
-            
+            ####################################################
+            # Quatrième Menu : Sondes
+            ####################################################
             
             # -------------------------------------------------- #
             tabItem(tabName = "sub_menu_sondes_synthese",
@@ -1653,20 +1631,45 @@ dashboardPage(
                                h3("Comparaison des températures moyennes sur 365 jours"),
                                dygraphOutput("comp_MM365")
                         )
-                    ),
+                    )
                     # ---------------------------------------- #
+                   
                     
                     
                     
                     
-                    
-            )# End tabItem 6
+            ),# End tabItem 6
             # -------------------------------------------------- #
+
+            ####################################################
+            # Cinquième  Menu : Analyses de données avancée
+            ####################################################
+            
+            # tabItem(tabName = "ODriscoll",
+            #         fluidRow(
+            #             
+            #                 h3(strong("")),
+            #                 
+            #                 plotlyOutput("Odris"),
+            #                 
+            #                 h5(paste("R²adj = ",
+            #                          round(summary(regOdris)$adj.r.squared,3)))
+            #                 
+            #             
+            #             ) 
+            #         
+            # ),
             
             
-            # ################################################## #
-            # Fin du Menu 3 : Analyse des températures
-            # ################################################## #
+            ####################################################
+            # Sixième  Menu : Références
+            ####################################################
+            tabItem(tabName = "Reference",
+                    includeMarkdown(paste0(path,"/read.md"))
+                    
+                    )
+                    
+             
             
             
         ) # End tabItems
