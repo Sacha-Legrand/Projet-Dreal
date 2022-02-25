@@ -1153,12 +1153,7 @@ shinyServer(function(input,output,session){
                   "Seuil létal adulte"="#f11111",
                   "Préférendum thermique"="#a1ec54",
                   "Sans Espèce"="blue")
-    
-    
-    # dataHist <- reactive({
-    #     df2 <- db2 %>%
-    #         filter(Espece %in% input$Espece)
-    # })
+
     
     ##############
     # Sonde 825
@@ -1171,13 +1166,7 @@ shinyServer(function(input,output,session){
         
     })
     
-    # dataHist825 <- reactive({
-    #     subset(
-    #         dataHist2(),
-    #         id_sonde == 825
-    #     )
-    # })
-    
+
     output$hist825 = renderPlotly({
         
         gghist825 <- dataHist825()%>%
@@ -1200,13 +1189,6 @@ shinyServer(function(input,output,session){
     # Sonde 827
     ##############
     
-    
-    # dataHist827 <- reactive({
-    #     subset(
-    #         dataHist2(),
-    #         id_sonde == 827
-    #     )
-    # })
     db287 <-  db2[db2$id_sonde == 827,] 
     dataHist827 <- reactive({
         df2 <- db287 %>%
@@ -1765,6 +1747,103 @@ shinyServer(function(input,output,session){
                                               varSelecMM365$`Régression températures max`)])
     })
     
+    
+    
+    ################################
+    # Régressions
+    ################################
+    
+    ##############
+    # Reg Touques 825
+    #############
+    
+    
+    output$Reg825 = renderPlotly({
+   
+         ggplot(data= dataRegTouques825)+
+            geom_point(aes(x= `Température de l'air`,y= `Température de l'eau`),color="blue",size=0.5)+
+            geom_line(aes(y=`Prédiction`,x=`Température de l'air`),color="red")+
+            geom_vline(aes(xintercept =0),color="black")+
+            geom_hline(aes(yintercept =0),color="black")+
+            labs( 
+                x="Température de l'air (en °C)",
+                y="Température de l'eau (en °C)")+
+            
+            theme_minimal()+
+            theme(legend.title = element_blank())
+        
+       
+    
+    })
+    
+    ##############
+    # Reg Touques 827
+    #############
+    
+    
+    output$Reg827 = renderPlotly({
+        
+        ggplot(data= dataRegTouques827)+
+            geom_point(aes(x= `Température de l'air`,y= `Température de l'eau`),color="blue",size=0.5)+
+            geom_line(aes(y=`Prédiction`,x=`Température de l'air`),color="red")+
+            geom_vline(aes(xintercept =0),color="black")+
+            geom_hline(aes(yintercept =0),color="black")+
+            labs( 
+                x="Température de l'air (en °C)",
+                y="Température de l'eau (en °C)")+
+            
+            theme_minimal()+
+            theme(legend.title = element_blank())
+        
+        
+        
+    })
+    
+    ##############
+    # Reg Touques 828
+    #############
+    
+    
+    output$Reg828 = renderPlotly({
+        
+        ggplot(data= dataRegTouques828)+
+            geom_point(aes(x= `Température de l'air`,y= `Température de l'eau`),color="blue",size=0.5)+
+            geom_line(aes(y=`Prédiction`,x=`Température de l'air`),color="red")+
+            geom_vline(aes(xintercept =0),color="black")+
+            geom_hline(aes(yintercept =0),color="black")+
+            labs( 
+                x="Température de l'air (en °C)",
+                y="Température de l'eau (en °C)")+
+            
+            theme_minimal()+
+            theme(legend.title = element_blank())
+        
+        
+        
+    })
+    
+    ##############
+    # Reg Touques 830
+    #############
+    
+    
+    output$Reg830 = renderPlotly({
+        
+        ggplot(data= dataRegTouques830)+
+            geom_point(aes(x= `Température de l'air`,y= `Température de l'eau`),color="blue",size=0.5)+
+            geom_line(aes(y=`Prédiction`,x=`Température de l'air`),color="red")+
+            geom_vline(aes(xintercept =0),color="black")+
+            geom_hline(aes(yintercept =0),color="black")+
+            labs( 
+                x="Température de l'air (en °C)",
+                y="Température de l'eau (en °C)")+
+            
+            theme_minimal()+
+            theme(legend.title = element_blank())
+        
+        
+        
+    })
     
     ##########################################
     # Orne
@@ -4186,6 +4265,31 @@ shinyServer(function(input,output,session){
     
     
     
+    
+    
+    
+    
+    ##############################################################
+    # Analyse de données avancée
+    #############################################################
+    
+    
+    ##########################################
+    # O'Driscoll
+    ##########################################
+    output$Odris = renderPlotly({
+        
+        ggplot(data=odris,aes(x=slope,y=intercept,label = Sondes))+
+            geom_point()+
+            geom_label(size=4,hjust=0, vjust=0)+
+            theme_classic()+
+            geom_text(aes(x=slope-.002), show.legend = FALSE) +
+            ylim(0,max(odris$intercept+2))+
+            xlim(0,max(odris$slope+1))
+           # labs(title = "la température de l'eau de la Touques est influencée par la présence d'une nappe phréatique")
+        
+        
+    })
     
     
     
