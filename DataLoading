@@ -1,4 +1,4 @@
-#####################
+# ####################
 # Libraries
 #####################
 
@@ -98,6 +98,7 @@ if(!require(flamingos)){
   install.packages("flamingos")
   library(flamingos)
 }
+
 if(!require(raster)){
   install.packages("raster")
   library(raster)
@@ -106,6 +107,7 @@ if(!require(ncdf4)){
   install.packages("ncdf4")
   library(ncdf4)
 }
+
 #################
 # CHemin d'accès
 #################
@@ -114,8 +116,8 @@ if(!require(ncdf4)){
 
 #Intégrer le chemin d'accès au projet
 
-#path="D:/Users/Desktop/Cours/M2stat/Projet" # path Lucie
-path = "/Users/julien/Desktop/projetM2/dashboard_propre" # path Julien
+path="D:/Users/Desktop/Cours/M2stat/Projet" # path Lucie
+#path = "/Users/julien/Desktop/projetM2/dashboard_propre" # path Julien
 
 setwd(path)
 
@@ -164,8 +166,6 @@ colnames(db_sonde_synthese) <- c("id_sonde","label","latitude","longitude","Alti
 str(db_sonde_synthese)
 
 
-
-
 for (i in 1:nrow(db_sonde_synthese)){
   if (db_sonde_synthese$id_sonde[i] %in% unique(db$id_sonde))
   {
@@ -203,15 +203,8 @@ rm(modif)
 
 as.character(db_sonde_synthese$id_sonde)
 
-#str(db_sonde_synthese)
-#db_sonde_synthese = na.omit(db_sonde_synthese)
 
-#coursEau2 = rgdal::readOGR(paste0(path,"/cours_eau_projet.kml"), "cours_eau_projet")# lucie
-coursEau2 = rgdal::readOGR("/Users/julien/Desktop/projetM2/datavizPM2/cours_eau_projet.kml", "cours_eau_projet")# julien
-nc_tair = brick("/Users/julien/Desktop/projetM2/data_eobs/tg_ens_mean_0.1deg_reg_2011-2021_v24.0e.nc")# julien
-nc_rr = brick("/Users/julien/Desktop/projetM2/data_eobs/rr_ens_mean_0.1deg_reg_2011-2021_v24.0e.nc")# julien
-nc_tair_max = brick("/Users/julien/Desktop/projetM2/data_eobs/tx_ens_mean_0.1deg_reg_2011-2021_v24.0e.nc")# julien
-nc_tair_min = brick("/Users/julien/Desktop/projetM2/data_eobs/tn_ens_mean_0.1deg_reg_2011-2021_v24.0e.nc")# julien
+coursEau2 = rgdal::readOGR(paste0(path,"/cours_eau_projet.kml"), "cours_eau_projet")
 
 
 # ######################################################################################
@@ -338,8 +331,6 @@ View(db_sonde_synthese$distance_source)
 db_sonde_synthese = db_sonde_synthese[,-9]
 
 rm(coursEau3)
-
-
 ##########
 # BD temp
 #########
@@ -363,7 +354,6 @@ db_temp[which(db_temp$id_sonde == 830),]$pos
 
 #Cette ligne te permet de récupérer le cours d'eau à la position i de coursEau2
 
-
 db_sonde_synthese$label
   
 riv=c("La Monne","La Vie","La Taute","La Barges",
@@ -382,7 +372,6 @@ db_sonde_synthese$label <- factor(db_sonde_synthese$label,
                       labels =riv
 )
 db_sonde_synthese$label <- as.character(db_sonde_synthese$label)
-
 
 #######################################
 # Tableau Stat
@@ -439,10 +428,9 @@ db_stats_Touques$Sondes <- factor(db_stats_Touques$Sondes,exclude=NULL)
 db_stats_Touques = db_stats_Touques[,-1]
 
 
-
-################################################################################################
+#######################################
 # Moyennes mobiles
-################################################################################################
+#######################################
 db2 =db %>%
   group_by(id_sonde,date)%>%
   mutate(TeauMin = min(Teau),
@@ -454,6 +442,9 @@ db2 =db %>%
 
 db2 <- db2[,-c(1,3)]
 db2 = db2[which(duplicated(db2)==F),]
+
+
+
 
 dbMM = db2 %>%
   group_by(id_sonde)%>%
@@ -472,9 +463,9 @@ dbMM = db2 %>%
          
   )
 
-################################################################################################
+#######################################
 # Préférendums thermiques
-################################################################################################
+#######################################
 
 ###########
 # Mise au point des données
@@ -567,6 +558,7 @@ prefTouques$An =factor(prefTouques$An,exclude=NULL)
 
 
 colnames(prefTouques) = c("Sonde","Espèce","Seuils thermiques","Années","Nombre d'occurence")
+
 
 
 #########################################################################################
@@ -749,6 +741,9 @@ db_xts_sonde830c = db_xts_sonde830c[is.na(db_xts_sonde830c$TeauMinMM365)==F,]
 
 rm(dbsonde830MMReg)
 
+
+
+
 rm(dbsonde825MM,dbsonde827MM,dbsonde828MM,dbsonde830MM,
    db_xts_date825,db_xts_date827,db_xts_date828,db_xts_date830)
 
@@ -791,6 +786,11 @@ colnames(db_Touques_xtsb)=nameColb
 nameColc = c("Température minimale MM365","Température moyenne MM365","Température maximale MM365",
              "Régression températures min","Régression températures max","id_sonde")
 colnames(db_Touques_xtsc) = nameColc
+
+
+db_Touquesb = as.data.frame(db_Touques_xtsb)
+
+
 
 
 ##################################
@@ -1421,6 +1421,11 @@ db_Selune_xtsc = rbind(db_xts_sonde820c,db_xts_sonde821c,db_xts_sonde822c,db_xts
 #   
 # mean(dbMM365$Diff, na.rm=T)
 
+
+
+
+
+
 ####################
 # Stats avec MM30 pour tableau récap moyenne mensuelle et annuelles
 ####################
@@ -1480,13 +1485,13 @@ colnames(db_Touques_stats_MM30_An) = c("Sondes","Années",
 
 
 
-#########################
+#############################################################################
 # Comparaison sondes
-#########################
+#############################################################################
 
-# ####################### #
+#########################
 # moyenne journalière
-# ####################### #
+######################## 
 
 min_date = min(db$date)
 max_date = max(db$date)
@@ -1519,9 +1524,9 @@ dygraph(df_xts_choix)
 
 
 
-# ############################### #
+#################################
 # MM30
-# ############################### #
+#################################
 
 
 db_xts_comp_teau_MM30 = db_xts_comp_teau_moy
@@ -1545,9 +1550,9 @@ df_xts_choix = xts(df_choix[,-1], order.by=df_choix$date)
 dygraph(df_xts_choix)
 
 
-# ############################### #
+#################################
 # MM365
-# ############################### #
+################################
 
 
 db_xts_comp_teau_MM365 = db_xts_comp_teau_moy
@@ -1573,9 +1578,9 @@ dygraph(df_xts_choix)
 
 
 
-# ####################### #
+#########################
 # bi-horaire
-# ####################### #
+########################
 
 
 min_t = min(db$t)
@@ -1586,9 +1591,9 @@ for(id_s in unique(db$id_sonde)){
   db_tempo = db[which(db$id_sonde==id_s),]
   db_tempo[[id_s]] = db_tempo$Teau
   db_tempo$t = ymd_hms(paste0(year(db_tempo$t), "-",
-                              month(db_tempo$t), "-",
-                              day(db_tempo$t), " ",
-                              ifelse(hour(db_tempo$t)%%2==0, hour(db_tempo$t), (hour(db_tempo$t))-1), ":00:00"))
+                             month(db_tempo$t), "-",
+                             day(db_tempo$t), " ",
+                             ifelse(hour(db_tempo$t)%%2==0, hour(db_tempo$t), (hour(db_tempo$t))-1), ":00:00"))
   db_tempo = aggregate(db_tempo[id_s], by=db_tempo['t'], mean)
   
   
@@ -1604,199 +1609,22 @@ for(id_s in unique(db$id_sonde)){
 # ####################### #
 
 
-#########################################################
-# Test Temp Air et Pluvio
-#########################################################
-
-
-
-sonde_lon = db_sonde_synthese$longitude
-sonde_lon
-
-sonde_lat = db_sonde_synthese$latitude
-sonde_lat
-
-sonde_coord = cbind(sonde_lon, sonde_lat)
-
-
-
-rownames(sonde_coord) = db_sonde_synthese$id_sonde
-
-head(sonde_coord)
-
-
-ext_norm = extent(-2, 3, 48, 50)
-ext_norm 
-
-# ####################################################### #
-# base de données température de l'air moyenne par jour
-
-
-
-
-
-
-
-
-
-
-Tair_crop = crop(nc_tair, ext_norm)
-View(Tair_crop)
-
-db_Tair_moy = extract(Tair_crop, sonde_coord, method = "bilinear")
-View(db_Tair_moy)
-
-rownames(db_Tair_moy) = db_sonde_synthese$id_sonde
-
-
-db_Tair_moy_temp = t(db_Tair_moy)
-head(db_Tair_moy_temp)
-
-
-db_Tair_moy = as.data.frame(db_Tair_moy_temp)
-db_Tair_moy$date = ymd(substring(rownames(db_Tair_moy),2))
-
-# ####################################################### #
-# base de données pluviométrie
-
-
-
-
-
-
-rr_crop = crop(nc_rr, ext_norm)
-#View(rr_crop)
-
-db_rr = extract(rr_crop, sonde_coord, method = "bilinear")
-#View(db_rr)
-
-rownames(db_rr) = db_sonde_synthese$id_sonde
-
-
-db_rr = t(db_rr)
-head(db_rr)
-
-
-db_rr = as.data.frame(db_rr)
-db_rr$date = ymd(substring(rownames(db_rr),2))
-
-head(db_rr)
-
-
-
-# ####################################################### #
-# base de données TairMax
-
-
-
-
-
-
-tair_max_crop = crop(nc_tair_max, ext_norm)
-#View(rr_crop)
-
-db_TairMax = extract(tair_max_crop, sonde_coord, method = "bilinear")
-#View(db_rr)
-
-rownames(db_TairMax) = db_sonde_synthese$id_sonde
-
-
-db_TairMax = t(db_TairMax)
-head(db_TairMax)
-
-
-db_TairMax = as.data.frame(db_TairMax)
-db_TairMax$date = ymd(substring(rownames(db_TairMax),2))
-
-head(db_TairMax)
-
-
-
-# ####################################################### #
-# base de données TairMin
-
-
-
-
-tair_min_crop = crop(nc_tair_min, ext_norm)
-#View(rr_crop)
-
-db_TairMin = extract(tair_min_crop, sonde_coord, method = "bilinear")
-#View(db_rr)
-
-rownames(db_TairMin) = db_sonde_synthese$id_sonde
-
-
-db_TairMin = t(db_TairMin)
-head(db_TairMin)
-
-
-db_TairMin = as.data.frame(db_TairMin)
-db_TairMin$date = ymd(substring(rownames(db_TairMin),2))
-
-head(db_TairMin)
-
-
-
-# ####################################################### #
-# test dygraph
-
-
-# sonde 817
-
-sous_db_s817 = merge(db_xts_comp_teau_moy[,c("date","817")], db_Tair_moy[,c("date","817")], 
-                     all.x=TRUE, suffixes=c("", "Tair"), by="date")
-sous_db_s817 = merge(sous_db_s817, db_rr[,c("date","817")], 
-                     all.x=TRUE, suffixes=c("", "Pluvio"), by="date")
-sous_db_s817 = merge(sous_db_s817, db_TairMax[,c("date","817")], 
-                     all.x=TRUE, suffixes=c("", "TairMax"), by="date")
-sous_db_s817 = merge(sous_db_s817, db_TairMin[,c("date","817")], 
-                     all.x=TRUE, suffixes=c("", "TairMin"), by="date")
-
-sous_db_s817 = na.omit(sous_db_s817)
-
-head(sous_db_s817)
-
-#rm(sous_db_s817)
-
-# tail(db_Tair_moy$date)
-# tail(db_xts_comp_teau_moy$date)
-# 
-# 
-# db_teau_tair = db_xts_comp_teau_moy
-# help(merge)
-# 
-# db_teau_tair = merge(db_teau_tair, db_Tair_moy, all.x=TRUE, suffixes=c("Teau", "Tair"), by="date")
-# View(db_teau_tair)
-# 
-# 
-# teau_tair_817 = db_teau_tair[,c("date", "817Teau", "817Tair")]
-# teau_tair_817 = na.omit(teau_tair_817)
-# head(teau_tair_817)
-
-dytry = xts(sous_db_s817[,c(F, T, T, T, T, T)], order.by = sous_db_s817[,c(T, F, F, F, F, F)])
-dygraph(dytry) %>%
-  dyOptions(colors = c("green", "purple", "pink", "red", "blue")) %>%
-  dyHighlight(highlightCircleSize = 5, 
-              highlightSeriesBackgroundAlpha = 0.7,
-              highlightSeriesOpts = list(strokeWidth = 1),
-              hideOnMouseOut = TRUE) %>%
-  dySeries("817Pluvio", axis="y2")
-
-
-
-
-
-
-# ####################################################### #
-# Fin Test Temp Air et Pluvio
-# ####################################################### #
-
-
 # ----------------------------------------------------------------------------------------------- #
-#########################################################
+
+
+
+
+
+
+
+
+
+
+
+
+#############################################################################
 # Base Classification 
-#########################################################
+#############################################################################
 
 
 
@@ -1948,109 +1776,109 @@ dim(db_classif_bih3)
 
 
 
-# ####################################################### #
+#########################################################
 # Fin Base Classification
-# ####################################################### #
+########################################################
 
 
-# ####################################################### #
+###########################################################################
 # Test Classification
-# ####################################################### #
-library(flamingos)
-
-# dbEssai = db_xts_comp_teau_moy
+###########################################################################
+# library(flamingos)
 # 
-# na = vector()
-# for (i in 2:ncol(dbEssai)){
-#   Na = sum(is.na(dbEssai[,i]))
-#   na = append(na,Na)
+# # dbEssai = db_xts_comp_teau_moy
+# # 
+# # na = vector()
+# # for (i in 2:ncol(dbEssai)){
+# #   Na = sum(is.na(dbEssai[,i]))
+# #   na = append(na,Na)
+# # }
+# # 
+# # na
+# # 
+# # dbEssai = dbEssai[,na <= 500]
+# # dbEssai = na.omit(dbEssai)
+# # dim(dbEssai)
+# # 
+# # head(dbEssai)
+# 
+# db_classif_moy1
+# db_classif_moy2
+# db_classif_moy3
+# 
+# db_classif_bih1
+# db_classif_bih2
+# db_classif_bih3
+# 
+# 
+# 
+# Y <- t(db_classif_bih3[,2:ncol(db_classif_bih3)])
+# 
+# 
+# x <-as.numeric(1:nrow(db_classif_bih3))
+# 
+# 
+# K <- 2 # Number of clusters
+# R <- 8 # Number of regimes (polynomial regression components)
+# p <- 1 # Degree of the polynomials
+# q <- 1 # Order of the logistic regression (by default 1 for contiguous segmentation)
+# variance_type <- "heteroskedastic" # "heteroskedastic" or "homoskedastic" model
+# 
+# n_tries <- 1
+# max_iter <- 1000
+# threshold <- 1e-5
+# verbose <- TRUE
+# verbose_IRLS <- FALSE
+# init_kmeans <- TRUE
+# 
+# mixrhlp <- emMixRHLP(X = x, Y = Y, K, R, p, q, variance_type, init_kmeans, 
+#                      n_tries, max_iter, threshold, verbose, verbose_IRLS)
+# 
+# mixrhlp$summary()
+# 
+# 
+# mixrhlp$plot()
+# 
+# mixrhlp$stat$klas
+# 
+# 
+# 
+# res = data.frame(cluster=mixrhlp$stat$klas)
+# res$id_sonde = as.numeric(rownames(Y))
+# 
+# 
+# 
+# 
+# 
+# for(id_s in unique(res$id_sonde)){
+#   res[which(res$id_sonde == id_s),"longitude"] = db_sonde_synthese[which(db_sonde_synthese$id_sonde == id_s),]$longitude
+#   res[which(res$id_sonde == id_s),"latitude"] = db_sonde_synthese[which(db_sonde_synthese$id_sonde == id_s),]$latitude
 # }
 # 
-# na
+# head(res)
 # 
-# dbEssai = dbEssai[,na <= 500]
-# dbEssai = na.omit(dbEssai)
-# dim(dbEssai)
+# help("flamingos-package")
 # 
-# head(dbEssai)
-
-db_classif_moy1
-db_classif_moy2
-db_classif_moy3
-
-db_classif_bih1
-db_classif_bih2
-db_classif_bih3
-
-
-
-Y <- t(db_classif_bih3[,2:ncol(db_classif_bih3)])
-
-
-x <-as.numeric(1:nrow(db_classif_bih3))
-
-
-K <- 2 # Number of clusters
-R <- 8 # Number of regimes (polynomial regression components)
-p <- 1 # Degree of the polynomials
-q <- 1 # Order of the logistic regression (by default 1 for contiguous segmentation)
-variance_type <- "heteroskedastic" # "heteroskedastic" or "homoskedastic" model
-
-n_tries <- 1
-max_iter <- 1000
-threshold <- 1e-5
-verbose <- TRUE
-verbose_IRLS <- FALSE
-init_kmeans <- TRUE
-
-mixrhlp <- emMixRHLP(X = x, Y = Y, K, R, p, q, variance_type, init_kmeans, 
-                     n_tries, max_iter, threshold, verbose, verbose_IRLS)
-
-mixrhlp$summary()
-
-
-mixrhlp$plot()
-
-mixrhlp$stat$klas
-
-
-
-res = data.frame(cluster=mixrhlp$stat$klas)
-res$id_sonde = as.numeric(rownames(Y))
-
-
-
-
-
-for(id_s in unique(res$id_sonde)){
-  res[which(res$id_sonde == id_s),"longitude"] = db_sonde_synthese[which(db_sonde_synthese$id_sonde == id_s),]$longitude
-  res[which(res$id_sonde == id_s),"latitude"] = db_sonde_synthese[which(db_sonde_synthese$id_sonde == id_s),]$latitude
-}
-
-head(res)
-
-help("flamingos-package")
-
-res_clust1 = res[which(res$cluster == 1),]
-res_clust2 = res[which(res$cluster == 2),]
-head(res_clust2)
-
-vec_col_res = c("blue", "red", "green", "yellow", "cyan", "magenta")
-
-leaflet() %>%
-  addTiles() %>%
-  addAwesomeMarkers(data = res_clust1, 
-                    lng=res_clust1$longitude,lat=res_clust1$latitude,
-                    layerId = res_clust1$id_sonde, group=paste0("Cluster",res_clust1$cluster),
-                    icon=makeAwesomeIcon(icon='tint', library='glyphicon',
-                                         iconColor = 'white', markerColor = vec_col_res[1])) %>%
-  addAwesomeMarkers(data = res_clust2, 
-                    lng=res_clust2$longitude,lat=res_clust2$latitude,
-                    layerId = res_clust2$id_sonde, group=paste0("Cluster",res_clust2$cluster),
-                    icon=makeAwesomeIcon(icon='tint', library='glyphicon',
-                                         iconColor = 'white', markerColor = vec_col_res[2])) %>%
-  addPopups(data = res, popup = paste0("sonde : ", res$id_sonde))
-
+# res_clust1 = res[which(res$cluster == 1),]
+# res_clust2 = res[which(res$cluster == 2),]
+# head(res_clust2)
+# 
+# vec_col_res = c("blue", "red", "green", "yellow", "cyan", "magenta")
+# 
+# leaflet() %>%
+#   addTiles() %>%
+#   addAwesomeMarkers(data = res_clust1, 
+#                     lng=res_clust1$longitude,lat=res_clust1$latitude,
+#                     layerId = res_clust1$id_sonde, group=paste0("Cluster",res_clust1$cluster),
+#                     icon=makeAwesomeIcon(icon='tint', library='glyphicon',
+#                                          iconColor = 'white', markerColor = vec_col_res[1])) %>%
+#   addAwesomeMarkers(data = res_clust2, 
+#                     lng=res_clust2$longitude,lat=res_clust2$latitude,
+#                     layerId = res_clust2$id_sonde, group=paste0("Cluster",res_clust2$cluster),
+#                     icon=makeAwesomeIcon(icon='tint', library='glyphicon',
+#                                          iconColor = 'white', markerColor = vec_col_res[2])) %>%
+#   addPopups(data = res, popup = paste0("sonde : ", res$id_sonde))
+# 
 
 
 
@@ -2065,6 +1893,419 @@ leaflet() %>%
 
 
 
+
+
+
+
+
+##########################################################
+## Test Temp Air et Pluvio
+##########################################################
+library(raster)
+library(ncdf4)
+
+
+sonde_lon = db_sonde_synthese$longitude
+sonde_lon
+
+sonde_lat = db_sonde_synthese$latitude
+sonde_lat
+
+sonde_coord = cbind(sonde_lon, sonde_lat)
+
+
+nc_tair = brick(paste0(path,"/tg_ens_mean_0.1deg_reg_2011-2021_v24.0e.nc"))
+nc_tair
+
+
+ext_norm = extent(-2, 3, 48, 50)
+ext_norm
+
+
+
+
+Tair_crop = crop(nc_tair, ext_norm)
+# 
+# 
+# db_Tair_moy = extract(Tair_crop, sonde_coord, method = "bilinear")
+# View(db_Tair_moy)
+# 
+# plot(db_Tair_moy[30,], type='l')
+
+#View(Tair_crop)
+
+db_Tair_moy = raster::extract(Tair_crop, sonde_coord, method = "bilinear")
+View(db_Tair_moy)
+
+rownames(db_Tair_moy) = db_sonde_synthese$id_sonde
+
+
+db_Tair_moy_temp = t(db_Tair_moy)
+head(db_Tair_moy_temp)
+
+
+db_Tair_moy = as.data.frame(db_Tair_moy_temp)
+db_Tair_moy$date = ymd(substring(rownames(db_Tair_moy),2))
+
+# # ####################################################### #
+# # base de données pluviométrie
+# 
+# 
+# 
+# 
+# 
+# 
+# rr_crop = crop(nc_rr, ext_norm)
+# #View(rr_crop)
+# 
+# db_rr = extract(rr_crop, sonde_coord, method = "bilinear")
+# #View(db_rr)
+# 
+# rownames(db_rr) = db_sonde_synthese$id_sonde
+# 
+# 
+# db_rr = t(db_rr)
+# head(db_rr)
+# 
+# 
+# db_rr = as.data.frame(db_rr)
+# db_rr$date = ymd(substring(rownames(db_rr),2))
+# 
+# head(db_rr)
+# 
+# 
+# 
+# # ####################################################### #
+# # base de données TairMax
+# 
+# 
+# 
+# 
+# 
+# 
+# tair_max_crop = crop(nc_tair_max, ext_norm)
+# #View(rr_crop)
+# 
+# db_TairMax = extract(tair_max_crop, sonde_coord, method = "bilinear")
+# #View(db_rr)
+# 
+# rownames(db_TairMax) = db_sonde_synthese$id_sonde
+# 
+# 
+# db_TairMax = t(db_TairMax)
+# head(db_TairMax)
+# 
+# 
+# db_TairMax = as.data.frame(db_TairMax)
+# db_TairMax$date = ymd(substring(rownames(db_TairMax),2))
+# 
+# head(db_TairMax)
+# 
+# 
+# 
+# # ####################################################### #
+# # base de données TairMin
+# 
+# 
+# 
+# 
+# tair_min_crop = crop(nc_tair_min, ext_norm)
+# #View(rr_crop)
+# 
+# db_TairMin = extract(tair_min_crop, sonde_coord, method = "bilinear")
+# #View(db_rr)
+# 
+# rownames(db_TairMin) = db_sonde_synthese$id_sonde
+# 
+# 
+# db_TairMin = t(db_TairMin)
+# head(db_TairMin)
+# 
+# 
+# db_TairMin = as.data.frame(db_TairMin)
+# db_TairMin$date = ymd(substring(rownames(db_TairMin),2))
+# 
+# head(db_TairMin)
+# 
+
+
+# ####################################################### #
+# test dygraph
+
+
+# sonde 817
+
+sous_db_s817 = merge(db_xts_comp_teau_moy[,c("date","817")], db_Tair_moy[,c("date","817")], 
+                     all.x=TRUE, suffixes=c("", "Tair"), by="date")
+sous_db_s817 = merge(sous_db_s817, db_rr[,c("date","817")], 
+                     all.x=TRUE, suffixes=c("", "Pluvio"), by="date")
+sous_db_s817 = merge(sous_db_s817, db_TairMax[,c("date","817")], 
+                     all.x=TRUE, suffixes=c("", "TairMax"), by="date")
+sous_db_s817 = merge(sous_db_s817, db_TairMin[,c("date","817")], 
+                     all.x=TRUE, suffixes=c("", "TairMin"), by="date")
+
+sous_db_s817 = na.omit(sous_db_s817)
+
+head(sous_db_s817)
+
+#rm(sous_db_s817)
+
+# tail(db_Tair_moy$date)
+# tail(db_xts_comp_teau_moy$date)
+# 
+# 
+db_teau_tair = db_xts_comp_teau_moy
+help(merge)
+
+db_teau_tair = merge(db_teau_tair, db_Tair_moy, all.x=TRUE, suffixes=c("Teau", "Tair"), by="date")
+View(db_teau_tair)
+# 
+# 
+# teau_tair_817 = db_teau_tair[,c("date", "817Teau", "817Tair")]
+# teau_tair_817 = na.omit(teau_tair_817)
+# head(teau_tair_817)
+
+dytry = xts(sous_db_s817[,c(F, T, T, T, T, T)], order.by = sous_db_s817[,c(T, F, F, F, F, F)])
+dygraph(dytry) %>%
+  dyOptions(colors = c("green", "purple", "pink", "red", "blue")) %>%
+  dyHighlight(highlightCircleSize = 5, 
+              highlightSeriesBackgroundAlpha = 0.7,
+              highlightSeriesOpts = list(strokeWidth = 1),
+              hideOnMouseOut = TRUE) %>%
+  dySeries("817Pluvio", axis="y2")
+
+
+
+
+
+
+# ####################################################### #
+# Fin Test Temp Air et Pluvio
+# ####################################################### #
+
+##########################################################
+# BDD pour corrélations Tair et Teau
+##########################################################
+
+
+############
+# Nettoyage de la BDD db_teau_tair pour la rendre exploitable
+############
+colnames(db_teau_tair)
+
+order=order(colnames(db_teau_tair)[2:31], decreasing = FALSE)+1
+order
+db_teau_tair2 = db_teau_tair[,
+                             c(1,8, 30, 25,  2, 16, 24, 18,  5,  4, 17,  3,  7,
+                               31,  6,  9, 10, 11, 12, 13, 14, 15, 22, 20, 21, 
+                               23, 19, 26, 27, 28, 29,
+                               32:ncol(db_teau_tair))]
+
+
+colnames(db_teau_tair2)
+
+############
+# Calcul des coefficients de corrélation Teau Tair
+############
+
+CorTeauTair=vector()
+Name=vector()
+db_teau_tair3=db_teau_tair2[,-1]
+
+for (j in 1:(ncol(db_teau_tair3)/2)){
+  
+  base_temp = as.data.frame(cbind(db_teau_tair3[,j],db_teau_tair3[,j+(ncol(db_teau_tair3))/2]))
+  
+  name = colnames(db_teau_tair3)[j]
+  Name= append(Name,name)
+  base_temp = base_temp[is.na(base_temp[,1])==F  &
+                          is.na(base_temp[,2])==F 
+                        ,]
+  
+  cor = cor(base_temp[1],base_temp[2])
+  CorTeauTair=append(CorTeauTair,cor)
+  
+}
+
+CorTeauTair = as.data.frame(t(CorTeauTair))
+colnames(CorTeauTair)=substr(Name,1,3)
+
+
+
+
+
+# for (j in 1:(ncol(db_teau_tair3)/2)){
+#   
+#   
+#   
+#   base_temp = as.data.frame(cbind(db_teau_tair3[,j],db_teau_tair3[,j+(ncol(db_teau_tair3))/2]))
+#   
+#   name = colnames(db_teau_tair3)[j]
+#   Name= append(Name,name)
+#   base_temp = base_temp[is.na(base_temp[,1])==F  &
+#                           is.na(base_temp[,2])==F 
+#                         ,]
+#   
+#   cor = cor(base_temp[1],base_temp[2])
+#   CorTeauTair=append(CorTeauTair,cor)
+#   
+# }
+
+
+############
+# Calculs des droites de régressions
+###########
+
+
+
+Name=vector()
+dataReg = as.data.frame(db_teau_tair2[,1])
+colnames(dataReg)="date"
+
+dataRegCoeff = as.data.frame(matrix(
+  rep(0,3*((ncol(db_teau_tair2)-1)/2)),
+  nrow = 3,ncol=(ncol(db_teau_tair2)-1)/2))
+  
+  
+  
+for (j in 2:(((ncol(db_teau_tair2)-1)/2)+1)){
+  
+
+  name=substr(colnames(db_teau_tair2)[j],1,3)
+  base_temp = as.data.frame(cbind(db_teau_tair2[,1],
+                                  db_teau_tair2[,j],
+                                  db_teau_tair2[,j+((ncol(db_teau_tair2)-1)/2)]
+                                  ))
+ 
+
+  base_temp[,1] <- as.Date(base_temp[,1], origin="1970-01-01")
+  
+  base_temp=base_temp[which(is.na(base_temp[,2])==F)[1]:nrow(base_temp),]
+  
+  base_temp=base_temp[is.na(base_temp[,2])==F,]
+  base_temp=base_temp[is.na(base_temp[,3])==F,]
+  reg = lm(base_temp[,2]~base_temp[,3])
+  base_temp$reg = reg$fitted.values
+  colnames(base_temp)=c("date",paste("Teau",name,sep=""), 
+                        paste("Tair",name,sep=""),
+                        paste(name,sep=""))
+  base_temp = base_temp[,c(1,4)]
+  dataRegCoeff[1,j-1]=reg$coefficients[1]
+  dataRegCoeff[2,j-1]=reg$coefficients[2]
+  dataRegCoeff[3,j-1]=summary(reg)$adj.r.squared
+  
+  dataReg= merge(dataReg,base_temp,by="date",all.x=T)
+  Name=append(Name,name)
+}
+
+
+rownames(dataRegCoeff) = c("Intercept","Pente","Rcarré")
+colnames(dataRegCoeff) =colnames(dataReg)[2:31]
+
+colnames(dataReg)[2:ncol(dataReg)] =as.character(
+  as.factor(
+    factor(colnames(dataReg)[2:ncol(dataReg)],
+           levels = colnames(dataReg)[2:ncol(dataReg)],
+           labels =riv)))
+
+
+
+
+
+############
+# Régression Touques 
+###########
+colnames(db_teau_tair2)
+colnames(dataReg)
+
+
+dataRegTouques = db_teau_tair2[,c("825Teau","827Teau","828Teau","830Teau","825Tair","827Tair","828Tair","830Tair")]
+
+dataRegTouques$pred825 = db_teau_tair2$`825Tair`*dataRegCoeff[2,c("825")]+ dataRegCoeff[1,c("825")] 
+dataRegTouques$pred827 = db_teau_tair2$`827Tair`*dataRegCoeff[2,c("827")]+ dataRegCoeff[1,c("827")] 
+dataRegTouques$pred828 = db_teau_tair2$`828Tair`*dataRegCoeff[2,c("828")]+ dataRegCoeff[1,c("828")] 
+dataRegTouques$pred830 = db_teau_tair2$`830Tair`*dataRegCoeff[2,c("830")]+ dataRegCoeff[1,c("830")] 
+
+
+dataRegTouques825 = dataRegTouques[,c( "825Teau" ,"825Tair","pred825")]
+colnames(dataRegTouques825) = c("Température de l'eau","Température de l'air",
+                                "Prédiction")
+
+dataRegTouques827 = dataRegTouques[,c( "827Teau" ,"827Tair","pred827")]
+colnames(dataRegTouques827) = c("Température de l'eau","Température de l'air",
+                                "Prédiction")
+
+dataRegTouques828 = dataRegTouques[,c( "828Teau" ,"828Tair","pred828")]
+colnames(dataRegTouques828) = c("Température de l'eau","Température de l'air",
+                                "Prédiction")
+
+dataRegTouques830 = dataRegTouques[,c( "830Teau" ,"830Tair","pred830")]
+colnames(dataRegTouques830) = c("Température de l'eau","Température de l'air",
+                                "Prédiction")
+
+
+####################################################################################
+# Base de données O'Driscoll
+###################################################################################
+
+
+db_ordriscoll <- db_teau_tair2 %>%
+  gather(key="SondeTeau",value="Teau",c(2:(((ncol(db_teau_tair2)-1)/2)+1))) %>%
+  convert_as_factor(SondeTeau)
+
+db_ordriscoll <- db_ordriscoll %>%
+  gather(key="SondeTair",value="Tair",c(2:(((ncol(db_teau_tair2)-1)/2)+1))) %>%
+  convert_as_factor(SondeTair)
+
+db_ordriscoll = db_ordriscoll[is.na(db_ordriscoll$Teau)==F,]
+db_ordriscoll = db_ordriscoll[is.na(db_ordriscoll$Tair)==F,]
+
+db_ordriscoll = db_ordriscoll %>%
+  group_by(SondeTeau) %>%
+  mutate(TeauMM7  = stats::filter(Teau,filter=rep(1/7,7)))
+
+
+db_ordriscoll = db_ordriscoll %>%
+  group_by(SondeTair) %>%
+  mutate(TairMM7  = stats::filter(Tair,filter=rep(1/7,7)))
+
+
+coefficient <- db_ordriscoll %>%
+  group_by(SondeTeau)%>%
+  mutate(aa = lm(TeauMM7~TairMM7)$coefficients[1])%>%
+  mutate(bb = lm(TeauMM7~TairMM7)$coefficients[2])
+
+coefficient
+
+unique(db_ordriscoll$SondeTeau)
+
+odris=as.data.frame(cbind(unique(as.character(db_ordriscoll$SondeTeau)),unique(coefficient$aa),unique(coefficient$bb)))
+colnames(odris) = c("Sondes","intercept","slope")
+odris$intercept = as.character(odris$intercept)
+odris$intercept = as.numeric(odris$intercept)
+
+odris$slope = as.character(odris$slope)
+odris$slope = as.numeric(odris$slope)
+
+regOdris = lm(intercept~slope,data=odris)
+summary(regOdris)$adj.r.squared
+
+
+odris$Sondes = factor(odris$Sondes,
+       levels = odris$Sondes,
+       labels =riv)
+
+
+g = ggplot(data=odris,aes(x=slope,y=intercept,label = Sondes))+
+  geom_point()+
+  geom_label(size=4,hjust=0, vjust=0)+
+  theme_classic()+
+  #scale_color_manual(values = c("darkred","darkblue"))+
+  labs(title = "la température de l'eau de la Touques est influencée par la présence d'une nappe phréatique")
+g
+
+
+g
 
 
 
