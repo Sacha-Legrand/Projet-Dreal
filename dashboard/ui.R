@@ -115,7 +115,8 @@ dashboardPage(
                              # Cinquième  menu : Analyse de données
 
                              # les sub-menus
-                             menuSubItem("O'Driscoll", tabName = "ODriscoll")
+                             menuSubItem("O'Driscoll", tabName = "ODriscoll"),
+                             menuSubItem("ACI et ACP", tabName = "aci_acp")
                              
                     ), # End  Cinquième  menu : Analyse de données
                     # ------------------------------------------------------------ #
@@ -1649,22 +1650,32 @@ dashboardPage(
                     
                     
                     # En-tête
-                    # ---------------------------------------- #
-                    #h2("Analyse des sondes"),
-                    
-                    fluidRow(
-                        selectInput("choix_sondes",
-                                    label="Choisir une sonde",choices=list("Monne (s104)"="104", "Vie (s105)"="105", "Taute (s108)"="108", "Barge (s109)"="109", "Grande Vallée (s300)"="300", 
-                                                                           "Souleuvre (s762)"="762", "See Rousse (s763)"="763", "Egrenne (s764)"="764", "Durance (s765)"="765", "See (s766)"="766",
-                                                                           "Berence (s768)"="768", "Glanon (s769)"="769", "Vingt Bec (s771)"="771", "Fontaine au Héron (s811)"="811", "Odon T1 (s812)"="812",
-                                                                           "Odon T2 (s813)"="813", "Odon T4 (s815)"="815", "Odon T5 (s816)"="816", "Orne T1 (s817)"="817", "Orne T3 (s818)"="818",
-                                                                           "Orne T2 (s819)"="819", "Selune T4 (s820)"="820", "Selune T2 (s821)"="821", "Selune T3 (s822)"="822", "Selune T5 (s823)"="823",
-                                                                           "Selune T1 (s824)"="824", "Touques T1 (s825)"="825", "Touques T3 (s827)"="827", "Touques T4 (s828)"="828", "Touques T6 (s830)"="830"),
-                                    selected="817"),
-                        #h2("Sondes n°817 : Orne (T1)")
-                        textOutput("id_lab_txt")
-                    ),
-                    # ---------------------------------------- #
+              # ---------------------------------------- #
+              #h2("Analyse des sondes"),
+              
+              # fluidRow(
+              #   selectInput("choix_sondes",
+              #               label="Choisir une sonde",choices=list("Monne (s104)"="104", "Vie (s105)"="105", "Taute (s108)"="108", "Barge (s109)"="109", "Grande Vallée (s300)"="300", 
+              #                                                      "Souleuvre (s762)"="762", "See Rousse (s763)"="763", "Egrenne (s764)"="764", "Durance (s765)"="765", "See (s766)"="766",
+              #                                                      "Berence (s768)"="768", "Glanon (s769)"="769", "Vingt Bec (s771)"="771", "Fontaine au Héron (s811)"="811", "Odon T1 (s812)"="812",
+              #                                                      "Odon T2 (s813)"="813", "Odon T4 (s815)"="815", "Odon T5 (s816)"="816", "Orne T1 (s817)"="817", "Orne T3 (s818)"="818",
+              #                                                      "Orne T2 (s819)"="819", "Selune T4 (s820)"="820", "Selune T2 (s821)"="821", "Selune T3 (s822)"="822", "Selune T5 (s823)"="823",
+              #                                                      "Selune T1 (s824)"="824", "Touques T1 (s825)"="825", "Touques T3 (s827)"="827", "Touques T4 (s828)"="828", "Touques T6 (s830)"="830"),
+              #               selected="817"),
+              #   #h2("Sondes n°817 : Orne (T1)")
+              #   textOutput("id_lab_txt")
+              # ),
+              selectInput("choix_sondes",
+                          label="Choisir une sonde",choices=list("Monne (s104)"="104", "Vie (s105)"="105", "Taute (s108)"="108", "Barge (s109)"="109", "Grande Vallée (s300)"="300", 
+                                                                 "Souleuvre (s762)"="762", "See Rousse (s763)"="763", "Egrenne (s764)"="764", "Durance (s765)"="765", "See (s766)"="766",
+                                                                 "Berence (s768)"="768", "Glanon (s769)"="769", "Vingt Bec (s771)"="771", "Fontaine au Héron (s811)"="811", "Odon T1 (s812)"="812",
+                                                                 "Odon T2 (s813)"="813", "Odon T4 (s815)"="815", "Odon T5 (s816)"="816", "Orne T1 (s817)"="817", "Orne T3 (s818)"="818",
+                                                                 "Orne T2 (s819)"="819", "Selune T4 (s820)"="820", "Selune T2 (s821)"="821", "Selune T3 (s822)"="822", "Selune T5 (s823)"="823",
+                                                                 "Selune T1 (s824)"="824", "Touques T1 (s825)"="825", "Touques T3 (s827)"="827", "Touques T4 (s828)"="828", "Touques T6 (s830)"="830"),
+                          selected="817"),
+              #h2("Sondes n°817 : Orne (T1)")
+              textOutput("id_lab_txt"),
+              # ---------------------------------------- #
                     
                     
                     # deuxième fluidRow
@@ -1838,7 +1849,192 @@ dashboardPage(
             tabItem(tabName = "Reference",
                     includeMarkdown(paste0(path,"/read.md"))
                     
+                    ),
+            
+####################################################
+      # Septième  Menu : ACI ACP
+      ####################################################
+      tabItem(tabName = "aci_acp",
+              h1("ACI et ACP"),
+              tabsetPanel(
+                # ---------------------------------------- #
+                tabPanel(
+                  "Touques",
+                  
+                  h2("Analyse en Composantes Indépendantes"),
+                  # ------------------------------ #
+                  fluidRow(
+                    br(),
+                    column(
+                      width = 4,
+                      br(),
+                      wellPanel(
+                        h3("Menu"),
+                        radioButtons("sondes_touques_aci", "Choix de la sonde",
+                                     c("Touques T1" = "825",
+                                       "Touques T3" = "827",
+                                       "Touques T4" = "828",
+                                       "Touques T6" = "830"), 
+                                     selected = "825"),
+                        br(),
+                        p(strong("Choix des compsantes")),
+                        checkboxInput(inputId = "comp1_touques", label = "Composante 1", value = T),
+                        checkboxInput(inputId = "comp2_touques", label = "Composante 2", value = T),
+                        checkboxInput(inputId = "comp3_touques", label = "Composante 3", value = T)
+                        
+                      )
+                    ),
+                    
+                    column(
+                      width = 8,
+                      #h3("ACI"),
+                      dygraphOutput("aci_touques")
                     )
+                  ),
+                  
+                  h2("Analyse en Composantes Principales"),
+                  # ------------------------------ #
+                  fluidRow(
+                    
+                  )
+                  
+                  
+                  
+                  
+                ),
+                # ---------------------------------------- #
+                tabPanel(
+                  "Orne",
+                  
+                  h2("Analyse en Composantes Indépendantes"),
+                  # ------------------------------ #
+                  fluidRow(
+                    br(),
+                    column(
+                      width = 4,
+                      br(),
+                      wellPanel(
+                        h3("Menu"),
+                        radioButtons("sondes_orne_aci", "Choix de la sonde",
+                                     c("Orne T1" = "817",
+                                       "Orne T2" = "819",
+                                       "Orne T3" = "818"), 
+                                     selected = "817"),
+                        br(),
+                        p(strong("Choix des compsantes")),
+                        checkboxInput(inputId = "comp1_orne", label = "Composante 1", value = T),
+                        checkboxInput(inputId = "comp2_orne", label = "Composante 2", value = T),
+                        checkboxInput(inputId = "comp3_orne", label = "Composante 3", value = T)
+                        
+                      )
+                    ),
+                    
+                    column(
+                      width = 8,
+                      #h3("ACI"),
+                      dygraphOutput("aci_orne")
+                    )
+                  ),
+                  
+                  h2("Analyse en Composantes Principales"),
+                  # ------------------------------ #
+                  fluidRow(
+                    
+                  )
+                         
+                ),
+                # ---------------------------------------- #
+                tabPanel(
+                  "Odon",
+                  
+                  h2("Analyse en Composantes Indépendantes"),
+                  # ------------------------------ #
+                  fluidRow(
+                    br(),
+                    column(
+                      width = 4,
+                      br(),
+                      wellPanel(
+                        h3("Menu"),
+                        radioButtons("sondes_odon_aci", "Choix de la sonde",
+                                     c("Odon T1" = "812",
+                                       "Odon T2" = "813",
+                                       "Odon T4" = "815",
+                                       "Odon T5" = "816"), 
+                                     selected = "812"),
+                        br(),
+                        p(strong("Choix des compsantes")),
+                        checkboxInput(inputId = "comp1_odon", label = "Composante 1", value = T),
+                        checkboxInput(inputId = "comp2_odon", label = "Composante 2", value = T),
+                        checkboxInput(inputId = "comp3_odon", label = "Composante 3", value = T)
+                        
+                      )
+                    ),
+                    
+                    column(
+                      width = 8,
+                      #h3("ACI"),
+                      dygraphOutput("aci_odon")
+                    )
+                  ),
+                  
+                  h2("Analyse en Composantes Principales"),
+                  # ------------------------------ #
+                  fluidRow(
+                    
+                  )
+                         
+                ),
+                # ---------------------------------------- #
+                tabPanel(
+                  "Sélune",
+                  
+                  h2("Analyse en Composantes Indépendantes"),
+                  # ------------------------------ #
+                  fluidRow(
+                    br(),
+                    column(
+                      width = 4,
+                      br(),
+                      wellPanel(
+                        h3("Menu"),
+                        radioButtons("sondes_selune_aci", "Choix de la sonde",
+                                     c("Sélune T1" = "824",
+                                       "Sélune T2" = "821",
+                                       "Sélune T4" = "820",
+                                       "Sélune T5" = "823"), 
+                                     selected = "824"),
+                        br(),
+                        p(strong("Choix des compsantes")),
+                        checkboxInput(inputId = "comp1_selune", label = "Composante 1", value = T),
+                        checkboxInput(inputId = "comp2_selune", label = "Composante 2", value = T),
+                        checkboxInput(inputId = "comp3_selune", label = "Composante 3", value = T)
+                        
+                      )
+                    ),
+                    
+                    column(
+                      width = 8,
+                      #h3("ACI"),
+                      dygraphOutput("aci_selune")
+                    )
+                  ),
+                  
+                  
+                  
+                  h2("Analyse en Composantes Principales"),
+                  # ------------------------------ #
+                  fluidRow(
+                    
+                  )
+                         
+                )
+                # ---------------------------------------- #
+              )
+              
+              
+      )# Fin tabItem 6
+      # ################################################## #  
                     
              
             
