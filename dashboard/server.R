@@ -6152,6 +6152,153 @@ shinyServer(function(input,output,session){
         g
     })
     
+    ##########################################
+  # ACI ACP
+  ##########################################
+  
+  
+  ###############
+  # Touques
+  ###############
+  aci_touques_reactive <- reactiveValues(
+    choix_sonde = "825",
+    choix_composantes = c(T, T, T),
+    composantes = c("comp1", "comp2", "comp3"),
+    col_label = c("comp1_825", "comp2_825", "comp3_825")
+  )
+  
+  observeEvent(input$sondes_touques_aci, {
+    aci_touques_reactive$choix_sonde = input$sondes_touques_aci
+    aci_touques_reactive$col_label = paste0(aci_touques_reactive$composantes, "_", aci_touques_reactive$choix_sonde)
+  })
+  
+  observeEvent(input$comp1_touques, {
+    aci_touques_reactive$choix_composantes[1] = input$comp1_touques
+  })
+  observeEvent(input$comp2_touques, {
+    aci_touques_reactive$choix_composantes[2] = input$comp2_touques
+  })
+  observeEvent(input$comp3_touques, {
+    aci_touques_reactive$choix_composantes[3] = input$comp3_touques
+  })
+  
+  output$aci_touques <- renderDygraph({
+    db_xts_tempo = xts(b_touques[,aci_touques_reactive$col_label[aci_touques_reactive$choix_composantes]],
+                       b_touques[,"date"])
+    colnames(db_xts_tempo) = c("Composante 1", "Composante 2", "Composante 3")[aci_touques_reactive$choix_composantes]
+    lab_sonde = db_sonde_synthese[which(db_sonde_synthese$id_sonde == aci_touques_reactive$choix_sonde),]$label
+    dygraph(db_xts_tempo, paste0("Composantes indépendantes de ", lab_sonde)) %>%
+      dyOptions(colors = c("blue", "red", "black")[aci_touques_reactive$choix_composantes])
+  })
+  
+  
+  ###############
+  # Orne
+  ###############
+  aci_orne_reactive <- reactiveValues(
+    choix_sonde = "817",
+    choix_composantes = c(T, T, T),
+    composantes = c("comp1", "comp2", "comp3"),
+    #nb_composantes = 3,
+    col_label = c("comp1_817", "comp2_817", "comp3_817")#,
+    #graphe_label = c("Composante 1", "Composante 2", "Composante 3")
+  )
+  
+  observeEvent(input$sondes_orne_aci, {
+    aci_orne_reactive$choix_sonde = input$sondes_orne_aci
+    aci_orne_reactive$col_label = paste0(aci_orne_reactive$composantes, "_", aci_orne_reactive$choix_sonde)
+  })
+  
+  observeEvent(input$comp1_orne, {
+    aci_orne_reactive$choix_composantes[1] = input$comp1_orne
+  })
+  observeEvent(input$comp2_orne, {
+    aci_orne_reactive$choix_composantes[2] = input$comp2_orne
+  })
+  observeEvent(input$comp3_orne, {
+    aci_orne_reactive$choix_composantes[3] = input$comp3_orne
+  })
+  
+  output$aci_orne <- renderDygraph({
+    db_xts_tempo = xts(b_orne[,aci_orne_reactive$col_label[aci_orne_reactive$choix_composantes]],
+                       b_orne[,"date"])
+    #db_xts_tempo = xts_aci_orne[,aci_orne_reactive$col_label[aci_orne_reactive$choix_composantes]]
+    colnames(db_xts_tempo) = c("Composante 1", "Composante 2", "Composante 3")[aci_orne_reactive$choix_composantes]
+    lab_sonde = db_sonde_synthese[which(db_sonde_synthese$id_sonde == aci_orne_reactive$choix_sonde),]$label
+    dygraph(db_xts_tempo, paste0("Composantes indépendantes de ", lab_sonde)) %>%
+      dyOptions(colors = c("blue", "red", "black")[aci_orne_reactive$choix_composantes])
+  })
+  
+  
+  ###############
+  # Odon
+  ###############
+  aci_odon_reactive <- reactiveValues(
+    choix_sonde = "812",
+    choix_composantes = c(T, T, T),
+    composantes = c("comp1", "comp2", "comp3"),
+    col_label = c("comp1_812", "comp2_812", "comp3_812")
+  )
+  
+  observeEvent(input$sondes_odon_aci, {
+    aci_odon_reactive$choix_sonde = input$sondes_odon_aci
+    aci_odon_reactive$col_label = paste0(aci_odon_reactive$composantes, "_", aci_odon_reactive$choix_sonde)
+  })
+  
+  observeEvent(input$comp1_odon, {
+    aci_odon_reactive$choix_composantes[1] = input$comp1_odon
+  })
+  observeEvent(input$comp2_odon, {
+    aci_odon_reactive$choix_composantes[2] = input$comp2_odon
+  })
+  observeEvent(input$comp3_odon, {
+    aci_odon_reactive$choix_composantes[3] = input$comp3_odon
+  })
+  
+  output$aci_odon <- renderDygraph({
+    db_xts_tempo = xts(b_odon[,aci_odon_reactive$col_label[aci_odon_reactive$choix_composantes]],
+                       b_odon[,"date"])
+    colnames(db_xts_tempo) = c("Composante 1", "Composante 2", "Composante 3")[aci_odon_reactive$choix_composantes]
+    lab_sonde = db_sonde_synthese[which(db_sonde_synthese$id_sonde == aci_odon_reactive$choix_sonde),]$label
+    dygraph(db_xts_tempo, paste0("Composantes indépendantes de ", lab_sonde)) %>%
+      dyOptions(colors = c("blue", "red", "black")[aci_odon_reactive$choix_composantes])
+  })
+  
+  
+  ###############
+  # Selune
+  ###############
+  aci_selune_reactive <- reactiveValues(
+    choix_sonde = "824",
+    choix_composantes = c(T, T, T),
+    composantes = c("comp1", "comp2", "comp3"),
+    col_label = c("comp1_824", "comp2_824", "comp3_824")
+  )
+  
+  observeEvent(input$sondes_selune_aci, {
+    aci_selune_reactive$choix_sonde = input$sondes_selune_aci
+    aci_selune_reactive$col_label = paste0(aci_selune_reactive$composantes, "_", aci_selune_reactive$choix_sonde)
+  })
+  
+  observeEvent(input$comp1_selune, {
+    aci_selune_reactive$choix_composantes[1] = input$comp1_selune
+  })
+  observeEvent(input$comp2_selune, {
+    aci_selune_reactive$choix_composantes[2] = input$comp2_selune
+  })
+  observeEvent(input$comp3_selune, {
+    aci_selune_reactive$choix_composantes[3] = input$comp3_selune
+  })
+  
+  output$aci_selune <- renderDygraph({
+    db_xts_tempo = xts(b_selune[,aci_selune_reactive$col_label[aci_selune_reactive$choix_composantes]],
+                       b_selune[,"date"])
+    colnames(db_xts_tempo) = c("Composante 1", "Composante 2", "Composante 3")[aci_selune_reactive$choix_composantes]
+    lab_sonde = db_sonde_synthese[which(db_sonde_synthese$id_sonde == aci_selune_reactive$choix_sonde),]$label
+    dygraph(db_xts_tempo, paste0("Composantes indépendantes de ", lab_sonde)) %>%
+      dyOptions(colors = c("blue", "red", "black")[aci_selune_reactive$choix_composantes])
+  })
+    
     
     
 }) # Fin shinyServer
