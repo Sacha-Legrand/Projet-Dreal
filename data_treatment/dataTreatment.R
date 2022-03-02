@@ -1231,185 +1231,11 @@ for(id_s in unique(db$id_sonde)){
 }
 
 
-
-
-
-
-
-
 ## db_teau_tair, db_teau_tair2 ----
 db_teau_tair = db_xts_comp_teau_moy
 
 db_teau_tair = merge(db_teau_tair, db_Tair_moy, all.x=TRUE, suffixes=c("Teau", "Tair"), by="date")
 
-#colnames(db_teau_tair)
-
-order=order(colnames(db_teau_tair)[2:31], decreasing = FALSE)+1
-#order
-db_teau_tair2 = db_teau_tair[,
-                             c(1,8, 30, 25,  2, 16, 24, 18,  5,  4, 17,  3,  7,
-                               31,  6,  9, 10, 11, 12, 13, 14, 15, 22, 20, 21, 
-                               23, 19, 26, 27, 28, 29,
-                               32:ncol(db_teau_tair))]
-
-
-colnames(db_teau_tair2)
-
-
-
-
-
-
-
-## db_teau_tair3, CorTeauTair ----
-CorTeauTair=vector()
-Name=vector()
-db_teau_tair3=db_teau_tair2[,-1]
-
-for (j in 1:(ncol(db_teau_tair3)/2)){
-  
-  base_temp = as.data.frame(cbind(db_teau_tair3[,j],db_teau_tair3[,j+(ncol(db_teau_tair3))/2]))
-  
-  name = colnames(db_teau_tair3)[j]
-  Name= append(Name,name)
-  base_temp = base_temp[is.na(base_temp[,1])==F  &
-                          is.na(base_temp[,2])==F 
-                        ,]
-  
-  cor = cor(base_temp[1],base_temp[2])
-  CorTeauTair=append(CorTeauTair,cor)
-  
-}
-
-CorTeauTair = as.data.frame(t(CorTeauTair))
-colnames(CorTeauTair)=substr(Name,1,3)
-
-
-## dataReg, dataRegCoeff ----
-Name=vector()
-dataReg = as.data.frame(db_teau_tair2[,1])
-colnames(dataReg)="date"
-
-dataRegCoeff = as.data.frame(matrix(
-  rep(0,3*((ncol(db_teau_tair2)-1)/2)),
-  nrow = 3,ncol=(ncol(db_teau_tair2)-1)/2))
-
-
-
-for (j in 2:(((ncol(db_teau_tair2)-1)/2)+1)){
-  
-  
-  name=substr(colnames(db_teau_tair2)[j],1,3)
-  base_temp = as.data.frame(cbind(db_teau_tair2[,1],
-                                  db_teau_tair2[,j],
-                                  db_teau_tair2[,j+((ncol(db_teau_tair2)-1)/2)]
-  ))
-  
-  
-  base_temp[,1] <- as.Date(base_temp[,1], origin="1970-01-01")
-  
-  base_temp=base_temp[which(is.na(base_temp[,2])==F)[1]:nrow(base_temp),]
-  
-  base_temp=base_temp[is.na(base_temp[,2])==F,]
-  base_temp=base_temp[is.na(base_temp[,3])==F,]
-  reg = lm(base_temp[,2]~base_temp[,3])
-  base_temp$reg = reg$fitted.values
-  colnames(base_temp)=c("date",paste("Teau",name,sep=""), 
-                        paste("Tair",name,sep=""),
-                        paste(name,sep=""))
-  base_temp = base_temp[,c(1,4)]
-  dataRegCoeff[1,j-1]=reg$coefficients[1]
-  dataRegCoeff[2,j-1]=reg$coefficients[2]
-  dataRegCoeff[3,j-1]=summary(reg)$adj.r.squared
-  
-  dataReg= merge(dataReg,base_temp,by="date",all.x=T)
-  Name=append(Name,name)
-}
-
-
-rownames(dataRegCoeff) = c("Intercept","Pente","Rcarré")
-colnames(dataRegCoeff) =colnames(dataReg)[2:31]
-
-colnames(dataReg)[2:ncol(dataReg)] =as.character(
-  as.factor(
-    factor(colnames(dataReg)[2:ncol(dataReg)],
-           levels = colnames(dataReg)[2:ncol(dataReg)],
-           labels =riv)))
-
-
-## dataRegTouques, dataRegTouques825, dataRegTouques827, dataRegTouques828, dataRegTouques830 ----
-
-
-dataRegTouques = db_teau_tair2[,c("825Teau","827Teau","828Teau","830Teau","825Tair","827Tair","828Tair","830Tair")]
-
-dataRegTouques$pred825 = db_teau_tair2$`825Tair`*dataRegCoeff[2,c("825")]+ dataRegCoeff[1,c("825")] 
-dataRegTouques$pred827 = db_teau_tair2$`827Tair`*dataRegCoeff[2,c("827")]+ dataRegCoeff[1,c("827")] 
-dataRegTouques$pred828 = db_teau_tair2$`828Tair`*dataRegCoeff[2,c("828")]+ dataRegCoeff[1,c("828")] 
-dataRegTouques$pred830 = db_teau_tair2$`830Tair`*dataRegCoeff[2,c("830")]+ dataRegCoeff[1,c("830")] 
-
-
-dataRegTouques825 = dataRegTouques[,c( "825Teau" ,"825Tair","pred825")]
-colnames(dataRegTouques825) = c("Température de l'eau","Température de l'air",
-                                "Prédiction")
-
-dataRegTouques827 = dataRegTouques[,c( "827Teau" ,"827Tair","pred827")]
-colnames(dataRegTouques827) = c("Température de l'eau","Température de l'air",
-                                "Prédiction")
-
-dataRegTouques828 = dataRegTouques[,c( "828Teau" ,"828Tair","pred828")]
-colnames(dataRegTouques828) = c("Température de l'eau","Température de l'air",
-                                "Prédiction")
-
-dataRegTouques830 = dataRegTouques[,c( "830Teau" ,"830Tair","pred830")]
-colnames(dataRegTouques830) = c("Température de l'eau","Température de l'air",
-                                "Prédiction")
-
-## db_ordriscoll, coefficient, odris, regOdris, riv ----
-db_ordriscoll <- db_teau_tair2 %>%
-  gather(key="SondeTeau",value="Teau",c(2:(((ncol(db_teau_tair2)-1)/2)+1))) %>%
-  convert_as_factor(SondeTeau)
-
-db_ordriscoll <- db_ordriscoll %>%
-  gather(key="SondeTair",value="Tair",c(2:(((ncol(db_teau_tair2)-1)/2)+1))) %>%
-  convert_as_factor(SondeTair)
-
-db_ordriscoll = db_ordriscoll[is.na(db_ordriscoll$Teau)==F,]
-db_ordriscoll = db_ordriscoll[is.na(db_ordriscoll$Tair)==F,]
-
-db_ordriscoll = db_ordriscoll %>%
-  group_by(SondeTeau) %>%
-  mutate(TeauMM7  = stats::filter(Teau,filter=rep(1/7,7)))
-
-
-db_ordriscoll = db_ordriscoll %>%
-  group_by(SondeTair) %>%
-  mutate(TairMM7  = stats::filter(Tair,filter=rep(1/7,7)))
-
-
-coefficient <- db_ordriscoll %>%
-  group_by(SondeTeau)%>%
-  mutate(aa = lm(TeauMM7~TairMM7)$coefficients[1])%>%
-  mutate(bb = lm(TeauMM7~TairMM7)$coefficients[2])
-
-
-
-#unique(db_ordriscoll$SondeTeau)
-
-odris=as.data.frame(cbind(unique(as.character(db_ordriscoll$SondeTeau)),unique(coefficient$aa),unique(coefficient$bb)))
-colnames(odris) = c("Sondes","intercept","slope")
-odris$intercept = as.character(odris$intercept)
-odris$intercept = as.numeric(odris$intercept)
-
-odris$slope = as.character(odris$slope)
-odris$slope = as.numeric(odris$slope)
-
-regOdris = lm(intercept~slope,data=odris)
-#summary(regOdris)$adj.r.squared
-
-
-odris$Sondes = factor(odris$Sondes,
-                      levels = odris$Sondes,
-                      labels = riv)
 
 ##########################################################
 # BDD pour corrélations Tair et Teau
@@ -1432,12 +1258,6 @@ db_teau_tair2 = db_teau_tair[,
 
 colnames(db_teau_tair2)
 
-
-
-
-
-
-
 ############
 # Calculs des droites de régressions
 ###########
@@ -1451,19 +1271,19 @@ colnames(dataReg)="date"
 dataRegCoeff = as.data.frame(matrix(
   rep(0,3*((ncol(db_teau_tair2)-1)/2)),
   nrow = 3,ncol=(ncol(db_teau_tair2)-1)/2))
-
-
-
+  
+  
+  
 for (j in 2:(((ncol(db_teau_tair2)-1)/2)+1)){
   
-  
+
   name=substr(colnames(db_teau_tair2)[j],1,3)
   base_temp = as.data.frame(cbind(db_teau_tair2[,1],
                                   db_teau_tair2[,j],
                                   db_teau_tair2[,j+((ncol(db_teau_tair2)-1)/2)]
-  ))
-  
-  
+                                  ))
+ 
+
   base_temp[,1] <- as.Date(base_temp[,1], origin="1970-01-01")
   
   base_temp=base_temp[which(is.na(base_temp[,2])==F)[1]:nrow(base_temp),]
@@ -1514,14 +1334,14 @@ colnames(db_teau_tair3)=c("date","id_sonde","Température de l'eau","Températur
 # Base de données O'Driscoll
 ###################################################################################
 db_ordriscoll = db_teau_tair2[,c("date","812Teau","813Teau","815Teau","816Teau", # Odon
-                                 "817Teau","818Teau","819Teau", # Orne
+                                  "817Teau","818Teau","819Teau", # Orne
                                  "820Teau","821Teau","822Teau","823Teau","824Teau", # Sélune
                                  "825Teau","827Teau","828Teau","830Teau",
                                  "812Tair","813Tair","815Tair","816Tair", # Odon
                                  "817Tair","818Tair","819Tair", # Orne
                                  "820Tair","821Tair","822Tair","823Tair","824Tair", # Sélune
                                  "825Tair","827Tair","828Tair","830Tair"
-)]
+                                  )]
 
 
 n = ncol(db_ordriscoll)
@@ -1570,8 +1390,8 @@ summary(regOdris)$adj.r.squared
 
 
 odris$Sondes = factor(odris$Sondes,
-                      levels = odris$Sondes,
-                      labels =riv[15:30])
+       levels = odris$Sondes,
+       labels =riv[15:30])
 
 odris$Sondes2 = str_sub(odris$Sondes,-2, -1)
 odris$Sondes = str_sub(odris$Sondes,1, -3)
@@ -1579,7 +1399,6 @@ odris$Sondes <- as.factor(odris$Sondes )
 
 odris$intercept2 = regOdris$coefficients[1]
 odris$slope2 = regOdris$coefficients[2]
-
 
 
 
