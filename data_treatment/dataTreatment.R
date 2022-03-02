@@ -285,7 +285,7 @@ dbMM = db2 %>%
          TeauMedMM7 = stats::filter(TeauMed,filter=rep(1/7,7)),
          TeauMedMM30 = stats::filter(TeauMed,filter=c(1/(2*30),rep(1/30,29),1/(2*30))),
          TeauMedMM365 = stats::filter(TeauMed,filter=rep(1/365,365))
-
+         
   )
 
 ## db2 ----
@@ -1352,12 +1352,12 @@ for(id_s in unique(db$id_sonde)){
   #id_s = 813
   db_tempo = db[which(db$id_sonde==id_s),]
   db_tempo = aggregate(Teau~date,data=db_tempo, FUN=mean)
-
+  
   db_tempo[[id_s]] = db_tempo$Teau
-
-
+  
+  
   db_xts_comp_teau_moy = merge(db_xts_comp_teau_moy, db_tempo[,c("date", id_s)], by="date", all=TRUE)
-
+  
 }
 
 
@@ -1397,10 +1397,10 @@ for(id_s in unique(db$id_sonde)){
                               day(db_tempo$t), " ",
                               ifelse(hour(db_tempo$t)%%2==0, hour(db_tempo$t), (hour(db_tempo$t))-1), ":00:00"))
   db_tempo = aggregate(db_tempo[id_s], by=db_tempo['t'], mean)
-
-
+  
+  
   db_xts_comp_teau_bih = merge(db_xts_comp_teau_bih, db_tempo[,c("t", id_s)], by="t", all=TRUE)
-
+  
 }
 
 
@@ -1448,19 +1448,19 @@ dataRegCoeff = as.data.frame(matrix(
 
 
 for (j in 2:(((ncol(db_teau_tair2)-1)/2)+1)){
-
-
+  
+  
   name=substr(colnames(db_teau_tair2)[j],1,3)
   base_temp = as.data.frame(cbind(db_teau_tair2[,1],
                                   db_teau_tair2[,j],
                                   db_teau_tair2[,j+((ncol(db_teau_tair2)-1)/2)]
   ))
-
-
+  
+  
   base_temp[,1] <- as.Date(base_temp[,1], origin="1970-01-01")
-
+  
   base_temp=base_temp[which(is.na(base_temp[,2])==F)[1]:nrow(base_temp),]
-
+  
   base_temp=base_temp[is.na(base_temp[,2])==F,]
   base_temp=base_temp[is.na(base_temp[,3])==F,]
   reg = lm(base_temp[,2]~base_temp[,3])
@@ -1472,7 +1472,7 @@ for (j in 2:(((ncol(db_teau_tair2)-1)/2)+1)){
   dataRegCoeff[1,j-1]=reg$coefficients[1]
   dataRegCoeff[2,j-1]=reg$coefficients[2]
   dataRegCoeff[3,j-1]=summary(reg)$adj.r.squared
-
+  
   dataReg= merge(dataReg,base_temp,by="date",all.x=T)
   Name=append(Name,name)
 }
@@ -1575,6 +1575,263 @@ odris$slope2 = regOdris$coefficients[2]
 
 
 
+# Odon -----
+# ################ #
+# Odon
+# ################ #
+
+# base pour l'odon (bi-horaire)
+db_aci_bih_odon = db_xts_comp_teau_bih %>%
+  dplyr::select(c("t", "812", "813", "815", "816"))
+
+db_aci_bih_odon = na.omit(db_aci_bih_odon)
+
+
+# base pour l'odon (moyenne journalière)
+db_aci_moy_odon = db_xts_comp_teau_moy %>%
+  dplyr::select(c("date", "812", "813", "815", "816"))
+
+db_aci_moy_odon = na.omit(db_aci_moy_odon)
+
+
+# Orne -----
+# ################ #
+# Orne
+# ################ #
+
+# base pour l'Orne (bi-horaire)
+db_aci_bih_orne = db_xts_comp_teau_bih %>%
+  dplyr::select(c("t", "817", "818", "819"))
+
+db_aci_bih_orne = na.omit(db_aci_bih_orne)
+
+
+# base pour l'Orne (moyenne journalière)
+db_aci_moy_orne = db_xts_comp_teau_moy %>%
+  dplyr::select(c("date", "817", "818", "819"))
+
+db_aci_moy_orne = na.omit(db_aci_moy_orne)
+
+
+
+# Sélune -----
+# ################ #
+# Sélune
+# ################ #
+
+# base pour la Sélune (bi-horaire)
+db_aci_bih_selune = db_xts_comp_teau_bih %>%
+  dplyr::select(c("t", "820", "821", "823", "824")) # sans la 822
+
+db_aci_bih_selune = na.omit(db_aci_bih_selune)
+
+
+
+# base pour la Sélune (moyenne journalière)
+db_aci_moy_selune = db_xts_comp_teau_moy %>%
+  dplyr::select(c("date", "820", "821", "823", "824")) # sans la 822
+
+db_aci_moy_selune = na.omit(db_aci_moy_selune)
+
+
+# Touques -----
+# ################ #
+# Touques
+# ################ #
+
+# base pour la Touques (bi-horaire)
+db_aci_bih_touques = db_xts_comp_teau_bih %>%
+  dplyr::select(c("t", "825", "827", "828", "830"))
+
+db_aci_bih_touques = na.omit(db_aci_bih_touques)
+head(db_aci_moy_touques)
+
+
+# base pour la Touques (moyenne journalière)
+db_aci_moy_touques = db_xts_comp_teau_moy %>%
+  dplyr::select(c("date", "825", "827", "828", "830"))
+
+db_aci_moy_touques = na.omit(db_aci_moy_touques)
+
+
+
+
+
+
+
+# ACI Odon -----
+
+# preparation pour l'ACI
+aci_t = db_aci_moy_odon %>%
+  dplyr::select(c("date"))
+
+aci_data = db_aci_moy_odon %>%
+  dplyr::select(!c("date"))
+
+
+dim(aci_t)
+dim(aci_data)
+
+# ACI
+set.seed(1)
+a_odon <- fastICA(aci_data, 3, alg.typ = "parallel", fun = "logcosh", alpha = 1,
+                  method = "R", row.norm = FALSE, maxit = 200,
+                  tol = 0.0001, verbose = TRUE)
+
+
+b_odon <- cbind(aci_t, data.frame(a_odon$S))
+mat_odon <- a_odon$A
+
+lab_comp = c()
+for(i in 1:ncol(aci_data)){
+  
+  label_i = colnames(aci_data)[i]
+  
+  b_odon[paste0("comp1_", label_i)]=a_odon$A[1,i]*a_odon$S[,1]
+  b_odon[paste0("comp2_", label_i)]=a_odon$A[2,i]*a_odon$S[,2]
+  b_odon[paste0("comp3_", label_i)]=a_odon$A[3,i]*a_odon$S[,3]
+  
+  lab_comp = c(lab_comp, paste0("comp1_", label_i), paste0("comp2_", label_i), paste0("comp3_", label_i))
+  
+}
+
+# base aci
+xts_aci_odon =xts(b_odon[, lab_comp], order.by = b_odon[,"date"])
+
+
+
+
+
+
+
+# ACI Orne -----
+
+# preparation pour l'ACI
+aci_t = db_aci_moy_orne %>%
+  dplyr::select(c("date"))
+
+aci_data = db_aci_moy_orne %>%
+  dplyr::select(!c("date"))
+
+
+
+# ACI
+set.seed(1)
+a_orne <- fastICA(aci_data, 3, alg.typ = "parallel", fun = "logcosh", alpha = 1,
+                  method = "R", row.norm = FALSE, maxit = 200,
+                  tol = 0.0001, verbose = TRUE)
+
+
+b_orne <- cbind(aci_t, data.frame(a_orne$S))
+mat_orne <- a_orne$A
+
+lab_comp = c()
+for(i in 1:ncol(aci_data)){
+  
+  label_i = colnames(aci_data)[i]
+  
+  b_orne[paste0("comp1_", label_i)]=a_orne$A[1,i]*a_orne$S[,1]
+  b_orne[paste0("comp2_", label_i)]=a_orne$A[2,i]*a_orne$S[,2]
+  b_orne[paste0("comp3_", label_i)]=a_orne$A[3,i]*a_orne$S[,3]
+  
+  lab_comp = c(lab_comp, paste0("comp1_", label_i), paste0("comp2_", label_i), paste0("comp3_", label_i))
+  
+}
+
+# base aci
+xts_aci_orne =xts(b_orne[, lab_comp], order.by = b_orne[,"date"])
+
+
+
+# ACI Selune -----
+
+# preparation pour l'ACI
+aci_t = db_aci_moy_selune %>%
+  dplyr::select(c("date"))
+
+aci_data = db_aci_moy_selune %>%
+  dplyr::select(!c("date"))
+
+
+
+# ACI
+set.seed(1)
+a_selune <- fastICA(aci_data, 3, alg.typ = "parallel", fun = "logcosh", alpha = 1,
+                    method = "R", row.norm = FALSE, maxit = 200,
+                    tol = 0.0001, verbose = TRUE)
+
+
+b_selune <- cbind(aci_t, data.frame(a_selune$S))
+mat_selune <- a_selune$A
+
+lab_comp = c()
+for(i in 1:ncol(aci_data)){
+  
+  label_i = colnames(aci_data)[i]
+  
+  b_selune[paste0("comp1_", label_i)]=a_selune$A[1,i]*a_selune$S[,1]
+  b_selune[paste0("comp2_", label_i)]=a_selune$A[2,i]*a_selune$S[,2]
+  b_selune[paste0("comp3_", label_i)]=a_selune$A[3,i]*a_selune$S[,3]
+  
+  lab_comp = c(lab_comp, paste0("comp1_", label_i), paste0("comp2_", label_i), paste0("comp3_", label_i))
+  
+}
+
+# base aci
+xts_aci_selune =xts(b_selune[, lab_comp], order.by = b_selune[,"date"])
+
+
+
+
+
+# ACI Touques -----
+
+# preparation pour l'ACI
+aci_t = db_aci_moy_touques %>%
+  dplyr::select(c("date"))
+
+aci_data = db_aci_moy_touques %>%
+  dplyr::select(!c("date"))
+
+
+
+# ACI
+set.seed(1)
+a_touques <- fastICA(aci_data, 3, alg.typ = "parallel", fun = "logcosh", alpha = 1,
+                     method = "R", row.norm = FALSE, maxit = 200,
+                     tol = 0.0001, verbose = TRUE)
+
+
+b_touques <- cbind(aci_t, data.frame(a_touques$S))
+mat_touques <- a_touques$A
+
+lab_comp = c()
+for(i in 1:ncol(aci_data)){
+  
+  label_i = colnames(aci_data)[i]
+  
+  b_touques[paste0("comp1_", label_i)]=a_touques$A[1,i]*a_touques$S[,1]
+  b_touques[paste0("comp2_", label_i)]=a_touques$A[2,i]*a_touques$S[,2]
+  b_touques[paste0("comp3_", label_i)]=a_touques$A[3,i]*a_touques$S[,3]
+  
+  lab_comp = c(lab_comp, paste0("comp1_", label_i), paste0("comp2_", label_i), paste0("comp3_", label_i))
+  
+}
+
+# base aci
+xts_aci_touques =xts(b_touques[, lab_comp], order.by = b_touques[,"date"])
+
+
+## xts_aci_odon, xts_aci_orne, xts_aci_selune, xts_aci_touques  -----
+# save(xts_aci_odon, xts_aci_orne, 
+#      xts_aci_selune, xts_aci_touques,
+#      mat_odon, mat_orne, mat_selune, mat_touques,
+#      file = "xts_aci.RData")
+
+# save(b_odon, b_orne, 
+#      b_selune, b_touques,
+#      mat_odon, mat_orne, mat_selune, mat_touques,
+#      file = "db_aci.RData")
 ############## Enregistrement des données -----
 
 #save(db_stats, db_stats_Touques, dbMM, db2, file="RData/dbA.RData")
@@ -1604,5 +1861,6 @@ save(db_stats, db_stats_Touques, dbMM,
      CorTeauTair, dataReg, dataRegCoeff,
      dataRegTouques, dataRegTouques825, dataRegTouques827, dataRegTouques828, dataRegTouques830,
      db_ordriscoll, coefficient, odris, regOdris, riv,
+     xts_aci_odon, xts_aci_orne, xts_aci_selune, xts_aci_touques,
      file = "RData/treated_data.RData")
 
