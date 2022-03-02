@@ -127,10 +127,108 @@ setwd(path)
 
 ############## Ajouter le code qui permet d'avoir db ? -----
 
-# temporaire :
-load("RData/db.RData")
+# Chargement et extraction des données des sondes
+
+pathSondes = paste0( path,"sondes")
+
+NomF <- list.files()
+NomF
+
+sonde109 <- read.csv2(paste0(NomF[1]),skip=2,sep=";",col.names = c("X","date","heure","Teau"))
+sonde109$id_sonde = 109
+sonde768 <- read.csv2(paste0(NomF[2]),skip=2,sep=";",col.names = c("X","date","heure","Teau"))
+sonde768$id_sonde = 768
+sonde765 <- read.csv2(paste0(NomF[3]),skip=2,sep=";",col.names = c("X","date","heure","Teau"))
+sonde765$id_sonde = 765
+sonde764 <- read.csv2(paste0(NomF[4]),skip=2,sep=";",col.names = c("X","date","heure","Teau"))
+sonde764$id_sonde = 764
+sonde811 <- read.csv2(paste0(NomF[5]),skip=2,sep=";",col.names = c("X","date","heure","Teau"))
+sonde811$id_sonde = 811
+sonde769 <- read.csv2(paste0(NomF[6]),skip=2,sep=";",col.names = c("X","date","heure","Teau"))
+sonde769$id_sonde = 769
+sonde104 <- read.csv2(paste0(NomF[7]),skip=2,sep=";",col.names = c("X","date","heure","Teau"))
+sonde104$id_sonde =104
+sonde812 <- read.csv2(paste0(NomF[8]),skip=2,sep=";",col.names = c("X","date","heure","Teau"))
+sonde812$id_sonde =812
+sonde813 <- read.csv2(paste0(NomF[9]),skip=2,sep=";",col.names = c("X","date","heure","Teau"))
+sonde813$id_sonde =813
+sonde815 <- read.csv2(paste0(NomF[10]),skip=2,sep=";",col.names = c("X","date","heure","Teau"))
+sonde815$id_sonde = 815
+sonde816 <- read.csv2(paste0(NomF[11]),skip=2,sep=";",col.names = c("X","date","heure","Teau"))
+sonde816$id_sonde = 816
+sonde817 <- read.csv2(paste0(NomF[12]),skip=2,sep=";",col.names = c("X","date","heure","Teau"))
+sonde817$id_sonde = 817
+############
+# ATTENTION : 2 BDDs qui sont en rapport avec la sonde 818 : Elles sont semblable donc
+# suppression de l'une entre elle
+############
+sonde818 <- read.csv2(paste0(NomF[13]),skip=2,sep=";",col.names = c("X","date","heure","Teau"))
+sonde818 <- read.csv2(paste0(NomF[14]),skip=2,sep=";",col.names = c("X","date","heure","Teau"))
+sonde818$id_sonde = 818
+sonde819 <- read.csv2(paste0(NomF[15]),skip=2,sep=";",col.names = c("X","date","heure","Teau"))
+sonde819$id_sonde = 819
+sonde300 <- read.csv2(paste0(NomF[16]),skip=2,sep=";",col.names = c("X","date","heure","Teau"))
+sonde300$id_sonde = 300
+sonde766 <- read.csv2(paste0(NomF[17]),skip=2,sep=";",col.names = c("X","date","heure","Teau"))
+sonde766$id_sonde = 766
+sonde763 <- read.csv2(paste0(NomF[18]),skip=2,sep=";",col.names = c("X","date","heure","Teau"))
+sonde763$id_sonde = 763
+sonde824 <- read.csv2(paste0(NomF[19]),skip=2,sep=";",col.names = c("X","date","heure","Teau"))
+sonde824$id_sonde = 824
+sonde821 <- read.csv2(paste0(NomF[20]),skip=2,sep=";",col.names = c("X","date","heure","Teau"))
+sonde821$id_sonde = 821
+sonde822 <- read.csv2(paste0(NomF[21]),skip=2,sep=";",col.names = c("X","date","heure","Teau"))
+sonde822$id_sonde = 822
+sonde820 <- read.csv2(paste0(NomF[22]),skip=2,sep=";",col.names = c("X","date","heure","Teau"))
+sonde820$id_sonde = 820
+sonde823 <- read.csv2(paste0(NomF[23]),skip=2,sep=";",col.names = c("X","date","heure","Teau"))
+sonde823$id_sonde = 823
+sonde762 <- read.csv2(paste0(NomF[24]),skip=2,sep=";",col.names = c("X","date","heure","Teau"))
+sonde762$id_sonde = 762
+sonde108 <- read.csv2(paste0(NomF[25]),skip=2,sep=";",col.names = c("X","date","heure","Teau"))
+sonde108$id_sonde = 108
+sonde825 <- read.csv2(paste0(NomF[26]),skip=2,sep=";",col.names = c("X","date","heure","Teau"))
+sonde825$id_sonde = 825
+sonde827 <- read.csv2(paste0(NomF[27]),skip=2,sep=";",col.names = c("X","date","heure","Teau"))
+sonde827$id_sonde = 827
+sonde828 <- read.csv2(paste0(NomF[28]),skip=2,sep=";",col.names = c("X","date","heure","Teau"))
+sonde828$id_sonde = 828
+sonde830 <- read.csv2(paste0(NomF[29]),skip=2,sep=";",col.names = c("X","date","heure","Teau"))
+sonde830$id_sonde = 830
+sonde105 <- read.csv2(paste0(NomF[30]),skip=2,sep=";",col.names = c("X","date","heure","Teau"))
+sonde105$id_sonde = 105
+sonde771 <- read.csv2(paste0(NomF[31]),skip=2,sep=";",col.names = c("X","date","heure","Teau"))
+sonde771$id_sonde = 771
 
 
+db = rbind(sonde109,sonde768,sonde765,sonde764,sonde811,sonde769,
+           sonde104,sonde812,sonde813,sonde815,sonde816,sonde817,
+           sonde818,sonde819,sonde300,sonde766,sonde763,sonde824,
+           sonde821,sonde822,sonde820,sonde823,sonde762,sonde108,
+           sonde825,sonde827,sonde828,sonde830,sonde105,sonde771)
+
+rm(sonde109,sonde768,sonde765,sonde764,sonde811,sonde769,
+   sonde104,sonde812,sonde813,sonde815,sonde816,sonde817,
+   sonde818,sonde819,sonde300,sonde766,sonde763,sonde824,
+   sonde821,sonde822,sonde820,sonde823,sonde762,sonde108,
+   sonde825,sonde827,sonde828,sonde830,sonde105,sonde771)
+
+
+db = db[,-1]
+str(db)
+db$date <- as.character(db$date)
+db$date = dmy(db$date)
+db$t <- paste(as.character(db$date),db$heure,sep=" ")
+db$t = ymd_hms(db$t)
+db$id_sonde <- as.character(db$id_sonde)
+
+
+db = db[,-2]
+
+
+db = db[,c(4,3,2,1)]
+
+rm(NomF,pathSondes)
 # enregistrement des données dans un RData
 save(db, file = "RData/db.RData")
 
