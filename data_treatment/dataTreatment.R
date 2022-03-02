@@ -114,6 +114,7 @@ if(!require(ifa)){
   install.packages("ifa")
   library(ifa)
 }
+
 if(!require(stringr)){
   install.packages("stringr")
   library(stringr)
@@ -124,7 +125,7 @@ if(!require(stringr)){
 ############## Working Directory -----
 
 # Path to working directory
-path = "/Users/julien/Desktop/projetM2/GitHub/data_treatment/"
+path = "D:/Users/Desktop/Cours/M2stat/Projet2/Projet-Dreal-main/data_treatment/"
 
 # Setting working Directory
 setwd(path)
@@ -140,36 +141,6 @@ load("RData/db_nc_files.RData")
 ############## Traitement des données -----
 
 
-## db_stats ----
-# tableau stats
-db_stats = db
-db_stats$an = year(db_stats$date)
-db_stats = db_stats %>%
-  group_by(id_sonde,date) %>%
-  mutate(Min=min(Teau),
-         #t10 = quantile(Teau,.1),
-         #t25 = quantile(Teau,.25),
-         Mediane = median(Teau),
-         Moyenne = mean(Teau),
-         sd = sd(Teau),
-         #t75 = quantile(Teau,.75),
-         #t90 = quantile(Teau,.90),
-         Max = max(Teau),
-         Amplitude =  Max - Min
-  )
-
-db_stats$Amplitude = db_stats$Max - db_stats$Min
-
-
-db_stats = db_stats[,-c(1,3,4)]
-db_stats = db_stats[which(duplicated(db_stats)==F),]
-
-db_stats <- db_stats %>%
-  gather(key="Statistiques",value="Valeurs",c(3:ncol(db_stats))) %>%
-  convert_as_factor(Statistiques)
-db_stats$Valeurs = round(db_stats$Valeurs,3)
-db_stats$id_sonde <- as.factor(db_stats$id_sonde)
-
 riv=c("La Monne","La Vie","La Taute","La Barges",
       "Ruisseau de la Grande Vallée", "La Souleuvre","La Sée Rousse","L’Egrenne",
       "La Durance","La Sée","La Bérence", "Le Glanon",
@@ -178,6 +149,54 @@ riv=c("La Monne","La Vie","La Taute","La Barges",
       "La Sélune T4","La Sélune T2","La Sélune T3","La Sélune T5","La Sélune T1",
       "La Touques T1","La Touques T3","La Touques T4","La Touques T6"
 )
+
+#######################################
+# Tableau Stat
+#######################################
+db_stats = db
+db_stats$an = year(db_stats$date)
+db_stats = db_stats %>%
+  group_by(id_sonde,date) %>%
+  mutate(
+    #MinJourn=min(Teau),
+    #t10 = quantile(Teau,.1),
+    #t25 = quantile(Teau,.25),
+    #Mediane = median(Teau),
+    TeauMoy = mean(Teau),
+    #sd = sd(Teau),
+    #t75 = quantile(Teau,.75),
+    #t90 = quantile(Teau,.90),
+    Ampl = max(Teau) - min(Teau)
+    #Amplitude =  Max - Min
+  )
+
+db_stats = db_stats %>%
+  group_by(id_sonde,an) %>%
+  mutate(Min=min(TeauMoy),
+         t10 = quantile(TeauMoy,.1),
+         t25 = quantile(TeauMoy,.25),
+         Mediane = median(TeauMoy),
+         Moyenne = mean(TeauMoy),
+         sd = sd(TeauMoy),
+         t75 = quantile(TeauMoy,.75),
+         t90 = quantile(TeauMoy,.90),
+         Max = max(TeauMoy),
+         `Amplitude moyenne` =  mean(Ampl),
+         `Amplitude maximum` =  max(Ampl),
+         `Amplitude minimum` =  min(Ampl)
+  )
+
+
+db_stats = db_stats[,-c(1,3,4,6,7)]
+db_stats = db_stats[which(duplicated(db_stats)==F),]
+
+db_stats <- db_stats %>%
+  gather(key="Statistiques",value="Valeurs",c(3:ncol(db_stats))) %>%
+  convert_as_factor(Statistiques)
+db_stats$Valeurs = round(db_stats$Valeurs,3)
+db_stats$id_sonde <- as.factor(db_stats$id_sonde)
+
+
 
 db_stats$label <- factor(db_stats$id_sonde ,
                          levels =levels(db_stats$id_sonde),
@@ -191,14 +210,50 @@ db_stats= db_stats[,c(1,5,2,3,4)]
 colnames(db_stats) = c("id_sonde","Sondes","Années","Statistiques","Valeurs")
 
 
-## db_stats_Touques ----
-# tableau stats Touques
-db_stats_Touques = db_stats[db_stats$Sondes == "La Touques T1" |
-                              db_stats$Sondes == "La Touques T3" |
-                              db_stats$Sondes == "La Touques T4" |
-                              db_stats$Sondes == "La Touques T6" ,]
+
+############
+# db_stats_Touques
+############
+db_stats_Touques = db_stats[db_stats$id_sonde == 825|
+                              db_stats$id_sonde == 827 |
+                              db_stats$id_sonde == 828 |
+                              db_stats$id_sonde == 830 ,]
 db_stats_Touques$Sondes <- factor(db_stats_Touques$Sondes,exclude=NULL)
 db_stats_Touques = db_stats_Touques[,-1]
+
+############
+# db_stats_Orne
+############
+db_stats_Orne = db_stats[db_stats$id_sonde == 817|
+                           db_stats$id_sonde == 819 |
+                           db_stats$id_sonde == 818 ,]
+
+db_stats_Orne$Sondes <- factor(db_stats_Orne$Sondes,exclude=NULL)
+db_stats_Orne = db_stats_Orne[,-1]
+
+############
+# db_stats_Odon
+############
+db_stats_Odon = db_stats[db_stats$id_sonde == 812|
+                           db_stats$id_sonde == 813 |
+                           db_stats$id_sonde == 814 |
+                           db_stats$id_sonde == 815 |
+                           db_stats$id_sonde == 816,]
+db_stats_Odon$Sondes <- factor(db_stats_Odon$Sondes,exclude=NULL)
+db_stats_Odon = db_stats_Odon[,-1]
+
+############
+# db_stats_Selune
+############
+db_stats_Selune = db_stats[db_stats$id_sonde == 824|
+                             db_stats$id_sonde == 821 |
+                             db_stats$id_sonde == 822 |
+                             db_stats$id_sonde == 820 |
+                             db_stats$id_sonde == 823 ,]
+db_stats_Selune$Sondes <- factor(db_stats_Selune$Sondes,exclude=NULL)
+db_stats_Selune = db_stats_Selune[,-1]
+
+
 
 ## dbMM ----
 db2 =db %>%
@@ -230,7 +285,7 @@ dbMM = db2 %>%
          TeauMedMM7 = stats::filter(TeauMed,filter=rep(1/7,7)),
          TeauMedMM30 = stats::filter(TeauMed,filter=c(1/(2*30),rep(1/30,29),1/(2*30))),
          TeauMedMM365 = stats::filter(TeauMed,filter=rep(1/365,365))
-         
+
   )
 
 ## db2 ----
@@ -238,9 +293,9 @@ db2$limiteTruite <- NA
 db2$limiteTruite = ifelse(db2$TeauMoy <= 0.5 | db2$TeauMoy >=  25.5 ,
                           db2$limiteTruite <- "Seuil létal",
                           ifelse( db2$TeauMoy >=  19.5 ,
-                                  db2$limiteTruite <- "Seuil critique", 
+                                  db2$limiteTruite <- "Seuil critique",
                                   ifelse( db2$TeauMoy <= 4.5 | db2$TeauMoy >=  16.5 ,
-                                          db2$limiteTruite <- "Danger pour juvéniles",   
+                                          db2$limiteTruite <- "Danger pour juvéniles",
                                           db2$limiteTruite <- "Préférendum thermique" )
                           ))
 
@@ -251,11 +306,11 @@ db2$limiteBrochet <- NA
 db2$limiteBrochet = ifelse(db2$TeauMoy <= 2.5  ,
                            db2$limiteBrochet <- "Seuil létal adulte",
                            ifelse( db2$TeauMoy <=  5.5 ,
-                                   db2$limiteBrochet <- "Seuil létal juvéniles", 
+                                   db2$limiteBrochet <- "Seuil létal juvéniles",
                                    ifelse( db2$TeauMoy >=  19.5 ,
-                                           db2$limiteBrochet <- "Danger pour les embryons", 
+                                           db2$limiteBrochet <- "Danger pour les embryons",
                                            ifelse( db2$TeauMoy <= 9.5  ,
-                                                   db2$limiteBrochet <- "Danger pour juvéniles", 
+                                                   db2$limiteBrochet <- "Danger pour juvéniles",
                                                    ifelse( db2$TeauMoy >= 24.5  ,
                                                            db2$limiteBrochet <- "Danger pour les larves",
                                                            ifelse( db2$TeauMoy >= 30.5 ,
@@ -293,7 +348,7 @@ pref$An <- as.factor(pref$An)
 
 pref$Espece <- factor(pref$Espece,
                       levels = c(
-                        "limiteBrochet", "limiteR" ,"limiteTruite" 
+                        "limiteBrochet", "limiteR" ,"limiteTruite"
                       ),
                       labels =c("Brochet","Rien","Truite")
 )
@@ -302,7 +357,7 @@ pref$Espece <- factor(pref$Espece,
 prefTouques = pref[(pref$id_sonde == 825|
                       pref$id_sonde == 827|
                       pref$id_sonde == 828|
-                      pref$id_sonde == 830),] 
+                      pref$id_sonde == 830),]
 
 
 prefTouques$id_sonde <- factor(prefTouques$id_sonde,exclude=NULL)
@@ -1108,64 +1163,179 @@ db_Selune_xtsc = rbind(db_xts_sonde820c,db_xts_sonde821c,db_xts_sonde822c,db_xts
 
 
 
-
-## db_Touques_stats_MM30, db_Touques_stats_MM30_mois, db_Touques_stats_MM30_An ----
-
+####################
 # Stats avec MM30 pour tableau récap moyenne mensuelle et annuelles
-db_Touques_stats_MM30 = dbMM[dbMM$id_sonde == 825 |
-                               dbMM$id_sonde == 827 |
-                               dbMM$id_sonde == 828 |
-                               dbMM$id_sonde == 830 ,c( 1,2,8,11 )]
+####################
 
-db_Touques_stats_MM30 = db_Touques_stats_MM30[
-  is.na(db_Touques_stats_MM30$TeauMaxMM30)==F,
+db_stats_MM30 = dbMM[,c( 1,2,8,11 )]
+
+db_stats_MM30 = db_stats_MM30[
+  is.na(db_stats_MM30$TeauMaxMM30)==F,
 ]
 
-db_Touques_stats_MM30$id_sonde <- factor(db_Touques_stats_MM30$id_sonde,exclude=NULL)
-db_Touques_stats_MM30$id_sonde <- factor(db_Touques_stats_MM30$id_sonde,
-                                         levels = c(
-                                           "825", "827", "828", "830"
-                                         ),
-                                         labels =c("Touques T1","Touques T3","Touques T4","Touques T6")
-)
+
 
 str(db_Touques_stats_MM30)
 
 
 
-db_Touques_stats_MM30$mois = month(db_Touques_stats_MM30$date)
-db_Touques_stats_MM30$mois = as.factor(db_Touques_stats_MM30$mois)
-db_Touques_stats_MM30$An = year(db_Touques_stats_MM30$date)
-db_Touques_stats_MM30$An = as.factor(db_Touques_stats_MM30$An)
+db_stats_MM30$mois = month(db_stats_MM30$date)
+db_stats_MM30$mois = as.factor(db_stats_MM30$mois)
+db_stats_MM30$An = year(db_stats_MM30$date)
+db_stats_MM30$An = as.factor(db_stats_MM30$An)
 
 
-db_Touques_stats_MM30_mois = db_Touques_stats_MM30%>%
+db_stats_MM30_mois = db_stats_MM30%>%
   group_by(id_sonde,mois,An)%>%
   mutate(MoyenneMaxMM30Mens = mean(TeauMaxMM30),
          MoyenneMinMM30Mens=mean(TeauMinMM30))
 
-db_Touques_stats_MM30_mois=db_Touques_stats_MM30_mois[,-c(2,3,4)]
-db_Touques_stats_MM30_mois=db_Touques_stats_MM30_mois[
-  duplicated(db_Touques_stats_MM30_mois)==F,
+db_stats_MM30_mois=db_stats_MM30_mois[,-c(2,3,4)]
+db_stats_MM30_mois=db_stats_MM30_mois[
+  duplicated(db_stats_MM30_mois)==F,
 ]
 
-colnames(db_Touques_stats_MM30_mois) = c("Sondes","Mois","Années",
-                                         "Maximum",
-                                         "Minimum")
+colnames(db_stats_MM30_mois) = c("Sondes","Mois","Années",
+                                 "Maximum",
+                                 "Minimum")
 
-db_Touques_stats_MM30_An = db_Touques_stats_MM30_mois %>%
+db_stats_MM30_An = db_stats_MM30_mois %>%
   group_by(Sondes,Années)%>%
   mutate(MoyenneMaxMM30An = mean(Maximum),
          MoyenneMinMM30An=mean(Minimum))
 
-db_Touques_stats_MM30_An=db_Touques_stats_MM30_An[,-c(2,4,5)]
-db_Touques_stats_MM30_An=db_Touques_stats_MM30_An[
-  duplicated(db_Touques_stats_MM30_An)==F,
+db_stats_MM30_An=db_stats_MM30_An[,-c(2,4,5)]
+db_stats_MM30_An=db_stats_MM30_An[
+  duplicated(db_stats_MM30_An)==F,
 ]
-colnames(db_Touques_stats_MM30_An) = c("Sondes","Années",
-                                       "Maximum",
-                                       "Minimum")
+colnames(db_stats_MM30_An) = c("Sondes","Années",
+                               "Maximum",
+                               "Minimum")
+##########
+# Stats Touques
+#########
 
+db_Touques_stats_MM30_mois=db_stats_MM30_mois[db_stats_MM30_mois$Sondes == 825 |
+                                                db_stats_MM30_mois$Sondes == 827 |
+                                                db_stats_MM30_mois$Sondes == 828 |
+                                                db_stats_MM30_mois$Sondes == 830 ,
+]
+db_Touques_stats_MM30_mois$Sondes <- factor(db_Touques_stats_MM30_mois$Sondes,exclude=NULL)
+db_Touques_stats_MM30_mois$Sondes <- factor(db_Touques_stats_MM30_mois$Sondes,
+                                            levels = c(
+                                              "825", "827", "828", "830"
+                                            ),
+                                            labels =c("Touques T1","Touques T3","Touques T4","Touques T6")
+)
+
+db_Touques_stats_MM30_An =db_stats_MM30_An[db_stats_MM30_An$Sondes == 825 |
+                                             db_stats_MM30_An$Sondes == 827 |
+                                             db_stats_MM30_An$Sondes == 828 |
+                                             db_stats_MM30_An$Sondes == 830 ,
+]
+
+db_Touques_stats_MM30_An$Sondes <- factor(db_Touques_stats_MM30_An$Sondes,exclude=NULL)
+db_Touques_stats_MM30_An$Sondes <- factor(db_Touques_stats_MM30_An$Sondes,
+                                          levels = c(
+                                            "825", "827", "828", "830"
+                                          ),
+                                          labels =c("Touques T1","Touques T3","Touques T4","Touques T6")
+)
+##########
+# Stats Orne
+#########
+
+db_Orne_stats_MM30_mois=db_stats_MM30_mois[db_stats_MM30_mois$Sondes == 817 |
+                                             db_stats_MM30_mois$Sondes == 818 |
+                                             db_stats_MM30_mois$Sondes == 819  ,]
+
+
+db_Orne_stats_MM30_mois$Sondes <- factor(db_Orne_stats_MM30_mois$Sondes,exclude=NULL)
+db_Orne_stats_MM30_mois$Sondes <- factor(db_Orne_stats_MM30_mois$Sondes,
+                                         levels = c(
+                                           "817", "818", "819"
+                                         ),
+                                         labels =c("Orne T1","Orne T3","Orne T2")
+)
+
+db_Orne_stats_MM30_An =db_stats_MM30_An[db_stats_MM30_An$Sondes == 817 |
+                                          db_stats_MM30_An$Sondes == 818 |
+                                          db_stats_MM30_An$Sondes == 819 ,
+]
+
+db_Orne_stats_MM30_An$Sondes <- factor(db_Orne_stats_MM30_An$Sondes,exclude=NULL)
+db_Orne_stats_MM30_An$Sondes <- factor(db_Orne_stats_MM30_An$Sondes,
+                                       levels = c(
+                                         "817", "818", "819"
+                                       ),
+                                       labels =c("Orne T1","Orne T3","Orne T2")
+)
+
+
+##########
+# Stats Odon
+#########
+
+db_Odon_stats_MM30_mois=db_stats_MM30_mois[db_stats_MM30_mois$Sondes == 812 |
+                                             db_stats_MM30_mois$Sondes == 813 |
+                                             db_stats_MM30_mois$Sondes == 814 |
+                                             db_stats_MM30_mois$Sondes == 815 |
+                                             db_stats_MM30_mois$Sondes == 816,
+]
+db_Odon_stats_MM30_mois$Sondes <- factor(db_Odon_stats_MM30_mois$Sondes,exclude=NULL)
+db_Odon_stats_MM30_mois$Sondes <- factor(db_Odon_stats_MM30_mois$Sondes,
+                                         levels = c(
+                                           "812", "813", "814", "815","816"
+                                         ),
+                                         labels =c("Odon T1","Odon T2","Odon T3","Odon T4","Odon T5")
+)
+
+db_Odon_stats_MM30_An =db_stats_MM30_An[db_stats_MM30_An$Sondes == 812 |
+                                          db_stats_MM30_An$Sondes == 813 |
+                                          db_stats_MM30_An$Sondes == 814 |
+                                          db_stats_MM30_An$Sondes == 815 ,
+]
+
+db_Odon_stats_MM30_An$Sondes <- factor(db_Odon_stats_MM30_An$Sondes,exclude=NULL)
+db_Odon_stats_MM30_An$Sondes <- factor(db_Odon_stats_MM30_An$Sondes,
+                                       levels = c(
+                                         "812", "813", "814", "815","816"
+                                       ),
+                                       labels =c("Odon T1","Odon T2","Odon T3","Odon T4","Odon T5")
+)
+
+##########
+# Stats Selune
+#########
+
+db_Selune_stats_MM30_mois=db_stats_MM30_mois[db_stats_MM30_mois$Sondes == 820 |
+                                               db_stats_MM30_mois$Sondes == 821 |
+                                               db_stats_MM30_mois$Sondes == 822 |
+                                               db_stats_MM30_mois$Sondes == 823 |
+                                               db_stats_MM30_mois$Sondes == 824,
+]
+db_Selune_stats_MM30_mois$Sondes <- factor(db_Selune_stats_MM30_mois$Sondes,exclude=NULL)
+db_Selune_stats_MM30_mois$Sondes <- factor(db_Selune_stats_MM30_mois$Sondes,
+                                           levels = c(
+                                             "820", "821", "822", "823","824"
+                                           ),
+                                           labels =c("Selune T4","Selune T2","Selune T3","Selune T5","Selune T1")
+)
+
+db_Selune_stats_MM30_An =db_stats_MM30_An[db_stats_MM30_An$Sondes == 820 |
+                                            db_stats_MM30_An$Sondes == 821 |
+                                            db_stats_MM30_An$Sondes == 822 |
+                                            db_stats_MM30_An$Sondes == 823 |
+                                            db_stats_MM30_An$Sondes == 824,
+]
+
+db_Selune_stats_MM30_An$Sondes <- factor(db_Selune_stats_MM30_An$Sondes,exclude=NULL)
+db_Selune_stats_MM30_An$Sondes <- factor(db_Selune_stats_MM30_An$Sondes,
+                                         levels = c(
+                                           "820", "821", "822", "823","824"
+                                         ),
+                                         labels =c("Selune T4","Selune T2","Selune T3","Selune T5","Selune T1")
+)
 
 
 
@@ -1182,12 +1352,12 @@ for(id_s in unique(db$id_sonde)){
   #id_s = 813
   db_tempo = db[which(db$id_sonde==id_s),]
   db_tempo = aggregate(Teau~date,data=db_tempo, FUN=mean)
-  
+
   db_tempo[[id_s]] = db_tempo$Teau
-  
-  
+
+
   db_xts_comp_teau_moy = merge(db_xts_comp_teau_moy, db_tempo[,c("date", id_s)], by="date", all=TRUE)
-  
+
 }
 
 
@@ -1227,10 +1397,10 @@ for(id_s in unique(db$id_sonde)){
                               day(db_tempo$t), " ",
                               ifelse(hour(db_tempo$t)%%2==0, hour(db_tempo$t), (hour(db_tempo$t))-1), ":00:00"))
   db_tempo = aggregate(db_tempo[id_s], by=db_tempo['t'], mean)
-  
-  
+
+
   db_xts_comp_teau_bih = merge(db_xts_comp_teau_bih, db_tempo[,c("t", id_s)], by="t", all=TRUE)
-  
+
 }
 
 
@@ -1254,7 +1424,7 @@ order=order(colnames(db_teau_tair)[2:31], decreasing = FALSE)+1
 order
 db_teau_tair2 = db_teau_tair[,
                              c(1,8, 30, 25,  2, 16, 24, 18,  5,  4, 17,  3,  7,
-                               31,  6,  9, 10, 11, 12, 13, 14, 15, 22, 20, 21, 
+                               31,  6,  9, 10, 11, 12, 13, 14, 15, 22, 20, 21,
                                23, 19, 26, 27, 28, 29,
                                32:ncol(db_teau_tair))]
 
@@ -1274,35 +1444,35 @@ colnames(dataReg)="date"
 dataRegCoeff = as.data.frame(matrix(
   rep(0,3*((ncol(db_teau_tair2)-1)/2)),
   nrow = 3,ncol=(ncol(db_teau_tair2)-1)/2))
-  
-  
-  
+
+
+
 for (j in 2:(((ncol(db_teau_tair2)-1)/2)+1)){
-  
+
 
   name=substr(colnames(db_teau_tair2)[j],1,3)
   base_temp = as.data.frame(cbind(db_teau_tair2[,1],
                                   db_teau_tair2[,j],
                                   db_teau_tair2[,j+((ncol(db_teau_tair2)-1)/2)]
-                                  ))
- 
+  ))
+
 
   base_temp[,1] <- as.Date(base_temp[,1], origin="1970-01-01")
-  
+
   base_temp=base_temp[which(is.na(base_temp[,2])==F)[1]:nrow(base_temp),]
-  
+
   base_temp=base_temp[is.na(base_temp[,2])==F,]
   base_temp=base_temp[is.na(base_temp[,3])==F,]
   reg = lm(base_temp[,2]~base_temp[,3])
   base_temp$reg = reg$fitted.values
-  colnames(base_temp)=c("date",paste("Teau",name,sep=""), 
+  colnames(base_temp)=c("date",paste("Teau",name,sep=""),
                         paste("Tair",name,sep=""),
                         paste(name,sep=""))
   base_temp = base_temp[,c(1,4)]
   dataRegCoeff[1,j-1]=reg$coefficients[1]
   dataRegCoeff[2,j-1]=reg$coefficients[2]
   dataRegCoeff[3,j-1]=summary(reg)$adj.r.squared
-  
+
   dataReg= merge(dataReg,base_temp,by="date",all.x=T)
   Name=append(Name,name)
 }
@@ -1337,14 +1507,14 @@ colnames(db_teau_tair3)=c("date","id_sonde","Température de l'eau","Températur
 # Base de données O'Driscoll
 ###################################################################################
 db_ordriscoll = db_teau_tair2[,c("date","812Teau","813Teau","815Teau","816Teau", # Odon
-                                  "817Teau","818Teau","819Teau", # Orne
+                                 "817Teau","818Teau","819Teau", # Orne
                                  "820Teau","821Teau","822Teau","823Teau","824Teau", # Sélune
                                  "825Teau","827Teau","828Teau","830Teau",
                                  "812Tair","813Tair","815Tair","816Tair", # Odon
                                  "817Tair","818Tair","819Tair", # Orne
                                  "820Tair","821Tair","822Tair","823Tair","824Tair", # Sélune
                                  "825Tair","827Tair","828Tair","830Tair"
-                                  )]
+)]
 
 
 n = ncol(db_ordriscoll)
@@ -1393,8 +1563,8 @@ summary(regOdris)$adj.r.squared
 
 
 odris$Sondes = factor(odris$Sondes,
-       levels = odris$Sondes,
-       labels =riv[15:30])
+                      levels = odris$Sondes,
+                      labels =riv[15:30])
 
 odris$Sondes2 = str_sub(odris$Sondes,-2, -1)
 odris$Sondes = str_sub(odris$Sondes,1, -3)
@@ -1414,7 +1584,7 @@ odris$slope2 = regOdris$coefficients[2]
 #save(db_Odon_xtsa, db_Odon_xtsb, db_Odon_xtsc, file="RData/dbE.RData")
 #save(db_Selune_xtsa, db_Selune_xtsb, db_Selune_xtsc, file="RData/dbF.RData")
 #save(db_Touques_stats_MM30, db_Touques_stats_MM30_mois, db_Touques_stats_MM30_An, file="RData/dbG.RData")
-#save(db_xts_comp_teau_moy, db_xts_comp_teau_MM30, db_xts_comp_teau_MM365, db_xts_comp_teau_bih, 
+#save(db_xts_comp_teau_moy, db_xts_comp_teau_MM30, db_xts_comp_teau_MM365, db_xts_comp_teau_bih,
 #     file="RData/dbH.RData")
 #save(db_teau_tair, db_teau_tair2, db_teau_tair3, file="RData/dbI.RData")
 #save(CorTeauTair, dataReg, dataRegCoeff, file="RData/dbJ.RData")
@@ -1423,18 +1593,16 @@ odris$slope2 = regOdris$coefficients[2]
 #save(db_ordriscoll, coefficient, odris, regOdris, riv, file="RData/dbL.RData")
 
 save(db_stats, db_stats_Touques, dbMM,
-     db2, db3, pref, prefTouques, 
+     db2, db3, pref, prefTouques,
      db_Touques_xtsa, db_Touques_xtsb, db_Touques_xtsc, db_Touquesb,
-     db_Orne_xtsa, db_Orne_xtsb, db_Orne_xtsc, 
-     db_Odon_xtsa, db_Odon_xtsb, db_Odon_xtsc, 
+     db_Orne_xtsa, db_Orne_xtsb, db_Odon_xtsc,
+     db_Odon_xtsa, db_Odon_xtsb, db_Odon_xtsc,
      db_Selune_xtsa, db_Selune_xtsb, db_Selune_xtsc,
      db_Touques_stats_MM30, db_Touques_stats_MM30_mois, db_Touques_stats_MM30_An,
      db_xts_comp_teau_moy, db_xts_comp_teau_MM30, db_xts_comp_teau_MM365, db_xts_comp_teau_bih,
-     db_teau_tair, db_teau_tair2, db_teau_tair3, 
+     db_teau_tair, db_teau_tair2, db_teau_tair3,
      CorTeauTair, dataReg, dataRegCoeff,
      dataRegTouques, dataRegTouques825, dataRegTouques827, dataRegTouques828, dataRegTouques830,
      db_ordriscoll, coefficient, odris, regOdris, riv,
      file = "RData/treated_data.RData")
-
-
 
