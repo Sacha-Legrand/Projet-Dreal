@@ -26,10 +26,15 @@ Les différents fichiers peuvent être mis à jour, il faut cependant veiller à
 Les données méétéorologiques E-OBS se trouvent ici : https://surfobs.climate.copernicus.eu/dataaccess/access_eobs_chunks.php
 (0.1 deg, ensemble mean)
 - qq = rayonnement 
+    - [https://knmi-ecad-assets-prd.s3.amazonaws.com/ensembles/data/Grid_0.1deg_reg_ensemble/qq_ens_mean_0.1deg_reg_2011-2021_v24.0e.nc] 
 - rr = pluviométrie
-- tg = température de l'air (moyenne journalière)
+    - [https://knmi-ecad-assets-prd.s3.amazonaws.com/ensembles/data/Grid_0.1deg_reg_ensemble/rr_ens_mean_0.1deg_reg_2011-2021_v24.0e.nc] 
+- tg = température de l'air (moyenne journalière) 
+    - [https://knmi-ecad-assets-prd.s3.amazonaws.com/ensembles/data/Grid_0.1deg_reg_ensemble/tg_ens_mean_0.1deg_reg_2011-2021_v24.0e.nc]
 - tn = température de l'air (minimum journalier)
+    - [https://knmi-ecad-assets-prd.s3.amazonaws.com/ensembles/data/Grid_0.1deg_reg_ensemble/tn_ens_mean_0.1deg_reg_2011-2021_v24.0e.nc] 
 - tx = température de l'air (maximum journalier)
+    - [https://knmi-ecad-assets-prd.s3.amazonaws.com/ensembles/data/Grid_0.1deg_reg_ensemble/tx_ens_mean_0.1deg_reg_2011-2021_v24.0e.nc] 
 
 Dossier dashboard :
 - lectureRData.R
