@@ -130,7 +130,7 @@ setwd(path)
 # Chargement et extraction des données des sondes
 
 pathSondes = paste0( path,"sondes")
-
+setwd(pathSondes)
 NomF <- list.files()
 NomF
 
@@ -229,6 +229,8 @@ db = db[,-2]
 db = db[,c(4,3,2,1)]
 
 rm(NomF,pathSondes)
+
+setwd(path)
 # enregistrement des données dans un RData
 save(db, file = "RData/db.RData")
 
