@@ -6130,7 +6130,7 @@ shinyServer(function(input,output,session){
     ##########################################
     # O'Driscoll
     ##########################################
-    output$Odris = renderPlotly({
+ output$Odris = renderPlotly({
         
         g = ggplot(data=odris,aes(x=slope,y=intercept,label =Sondes2,color=Sondes))+
             geom_abline(intercept = regOdris$coefficients[1],
