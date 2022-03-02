@@ -114,7 +114,10 @@ if(!require(ifa)){
   install.packages("ifa")
   library(ifa)
 }
-
+if(!require(stringr)){
+  install.packages("stringr")
+  library(stringr)
+}
 
 
 
