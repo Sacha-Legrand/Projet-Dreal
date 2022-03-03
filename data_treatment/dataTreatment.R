@@ -120,6 +120,18 @@ if(!require(stringr)){
   library(stringr)
 }
 
+if(!require(missMDA)){
+  install.packages("missMDA ")
+  library(missMDA)
+}
+if(!require(FactoMineR)){
+  install.packages("FactoMineR ")
+  library(FactoMineR)
+}
+if(!require(factoextra)){
+  install.packages("factoextra")
+  library(factoextra)
+}
 
 
 ############## Working Directory -----
@@ -1820,6 +1832,188 @@ for(i in 1:ncol(aci_data)){
 
 # base aci
 xts_aci_touques =xts(b_touques[, lab_comp], order.by = b_touques[,"date"])
+
+# ############## #
+#    ACIs données diff -----
+# ############## #
+
+############
+#   Préparation des données
+############
+db_teau_tair_diff = db_teau_tair2
+db_teau_tair_diff = db_teau_tair_diff[,-1]
+for (i in 1:(ncol(db_teau_tair_diff)/2)){
+  db_teau_tair_diff[[paste0(substr(colnames(db_teau_tair_diff)[i],start=1,stop=3),"diff")]]= db_teau_tair_diff[,i]-db_teau_tair_diff[,i+30]
+
+}
+db_teau_tair_diff=db_teau_tair_diff[,-c(31:60)]
+db_teau_tair_diff$date=db_teau_tair2$date
+colnames(db_teau_tair_diff) = str_replace(colnames(db_teau_tair_diff), "Teau","Diff")
+
+# Touques ----
+
+head(db_teau_tair_diff)
+
+
+
+
+#####################
+#   ACPs
+####################
+
+########
+# Préparation des données
+########
+
+####  Touques
+db_acp_touques = cbind(aci_t,as.data.frame(xts_aci_touques))
+db_acp_touques = merge(db_acp_touques,db_teau_tair2[,
+                                                    c("825Teau", "827Teau", "828Teau", "830Teau",
+                                                      "825Tair", "827Tair", "828Tair", "830Tair",
+                                                      "date")],
+                       by="date")
+
+db_acp_touques$Diff825 = db_acp_touques$`825Teau`-db_acp_touques$`825Tair`
+db_acp_touques$Diff827 = db_acp_touques$`827Teau`-db_acp_touques$`827Tair`
+db_acp_touques$Diff828 = db_acp_touques$`828Teau`-db_acp_touques$`828Tair`
+db_acp_touques$Diff830 = db_acp_touques$`830Teau`-db_acp_touques$`830Tair`
+
+
+
+db_acp_touques = merge(db_acp_touques, db_pluvio[,c("825","827","828","830","date")],by="date",all.x=T)
+colnames(db_acp_touques)[26:29] = c("pluvio_825","pluvio_827","pluvio_828","pluvio_830")
+
+db_acp_touques = merge(db_acp_touques, db_soleil[,c("825","827","828","830","date")],by="date",all.x=T)
+colnames(db_acp_touques)[30:33] = c("sol_825","sol_827","sol_828","sol_830")
+
+db_acp_touques = merge(db_acp_touques, piezo_touques,by="date",all.x=T)
+
+acp_Touques_date <- db_acp_touques$date
+
+
+######
+# Préparation acp_sonde_825
+######
+acp_Touques_825 <- db_acp_touques[,c("comp1_825",  "comp2_825",  "comp3_825",
+                                     "825Teau" ,"825Tair","Diff825" ,
+                                     "pluvio_825","sol_825" ,"piezo"
+                                     )]
+
+colnames(acp_Touques_825) = c("C1","C2","C3","Teau","Tair","Diff","rr","qq","piez")
+
+
+# Recherche des valeurs manquantes dans la BDD au viveau de la piezo
+sum(is.na(acp_Touques_825)) == sum(is.na(acp_Touques_825$piez))
+
+# Imputation de donn?es manquantes ? l'aide de imputePCA(missMDA)
+res.comp <- imputePCA(acp_Touques_825)
+acp_Touques_825b <- res.comp$completeObs
+sum(is.na(acp_Touques_825b[,7])) # Plus de donn?es manquantes dans la variable pi?zo
+sum(acp_Touques_825[,1]==acp_Touques_825b[,1])# Les autres donn?es n'ont pas ?t? modifi?es OK !
+sum(acp_Touques_825[,2]==acp_Touques_825b[,2])
+sum(acp_Touques_825[,3]==acp_Touques_825b[,3])
+sum(acp_Touques_825[,4]==acp_Touques_825b[,4])
+sum(acp_Touques_825[,5]==acp_Touques_825b[,5])
+sum(acp_Touques_825[,6]==acp_Touques_825b[,6])
+
+colnames(acp_Touques_825b)
+acp_Touques_825b=as.data.frame(acp_Touques_825b)
+acp_Touques_825c <- acp_Touques_825b[,-c(5,6)]
+acp_Touques_825c <- acp_Touques_825c[,-3]
+
+
+res.pca=PCA(acp_Touques_825c, quanti.sup=4:6 )
+
+res.pca$eig
+# Kaiser : garder les VPs au dessus de 1 => Dim1 - 2
+# Plus de 95% de l'info est conserver avec les DIM 1 - 2
+fviz_eig(res.pca, addlabels = TRUE, ylim = c(0, 50))
+# Diagramme des ?bouli : coude au niveau de la 3eme DIM, donc on garde les 2
+# premi?mes dimentions
+
+
+
+res1 <- fviz_pca_var(res.pca,axes = c(1, 2), col.var = "cos2",title ="ACP de la Sonde 825",
+                     gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
+                     repel = TRUE
+)
+
+res1
+
+cor(acp_Touques_825b$C2,acp_Touques_825b$qq)
+
+correlation = matrix(rep(0,ncol(acp_Touques_825b)^2),
+  ncol(acp_Touques_825b),ncol(acp_Touques_825b))
+
+for(i in 1:ncol(acp_Touques_825b)){
+  for(j in 1:ncol(acp_Touques_825b)){
+    correlation[i,j]=round(cor(acp_Touques_825b[,i],acp_Touques_825b[,j]),3)
+  }
+}
+correlation = as.data.frame(correlation)
+colnames(correlation) = colnames(acp_Touques_825b)
+rownames(correlation)=colnames(acp_Touques_825b)
+
+
+######
+# Préparation acp_sonde_827
+######
+acp_Touques_827 <- db_acp_touques[,c("comp1_827",  "comp2_827",  "comp3_827",
+                                     "827Teau" ,"827Tair","Diff827" ,
+                                     "pluvio_827","sol_827" ,"piezo"
+)]
+
+colnames(acp_Touques_827) = c("C1","C2","C3","Teau","Tair","Diff","rr","qq","piez")
+
+######
+# Préparation acp_sonde_828
+######
+acp_Touques_828 <- db_acp_touques[,c("comp1_828",  "comp2_828",  "comp3_828",
+                                     "828Teau" ,"828Tair","Diff828" ,
+                                     "pluvio_828","sol_828" ,"piezo"
+)]
+
+colnames(acp_Touques_828) = c("C1","C2","C3","Teau","Tair","Diff","rr","qq","piez")
+
+######
+# Préparation acp_sonde_830
+######
+acp_Touques_830 <- db_acp_touques[,c("comp1_830",  "comp2_830",  "comp3_830",
+                                     "830Teau" ,"830Tair","Diff830" ,
+                                     "pluvio_830","sol_830" ,"piezo"
+)]
+
+colnames(acp_Touques_830) = c("C1","C2","C3","Teau","Tair","Diff","rr","qq","piez")
+
+
+
+######
+# Préparation acp_sonde_827
+######
+
+######
+# Préparation acp_sonde_828
+######
+
+######
+# Préparation acp_sonde_830
+######
+
+#### Orne
+
+
+
+#### Odon
+
+
+
+#### Selune
+
+
+
+#############
+# Resultats ACPs
+#############
 
 
 ## xts_aci_odon, xts_aci_orne, xts_aci_selune, xts_aci_touques  -----
