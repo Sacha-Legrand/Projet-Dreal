@@ -135,21 +135,7 @@ shinyServer(function(input,output,session){
     #dyLegend(show = "follow")
   })
   
-  # output$table_sonde <- renderTable({
-  #   sonde_table = sonde_df() %>%
-  #     group_by(id_sonde) %>%
-  #     mutate(Min=min(Teau),
-  #            t25 = quantile(Teau,.25),
-  #            Mediane = median(Teau),
-  #            Moyenne = mean(Teau),
-  #            sd = sd(Teau),
-  #            t75 = quantile(Teau,.75),
-  #            Max = max(Teau))
-  #   
-  #   sonde_table = sonde_table[1, 5:ncol(sonde_table)]
-  #   sonde_table
-  # })
-  
+
   
   
   
@@ -234,194 +220,6 @@ shinyServer(function(input,output,session){
   })
   
   
-  # ------------------------------------------------------------ #
-  
-  
-  
-  # ------------------------------------------------------------ #
-  # map_BV : carte des bassins versants
-  # 
-  # output$map_BV <- renderLeaflet({
-  #   leaflet() %>%
-  #     addTiles() %>%
-  #     addPolygons(data=BV1, weight=3, layerId = paste0("BV1_",1:nrow(BV1)), group = "BV1")
-  # })
-  # 
-  # 
-  # 
-  # # observeEvent(input$BV1, {
-  # #   proxy <- leafletProxy("map_BV")
-  # #   
-  # #   proxy %>% 
-  # #     clearGroup(group="BV1")
-  # #   
-  # #   if(input$BV1){
-  # #     proxy %>%
-  # #       addPolygons(data=BV1, weight=3, layerId = paste0("BV1_",1:nrow(BV1)), group = "BV1")
-  # #   }
-  # # })
-  # 
-  # observeEvent(input$BV2, {
-  #   proxy <- leafletProxy("map_BV")
-  #   proxy %>% 
-  #     clearGroup(group="BV2")
-  #   
-  #   if(input$BV2){
-  #     proxy %>%
-  #       addPolygons(data=BV2, weight=2, layerId = paste0("BV2_",1:nrow(BV2)), color = "red", group="BV2")
-  #   }
-  # })
-  # 
-  # observeEvent(input$BV3, {
-  #   proxy <- leafletProxy("map_BV")
-  #   proxy %>% 
-  #     clearGroup(group="BV3")
-  #   
-  #   if(input$BV3){
-  #     proxy %>%
-  #       addPolygons(data=BV3, weight=1, layerId = paste0("BV3_",1:nrow(BV3)), color = "green", group = "BV3")
-  #   }
-  # })
-  
-  
-  # ------------------------------------------------------------ #
-  
-  
-  
-  
-  # ------------------------------------------------------------ #
-  # map_eau : carte des cours d'eau
-  # output$map_eau <- renderLeaflet({
-  #   leaflet() %>%
-  #     addTiles() %>%
-  #     
-  #     # marker DREAL
-  #     addAwesomeMarkers(data = db_sonde_synthese, 
-  #                       lng=db_sonde_synthese$longitude,lat=db_sonde_synthese$latitude,
-  #                       layerId = db_sonde_synthese$id_sonde, group="DREAL",
-  #                       icon=makeAwesomeIcon(icon='tint', library='glyphicon',
-  #                                            iconColor = 'white', markerColor = 'blue')) %>%
-  #     
-  #     # marker OFB
-  #     addAwesomeMarkers(data = SondesOFB, layerId = SondesOFB$Name, group = "OFB",
-  #                       icon = makeAwesomeIcon(icon = 'tint', library = 'glyphicon',
-  #                                              iconColor = 'white', markerColor = 'gray',
-  #                                              iconRotate = 10)) %>%
-  #     
-  #     # # highlighted marker
-  #     # addAwesomeMarkers(data = db_sonde_synthese[which(db_sonde_synthese$id_sonde=="817"),], 
-  #     #                   lng=db_sonde_synthese[which(db_sonde_synthese$id_sonde=="817"),]$longitude,
-  #     #                   lat=db_sonde_synthese[which(db_sonde_synthese$id_sonde=="817"),]$latitude,
-  #     #                   group="highlight",
-  #     #                   icon=makeAwesomeIcon(icon='tint', library='glyphicon',
-  #     #                                        iconColor = 'white', markerColor = 'orange')) %>%
-  #     
-  #     # grands bassins versants
-  #     addPolygons(data=BV1, weight=3, 
-  #                 layerId = paste0("BV1_",1:nrow(BV1)), group = "Bassins Versants",
-  #                 color="#31b94a",
-  #                 highlightOptions = highlightOptions(
-  #                   weight = 5,
-  #                   #color = "#FFF",
-  #                   fillOpacity = 0.5,
-  #                   bringToFront = TRUE
-  #                   )) %>%
-  #     
-  #     # cours d'eau
-  #     addPolylines(data=ceau,group="Cours d'eau", opacity = 1, weight = 1) %>%
-  #     
-  #     addPolylines(data=coursEau2,group="Cours d'eau sonde", 
-  #                  opacity = 1, weight = 2, color = "red", 
-  #                  layerId = coursEau2$Name) %>%
-  #     
-  #     # addPolylines(data=coursEau2@lines[[7]]@Lines[[1]]@coords,
-  #     #              group="highlight", opacity = 1, weight = 2, color = "cyan") %>%
-  #     
-  #     
-  #     # Layers control
-  #     addLayersControl(
-  #       #baseGroups = c("OSM (default)", "Toner", "Toner Lite"),
-  #       overlayGroups = c("DREAL", "OFB", "Bassins Versants", "Cours d'eau", "Cours d'eau sonde"),#, "highlight"),
-  #       options = layersControlOptions(collapsed = FALSE)
-  #     ) %>% 
-  #     
-  #     hideGroup("OFB") %>%
-  #     hideGroup("Bassins Versants") %>%
-  #     hideGroup("Cours d'eau") %>%
-  #     hideGroup("Cours d'eau sonde") #%>%
-  #     #hideGroup("highlight")
-  #     
-  #   
-  #   
-  #   
-  #   #removeShape(map, layerId)
-  #   
-  # })
-  
-  
-  # map_reactive <- reactiveValues(
-  #   id_sonde_char = "817",
-  #   cours_eau = "Orne",
-  #   pos = 7
-  # )
-  
-  
-  
-  
-  # observeEvent(input$map_eau_marker_click, {
-  #   clic = input$map_eau_marker_click
-  #   
-  #   
-  #     
-  #     if(clic$id != map_reactive$id_sonde_char){
-  #       if(clic$group == "DREAL"){
-  #         
-  #         coord_sonde_regular = db_sonde_synthese[which(db_sonde_synthese$id_sonde==map_reactive$id_sonde_char),]
-  #         
-  #         map_reactive$id_sonde_char = clic$id
-  #         map_reactive$cours_eau = db_temp[which(db_temp$id_sonde == as.numeric(clic$id)),]$cours_eau
-  #         map_reactive$pos = db_temp[which(db_temp$id_sonde == as.numeric(clic$id)),]$pos
-  #         
-  #         
-  #         coord_sonde_highlight = db_sonde_synthese[which(db_sonde_synthese$id_sonde==clic$id),]
-  #         
-  #         
-  #         proxy <- leafletProxy("map_eau")
-  #         
-  #         proxy %>%
-  #           clearGroup(group = "highlight") %>%
-  #           addPolylines(data = coursEau2@lines[[map_reactive$pos]]@Lines[[1]]@coords, group="DREAL",
-  #                        layerId = "highlight", opacity = 1, weight = 2, color = "cyan") %>%
-  #           
-  #           addAwesomeMarkers(data = coord_sonde_highlight, 
-  #                             lng=coord_sonde_highlight$longitude,lat=coord_sonde_highlight$latitude,
-  #                             layerId = coord_sonde_highlight$id_sonde, group = "DREAL",
-  #                             icon=makeAwesomeIcon(icon='tint', library='glyphicon',
-  #                                                  iconColor = 'white', markerColor = 'orange')) %>%
-  #           
-  #           addAwesomeMarkers(data = coord_sonde_regular, 
-  #                             lng=coord_sonde_regular$longitude,lat=coord_sonde_regular$latitude,
-  #                             layerId = coord_sonde_regular$id_sonde, group = "DREAL",
-  #                             icon=makeAwesomeIcon(icon='tint', library='glyphicon',
-  #                                                  iconColor = 'white', markerColor = 'blue'))
-  #         
-  #         #showGroup(group="highlight")
-  #         
-  #         #proxy %>%
-  # 
-  #     }
-  #     
-  #     
-  #     
-  #     
-  #     
-  #   }
-  #   
-  #   
-  #   
-  #   
-  # })
-  # ------------------------------------------------------------ #
   
   
   # ############################################################ #
@@ -5832,7 +5630,7 @@ shinyServer(function(input,output,session){
   },ignoreInit = TRUE)
   
   observeEvent(input$return_to_sub_menu_map_sonde, {
-    updateNavbarPage(session=session, inputId = "menu_principal", selected = "sub_menu_sondes")
+    updateNavbarPage(session=session, inputId = "menu_principal", selected = "menu_cartes")
   })
   
   
@@ -6188,11 +5986,48 @@ shinyServer(function(input,output,session){
   ###############
   # Touques diff
   ###############
+  
+  # 3 composantes
+  
+  # aci_touques_dif_reactive <- reactiveValues(
+  #   choix_sonde = "825",
+  #   choix_composantes = c(T, T, T),
+  #   composantes = c("comp1", "comp2", "comp3"),
+  #   col_label = c("comp1_825diff", "comp2_825diff", "comp3_825diff")
+  # )
+  # 
+  # observeEvent(input$sondes_touques_aci_dif, {
+  #   aci_touques_dif_reactive$choix_sonde = input$sondes_touques_aci_dif
+  #   aci_touques_dif_reactive$col_label = paste0(aci_touques_dif_reactive$composantes, "_", aci_touques_dif_reactive$choix_sonde,"diff")
+  # })
+  # 
+  # observeEvent(input$comp1_touques_dif, {
+  #   aci_touques_dif_reactive$choix_composantes[1] = input$comp1_touques_dif
+  # })
+  # observeEvent(input$comp2_touques_dif, {
+  #   aci_touques_dif_reactive$choix_composantes[2] = input$comp2_touques_dif
+  # })
+  # observeEvent(input$comp3_touques_dif, {
+  #   aci_touques_dif_reactive$choix_composantes[3] = input$comp3_touques_dif
+  # })
+  # 
+  # output$aci_touques_dif <- renderDygraph({
+  #   db_xts_tempo = xts(b_touques_dif[,aci_touques_dif_reactive$col_label[aci_touques_dif_reactive$choix_composantes]],
+  #                      b_touques_dif[,"date"])
+  #   colnames(db_xts_tempo) = c("Composante 1", "Composante 2", "Composante 3")[aci_touques_dif_reactive$choix_composantes]
+  #   lab_sonde = db_sonde_synthese[which(db_sonde_synthese$id_sonde == aci_touques_dif_reactive$choix_sonde),]$label
+  #   dygraph(db_xts_tempo, paste0("Composantes indépendantes de ", lab_sonde)) %>%
+  #     dyOptions(colors = c("blue", "red", "black")[aci_touques_dif_reactive$choix_composantes])
+  # })
+  
+  
+  # 2 composantes
+  
   aci_touques_dif_reactive <- reactiveValues(
     choix_sonde = "825",
-    choix_composantes = c(T, T, T),
-    composantes = c("comp1", "comp2", "comp3"),
-    col_label = c("comp1_825diff", "comp2_825diff", "comp3_825diff")
+    choix_composantes = c(T, T),
+    composantes = c("comp1", "comp2"),
+    col_label = c("comp1_825diff", "comp2_825diff")
   )
   
   observeEvent(input$sondes_touques_aci_dif, {
@@ -6213,10 +6048,10 @@ shinyServer(function(input,output,session){
   output$aci_touques_dif <- renderDygraph({
     db_xts_tempo = xts(b_touques_dif[,aci_touques_dif_reactive$col_label[aci_touques_dif_reactive$choix_composantes]],
                        b_touques_dif[,"date"])
-    colnames(db_xts_tempo) = c("Composante 1", "Composante 2", "Composante 3")[aci_touques_dif_reactive$choix_composantes]
+    colnames(db_xts_tempo) = c("Composante 1", "Composante 2")[aci_touques_dif_reactive$choix_composantes]
     lab_sonde = db_sonde_synthese[which(db_sonde_synthese$id_sonde == aci_touques_dif_reactive$choix_sonde),]$label
     dygraph(db_xts_tempo, paste0("Composantes indépendantes de ", lab_sonde)) %>%
-      dyOptions(colors = c("blue", "red", "black")[aci_touques_dif_reactive$choix_composantes])
+      dyOptions(colors = c("blue", "red")[aci_touques_dif_reactive$choix_composantes])
   })
   
   
