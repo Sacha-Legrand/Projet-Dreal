@@ -23,7 +23,7 @@ Dossier data_treatment :
 
 Les différents fichiers peuvent être mis à jour, il faut cependant veiller à ce qu'il garde le même nom et la même place ou alors changer le nom dans le code (dataLoading.R)
 
-Les données méétéorologiques E-OBS se trouvent ici : https://surfobs.climate.copernicus.eu/dataaccess/access_eobs_chunks.php
+Les données météorologiques E-OBS se trouvent ici : https://surfobs.climate.copernicus.eu/dataaccess/access_eobs_chunks.php
 (0.1 deg, ensemble mean)
 - qq = rayonnement 
     - [https://knmi-ecad-assets-prd.s3.amazonaws.com/ensembles/data/Grid_0.1deg_reg_ensemble/qq_ens_mean_0.1deg_reg_2011-2021_v24.0e.nc] 
