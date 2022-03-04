@@ -744,6 +744,11 @@ db_xts_sonde818c$id_sonde = 818
 db_xts_sonde819c$id_sonde = 819
 
 db_Orne_xtsc = rbind(db_xts_sonde817c,db_xts_sonde818c,db_xts_sonde819c)
+
+colnames(db_Orne_xtsa) = nameCola
+colnames(db_Orne_xtsb) = nameColb
+colnames(db_Orne_xtsc) = nameColc
+
 # SONDE ODON ----
 # sonde 812 ----
 dbsonde812MM <- dbMM[dbMM$id_sonde==812,]
@@ -931,6 +936,14 @@ db_xts_sonde815c$id_sonde = 815
 db_xts_sonde816c$id_sonde = 816
 
 db_Odon_xtsc = rbind(db_xts_sonde812c,db_xts_sonde813c,db_xts_sonde815c,db_xts_sonde816c)
+
+colnames(db_Odon_xtsa) = nameCola
+colnames(db_Odon_xtsb) = nameColb
+colnames(db_Odon_xtsc) = nameColc
+
+
+
+
 # SONDE SÉLUNE ----
 # sonde 824 ----
 dbsonde824MM <- dbMM[dbMM$id_sonde==824,]
@@ -1169,7 +1182,9 @@ db_xts_sonde824c$id_sonde = 824
 
 db_Selune_xtsc = rbind(db_xts_sonde820c,db_xts_sonde821c,db_xts_sonde822c,db_xts_sonde823c,db_xts_sonde824c)
 
-
+colnames(db_Selune_xtsa) = nameCola
+colnames(db_Selune_xtsb) = nameColb
+colnames(db_Selune_xtsc) = nameColc
 
 
 
