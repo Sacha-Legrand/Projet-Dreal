@@ -132,8 +132,6 @@ if(!require(factoextra)){
   install.packages("factoextra")
   library(factoextra)
 }
-
-
 ############## Working Directory -----
 
 # Path to working directory
@@ -149,6 +147,8 @@ load("RData/db.RData")
 load("RData/KMLs.RData")
 load("RData/db_temp_synthese.RData")
 load("RData/db_nc_files.RData")
+load("RData/db_piezo.RData")
+load("RData/db_aci_dif.RData")
 
 ############## Traitement des données -----
 
@@ -297,7 +297,7 @@ dbMM = db2 %>%
          TeauMedMM7 = stats::filter(TeauMed,filter=rep(1/7,7)),
          TeauMedMM30 = stats::filter(TeauMed,filter=c(1/(2*30),rep(1/30,29),1/(2*30))),
          TeauMedMM365 = stats::filter(TeauMed,filter=rep(1/365,365))
-         
+
   )
 
 ## db2 ----
@@ -341,8 +341,10 @@ db2$An <- year(db2$date)
 colnames(db2)[6] = "Température moyenne"
 
 ## db3, pref, prefTouques ----
+############
+# Mise au point du tableau de récap des données pour seuil thermiques
+############
 
-# tableau de récap des données pour seuil thermiques
 db3 = db2
 db3$nb = 1
 
@@ -365,7 +367,9 @@ pref$Espece <- factor(pref$Espece,
                       labels =c("Brochet","Rien","Truite")
 )
 
-
+###########
+# Touques
+###########
 prefTouques = pref[(pref$id_sonde == 825|
                       pref$id_sonde == 827|
                       pref$id_sonde == 828|
@@ -387,6 +391,85 @@ prefTouques$An =factor(prefTouques$An,exclude=NULL)
 
 
 colnames(prefTouques) = c("Sonde","Espèce","Seuils thermiques","Années","Nombre d'occurence")
+
+###########
+# Orne
+###########
+prefOrne = pref[(pref$id_sonde == 817|
+                   pref$id_sonde == 818|
+                   pref$id_sonde == 819),]
+
+
+prefOrne$id_sonde <- factor(prefOrne$id_sonde,exclude=NULL)
+prefOrne$id_sonde <- factor(prefOrne$id_sonde,
+                            levels = c(
+                              "817", "818", "819"
+                            ),
+                            labels =c("Orne T1","Orne T3","Orne T2")
+)
+prefOrne$Espece <- factor(prefOrne$Espece,exclude=NULL)
+
+prefOrne$Pref=factor(prefOrne$Pref,exclude=NULL)
+
+prefOrne$An =factor(prefOrne$An,exclude=NULL)
+
+
+colnames(prefOrne) = c("Sonde","Espèce","Seuils thermiques","Années","Nombre d'occurence")
+
+
+###########
+# Odon
+###########
+prefOdon = pref[(pref$id_sonde == 812|
+                   pref$id_sonde == 813|
+                   pref$id_sonde == 814|
+                   pref$id_sonde == 815|
+                   pref$id_sonde == 816),]
+
+
+prefOdon$id_sonde <- factor(prefOdon$id_sonde,exclude=NULL)
+prefOdon$id_sonde <- factor(prefOdon$id_sonde,
+                            levels = c(
+                              "812", "813", "814", "815", "816"
+                            ),
+                            labels =c("Odon T1","Odon T2","Odon T3","Odon T4","Odon T5")
+)
+prefOdon$Espece <- factor(prefOdon$Espece,exclude=NULL)
+
+prefOdon$Pref=factor(prefOdon$Pref,exclude=NULL)
+
+prefOdon$An =factor(prefOdon$An,exclude=NULL)
+
+
+colnames(prefOdon) = c("Sonde","Espèce","Seuils thermiques","Années","Nombre d'occurence")
+
+
+
+###########
+# Selune
+###########
+prefSelune = pref[(pref$id_sonde == 820|
+                     pref$id_sonde == 821|
+                     pref$id_sonde == 822|
+                     pref$id_sonde == 823|
+                     pref$id_sonde == 824),]
+
+
+prefSelune$id_sonde <- factor(prefSelune$id_sonde,exclude=NULL)
+prefSelune$id_sonde <- factor(prefSelune$id_sonde,
+                              levels = c(
+                                "820", "821", "822", "823", "824"
+                              ),
+                              labels =c("Selune T4","Selune T2","Selune T3","Selune T5","Selune T1")
+)
+prefSelune$Espece <- factor(prefSelune$Espece,exclude=NULL)
+
+prefSelune$Pref=factor(prefSelune$Pref,exclude=NULL)
+
+prefSelune$An =factor(prefSelune$An,exclude=NULL)
+
+
+colnames(prefSelune) = c("Sonde","Espèce","Seuils thermiques","Années","Nombre d'occurence")
 
 
 # SONDE TOUQUES ----
@@ -748,7 +831,6 @@ db_Orne_xtsc = rbind(db_xts_sonde817c,db_xts_sonde818c,db_xts_sonde819c)
 colnames(db_Orne_xtsa) = nameCola
 colnames(db_Orne_xtsb) = nameColb
 colnames(db_Orne_xtsc) = nameColc
-
 # SONDE ODON ----
 # sonde 812 ----
 dbsonde812MM <- dbMM[dbMM$id_sonde==812,]
@@ -940,7 +1022,6 @@ db_Odon_xtsc = rbind(db_xts_sonde812c,db_xts_sonde813c,db_xts_sonde815c,db_xts_s
 colnames(db_Odon_xtsa) = nameCola
 colnames(db_Odon_xtsb) = nameColb
 colnames(db_Odon_xtsc) = nameColc
-
 
 
 
@@ -1182,11 +1263,11 @@ db_xts_sonde824c$id_sonde = 824
 
 db_Selune_xtsc = rbind(db_xts_sonde820c,db_xts_sonde821c,db_xts_sonde822c,db_xts_sonde823c,db_xts_sonde824c)
 
+
+
 colnames(db_Selune_xtsa) = nameCola
 colnames(db_Selune_xtsb) = nameColb
 colnames(db_Selune_xtsc) = nameColc
-
-
 
 
 
@@ -1200,9 +1281,6 @@ db_stats_MM30 = db_stats_MM30[
   is.na(db_stats_MM30$TeauMaxMM30)==F,
 ]
 
-
-
-str(db_Touques_stats_MM30)
 
 
 
@@ -1379,18 +1457,13 @@ for(id_s in unique(db$id_sonde)){
   #id_s = 813
   db_tempo = db[which(db$id_sonde==id_s),]
   db_tempo = aggregate(Teau~date,data=db_tempo, FUN=mean)
-  
+
   db_tempo[[id_s]] = db_tempo$Teau
-  
-  
+
+
   db_xts_comp_teau_moy = merge(db_xts_comp_teau_moy, db_tempo[,c("date", id_s)], by="date", all=TRUE)
-  
+
 }
-
-
-
-
-
 
 
 
@@ -1424,10 +1497,10 @@ for(id_s in unique(db$id_sonde)){
                               day(db_tempo$t), " ",
                               ifelse(hour(db_tempo$t)%%2==0, hour(db_tempo$t), (hour(db_tempo$t))-1), ":00:00"))
   db_tempo = aggregate(db_tempo[id_s], by=db_tempo['t'], mean)
-  
-  
+
+
   db_xts_comp_teau_bih = merge(db_xts_comp_teau_bih, db_tempo[,c("t", id_s)], by="t", all=TRUE)
-  
+
 }
 
 
@@ -1475,19 +1548,19 @@ dataRegCoeff = as.data.frame(matrix(
 
 
 for (j in 2:(((ncol(db_teau_tair2)-1)/2)+1)){
-  
-  
+
+
   name=substr(colnames(db_teau_tair2)[j],1,3)
   base_temp = as.data.frame(cbind(db_teau_tair2[,1],
                                   db_teau_tair2[,j],
                                   db_teau_tair2[,j+((ncol(db_teau_tair2)-1)/2)]
   ))
-  
-  
+
+
   base_temp[,1] <- as.Date(base_temp[,1], origin="1970-01-01")
-  
+
   base_temp=base_temp[which(is.na(base_temp[,2])==F)[1]:nrow(base_temp),]
-  
+
   base_temp=base_temp[is.na(base_temp[,2])==F,]
   base_temp=base_temp[is.na(base_temp[,3])==F,]
   reg = lm(base_temp[,2]~base_temp[,3])
@@ -1499,7 +1572,7 @@ for (j in 2:(((ncol(db_teau_tair2)-1)/2)+1)){
   dataRegCoeff[1,j-1]=reg$coefficients[1]
   dataRegCoeff[2,j-1]=reg$coefficients[2]
   dataRegCoeff[3,j-1]=summary(reg)$adj.r.squared
-  
+
   dataReg= merge(dataReg,base_temp,by="date",all.x=T)
   Name=append(Name,name)
 }
@@ -1600,40 +1673,49 @@ odris$Sondes <- as.factor(odris$Sondes )
 odris$intercept2 = regOdris$coefficients[1]
 odris$slope2 = regOdris$coefficients[2]
 
+# ###################################################################### #
+#                          ACIs  -----
+# ###################################################################### #
 
+# ########################################## #
+#    ACIs données brutes -----
+# ########################################## #
 
+# #################### #
+#   Préparation des données -----
+# #################### #
+
+# ########### #
 # Odon -----
-# ################ #
-# Odon
-# ################ #
+# ########### #
 
-# base pour l'odon (bi-horaire)
+# base pour l'odon (bi-horaire) -----
 db_aci_bih_odon = db_xts_comp_teau_bih %>%
   dplyr::select(c("t", "812", "813", "815", "816"))
 
 db_aci_bih_odon = na.omit(db_aci_bih_odon)
 
 
-# base pour l'odon (moyenne journalière)
+# base pour l'odon (moyenne journalière)  -----
 db_aci_moy_odon = db_xts_comp_teau_moy %>%
   dplyr::select(c("date", "812", "813", "815", "816"))
 
 db_aci_moy_odon = na.omit(db_aci_moy_odon)
 
 
+
+# ################ #
 # Orne -----
 # ################ #
-# Orne
-# ################ #
 
-# base pour l'Orne (bi-horaire)
+# base pour l'Orne (bi-horaire) -----
 db_aci_bih_orne = db_xts_comp_teau_bih %>%
   dplyr::select(c("t", "817", "818", "819"))
 
 db_aci_bih_orne = na.omit(db_aci_bih_orne)
 
 
-# base pour l'Orne (moyenne journalière)
+# base pour l'Orne (moyenne journalière) -----
 db_aci_moy_orne = db_xts_comp_teau_moy %>%
   dplyr::select(c("date", "817", "818", "819"))
 
@@ -1641,12 +1723,11 @@ db_aci_moy_orne = na.omit(db_aci_moy_orne)
 
 
 
+# ################ #
 # Sélune -----
 # ################ #
-# Sélune
-# ################ #
 
-# base pour la Sélune (bi-horaire)
+# base pour la Sélune (bi-horaire) -----
 db_aci_bih_selune = db_xts_comp_teau_bih %>%
   dplyr::select(c("t", "820", "821", "823", "824")) # sans la 822
 
@@ -1654,19 +1735,19 @@ db_aci_bih_selune = na.omit(db_aci_bih_selune)
 
 
 
-# base pour la Sélune (moyenne journalière)
+# base pour la Sélune (moyenne journalière) -----
 db_aci_moy_selune = db_xts_comp_teau_moy %>%
   dplyr::select(c("date", "820", "821", "823", "824")) # sans la 822
 
 db_aci_moy_selune = na.omit(db_aci_moy_selune)
 
 
+
+# ################ #
 # Touques -----
 # ################ #
-# Touques
-# ################ #
 
-# base pour la Touques (bi-horaire)
+# base pour la Touques (bi-horaire) -----
 db_aci_bih_touques = db_xts_comp_teau_bih %>%
   dplyr::select(c("t", "825", "827", "828", "830"))
 
@@ -1674,7 +1755,7 @@ db_aci_bih_touques = na.omit(db_aci_bih_touques)
 head(db_aci_moy_touques)
 
 
-# base pour la Touques (moyenne journalière)
+# base pour la Touques (moyenne journalière) -----
 db_aci_moy_touques = db_xts_comp_teau_moy %>%
   dplyr::select(c("date", "825", "827", "828", "830"))
 
@@ -1682,9 +1763,9 @@ db_aci_moy_touques = na.omit(db_aci_moy_touques)
 
 
 
-
-
-
+# #################### #
+#   Traitement ACIs -----
+# #################### #
 
 # ACI Odon -----
 
@@ -1711,24 +1792,19 @@ mat_odon <- a_odon$A
 
 lab_comp = c()
 for(i in 1:ncol(aci_data)){
-  
+
   label_i = colnames(aci_data)[i]
-  
+
   b_odon[paste0("comp1_", label_i)]=a_odon$A[1,i]*a_odon$S[,1]
   b_odon[paste0("comp2_", label_i)]=a_odon$A[2,i]*a_odon$S[,2]
   b_odon[paste0("comp3_", label_i)]=a_odon$A[3,i]*a_odon$S[,3]
-  
+
   lab_comp = c(lab_comp, paste0("comp1_", label_i), paste0("comp2_", label_i), paste0("comp3_", label_i))
-  
+
 }
 
 # base aci
 xts_aci_odon =xts(b_odon[, lab_comp], order.by = b_odon[,"date"])
-
-
-
-
-
 
 
 # ACI Orne -----
@@ -1754,15 +1830,15 @@ mat_orne <- a_orne$A
 
 lab_comp = c()
 for(i in 1:ncol(aci_data)){
-  
+
   label_i = colnames(aci_data)[i]
-  
+
   b_orne[paste0("comp1_", label_i)]=a_orne$A[1,i]*a_orne$S[,1]
   b_orne[paste0("comp2_", label_i)]=a_orne$A[2,i]*a_orne$S[,2]
   b_orne[paste0("comp3_", label_i)]=a_orne$A[3,i]*a_orne$S[,3]
-  
+
   lab_comp = c(lab_comp, paste0("comp1_", label_i), paste0("comp2_", label_i), paste0("comp3_", label_i))
-  
+
 }
 
 # base aci
@@ -1793,15 +1869,15 @@ mat_selune <- a_selune$A
 
 lab_comp = c()
 for(i in 1:ncol(aci_data)){
-  
+
   label_i = colnames(aci_data)[i]
-  
+
   b_selune[paste0("comp1_", label_i)]=a_selune$A[1,i]*a_selune$S[,1]
   b_selune[paste0("comp2_", label_i)]=a_selune$A[2,i]*a_selune$S[,2]
   b_selune[paste0("comp3_", label_i)]=a_selune$A[3,i]*a_selune$S[,3]
-  
+
   lab_comp = c(lab_comp, paste0("comp1_", label_i), paste0("comp2_", label_i), paste0("comp3_", label_i))
-  
+
 }
 
 # base aci
@@ -1834,87 +1910,363 @@ mat_touques <- a_touques$A
 
 lab_comp = c()
 for(i in 1:ncol(aci_data)){
-  
+
   label_i = colnames(aci_data)[i]
-  
+
   b_touques[paste0("comp1_", label_i)]=a_touques$A[1,i]*a_touques$S[,1]
   b_touques[paste0("comp2_", label_i)]=a_touques$A[2,i]*a_touques$S[,2]
   b_touques[paste0("comp3_", label_i)]=a_touques$A[3,i]*a_touques$S[,3]
-  
+
   lab_comp = c(lab_comp, paste0("comp1_", label_i), paste0("comp2_", label_i), paste0("comp3_", label_i))
-  
+
 }
 
 # base aci
 xts_aci_touques =xts(b_touques[, lab_comp], order.by = b_touques[,"date"])
+dim(xts_aci_touques)
+dim(aci_t)
 
-# ############## #
-#    ACIs données diff -----
-# ############## #
 
-############
-#   Préparation des données
-############
+# ########################################## #
+
+
+
+#    ACIs données diff  -----
+# ########################################## #
+
+# #################### #
+#   Préparation des données -----
+# #################### #
+
 db_teau_tair_diff = db_teau_tair2
 db_teau_tair_diff = db_teau_tair_diff[,-1]
 for (i in 1:(ncol(db_teau_tair_diff)/2)){
   db_teau_tair_diff[[paste0(substr(colnames(db_teau_tair_diff)[i],start=1,stop=3),"diff")]]= db_teau_tair_diff[,i]-db_teau_tair_diff[,i+30]
 
 }
-db_teau_tair_diff=db_teau_tair_diff[,-c(31:60)]
+#db_teau_tair_diff=db_teau_tair_diff[,-c(31:60)]
 db_teau_tair_diff$date=db_teau_tair2$date
-colnames(db_teau_tair_diff) = str_replace(colnames(db_teau_tair_diff), "Teau","Diff")
 
-# Touques ----
+# ############# #
+#   Préparation graphiques decriptifs Teau_Tair_Diff  -----
+# ############# #
 
-head(db_teau_tair_diff)
+# Touques Teau-Tair-Diff -----
+
+teau_tair_diff_touques = db_teau_tair_diff[, c("825Teau", "827Teau", "828Teau", "830Teau",
+                                                                        "825Tair", "827Tair", "828Tair", "830Tair",
+                                                                        "825diff", "827diff", "828diff", "830diff",
+                                                                        "date")]
+teau_tair_diff_touques = na.omit(teau_tair_diff_touques)
+
+# Orne Teau-Tair-Diff -----
+
+# Odon Teau-Tair-Diff -----
+
+# Sélune Teau-Tair-Diff -----
 
 
+# ########### #
+# Odon diff -----
+# ########### #
+
+
+# base pour l'odon (diff)
+db_aci_dif_odon = db_teau_tair_diff %>%
+  dplyr::select(c("date", "812diff", "813diff", "815diff", "816diff"))
+
+db_aci_dif_odon = na.omit(db_aci_dif_odon)
+
+
+
+# ################ #
+# Orne diff -----
+# ################ #
+
+
+
+# base pour l'Orne (diff teau-tair)
+db_aci_dif_orne = db_teau_tair_diff %>%
+  dplyr::select(c("date", "817diff", "818diff", "819diff"))
+
+db_aci_dif_orne = na.omit(db_aci_dif_orne)
+
+
+
+
+# ################ #
+# Sélune diff -----
+# ################ #
+
+
+# base pour la Sélune (diff teau-tair)
+db_aci_dif_selune = db_teau_tair_diff %>%
+  dplyr::select(c("date", "820diff", "821diff", "823diff", "824diff")) # sans la 822
+
+db_aci_dif_selune = na.omit(db_aci_dif_selune)
+
+
+
+# ################ #
+# Touques diff -----
+# ################ #
+
+
+# base pour la Touques (diff teau-tair)
+db_aci_dif_touques = db_teau_tair_diff %>%
+  dplyr::select(c("date", "825diff", "827diff", "828diff", "830diff"))
+
+db_aci_dif_touques = na.omit(db_aci_dif_touques)
+View(db_aci_dif_touques)
+
+
+# #################### #
+#   Traitement ACIs diffs -----
+# #################### #
+
+# ACI Odon diff -----
+# preparation pour l'ACI
+aci_t = db_aci_dif_odon %>%
+  dplyr::select(c("date"))
+
+aci_data = db_aci_dif_odon %>%
+  dplyr::select(!c("date"))
+
+set.seed(1)
+a_odon_dif <- fastICA(aci_data, 3, alg.typ = "parallel", fun = "logcosh", alpha = 1,
+                      method = "R", row.norm = FALSE, maxit = 200,
+                      tol = 0.0001, verbose = TRUE)
+
+
+b_odon_dif <- cbind(aci_t, data.frame(a_odon_dif$S))
+mat_odon_dif <- a_odon_dif$A
+
+lab_comp = c()
+for(i in 1:ncol(aci_data)){
+
+  label_i = colnames(aci_data)[i]
+
+  b_odon_dif[paste0("comp1_", label_i)]=a_odon_dif$A[1,i]*a_odon_dif$S[,1]
+  b_odon_dif[paste0("comp2_", label_i)]=a_odon_dif$A[2,i]*a_odon_dif$S[,2]
+  b_odon_dif[paste0("comp3_", label_i)]=a_odon_dif$A[3,i]*a_odon_dif$S[,3]
+
+  lab_comp = c(lab_comp, paste0("comp1_", label_i), paste0("comp2_", label_i), paste0("comp3_", label_i))
+
+}
+
+diff # base aci
+#xts_aci_odon =xts(b_odon[, lab_comp], order.by = b_odon[,"date"])
+
+
+
+
+
+
+
+# ACI Orne diff -----
+
+# preparation pour l'ACI
+aci_t = db_aci_dif_orne %>%
+  dplyr::select(c("date"))
+
+aci_data = db_aci_dif_orne %>%
+  dplyr::select(!c("date"))
+
+
+
+# ACI
+set.seed(1)
+a_orne_dif <- fastICA(aci_data, 3, alg.typ = "parallel", fun = "logcosh", alpha = 1,
+                      method = "R", row.norm = FALSE, maxit = 200,
+                      tol = 0.0001, verbose = TRUE)
+
+
+b_orne_dif <- cbind(aci_t, data.frame(a_orne_dif$S))
+mat_orne_dif <- a_orne_dif$A
+
+lab_comp = c()
+for(i in 1:ncol(aci_data)){
+
+  label_i = colnames(aci_data)[i]
+
+  b_orne_dif[paste0("comp1_", label_i)]=a_orne_dif$A[1,i]*a_orne_dif$S[,1]
+  b_orne_dif[paste0("comp2_", label_i)]=a_orne_dif$A[2,i]*a_orne_dif$S[,2]
+  b_orne_dif[paste0("comp3_", label_i)]=a_orne_dif$A[3,i]*a_orne_dif$S[,3]
+
+  lab_comp = c(lab_comp, paste0("comp1_", label_i), paste0("comp2_", label_i), paste0("comp3_", label_i))
+
+}
+
+
+
+
+# ACI Selune diff -----
+
+# preparation pour l'ACI
+aci_t = db_aci_dif_selune %>%
+  dplyr::select(c("date"))
+
+aci_data = db_aci_dif_selune %>%
+  dplyr::select(!c("date"))
+
+
+
+# ACI
+set.seed(1)
+a_selune_dif <- fastICA(aci_data, 3, alg.typ = "parallel", fun = "logcosh", alpha = 1,
+                        method = "R", row.norm = FALSE, maxit = 200,
+                        tol = 0.0001, verbose = TRUE)
+
+
+b_selune_dif <- cbind(aci_t, data.frame(a_selune_dif$S))
+mat_selune_dif <- a_selune_dif$A
+
+lab_comp = c()
+for(i in 1:ncol(aci_data)){
+
+  label_i = colnames(aci_data)[i]
+
+  b_selune_dif[paste0("comp1_", label_i)]=a_selune_dif$A[1,i]*a_selune_dif$S[,1]
+  b_selune_dif[paste0("comp2_", label_i)]=a_selune_dif$A[2,i]*a_selune_dif$S[,2]
+  b_selune_dif[paste0("comp3_", label_i)]=a_selune_dif$A[3,i]*a_selune_dif$S[,3]
+
+  lab_comp = c(lab_comp, paste0("comp1_", label_i), paste0("comp2_", label_i), paste0("comp3_", label_i))
+
+}
+
+
+
+
+# ACI Touques diff 3 composantes -----
+
+
+# 3 composantes
+
+# preparation pour l'ACI
+aci_t = db_aci_dif_touques %>%
+  dplyr::select(c("date"))
+
+aci_data = db_aci_dif_touques %>%
+  dplyr::select(!c("date"))
+
+
+
+# ACI
+set.seed(1)
+a_touques_dif <- fastICA(aci_data, 3, alg.typ = "parallel", fun = "logcosh", alpha = 1,
+                     method = "R", row.norm = FALSE, maxit = 200,
+                     tol = 0.0001, verbose = TRUE)
+
+
+b_touques_dif3 <- cbind(aci_t, data.frame(a_touques_dif$S))
+mat_touques_dif <- a_touques_dif$A
+
+lab_comp = c()
+for(i in 1:ncol(aci_data)){
+
+  label_i = colnames(aci_data)[i]
+
+  b_touques_dif3[paste0("comp1_", label_i)]=a_touques_dif$A[1,i]*a_touques_dif$S[,1]
+  b_touques_dif3[paste0("comp2_", label_i)]=a_touques_dif$A[2,i]*a_touques_dif$S[,2]
+  b_touques_dif3[paste0("comp3_", label_i)]=a_touques_dif$A[3,i]*a_touques_dif$S[,3]
+
+  lab_comp = c(lab_comp, paste0("comp1_", label_i), paste0("comp2_", label_i), paste0("comp3_", label_i))
+
+}
+
+mat_touques_dif_3comp = mat_touques_dif
+colnames(mat_touques_dif_3comp)= c("Touques T1","Touques T3","Touques T4","Touques T6")
+colnames(mat_touques_dif_3comp)= c("Touques T1","Touques T3","Touques T4","Touques T6")
+rownames(mat_touques_dif_3comp)= c("Composante 1","Composante 2","Composante 3")
+# base aci
+#xts_aci_touques3 =xts(b_touques[, lab_comp], order.by = b_touques[,"date"])
+
+# # ACI Touques diff 2 composantes -----
+# 
+# 
+# # preparation pour l'ACI
+# aci_t = db_aci_dif_touques %>%
+#   dplyr::select(c("date"))
+# 
+# aci_data = db_aci_dif_touques %>%
+#   dplyr::select(!c("date"))
+# 
+# 
+# 
+# # ACI
+# set.seed(1)
+# a_touques_dif <- fastICA(aci_data, 2, alg.typ = "parallel", fun = "logcosh", alpha = 1,
+#                          method = "R", row.norm = FALSE, maxit = 200,
+#                          tol = 0.0001, verbose = TRUE)
+# 
+# 
+# b_touques_dif2 <- cbind(aci_t, data.frame(a_touques_dif$S))
+# mat_touques_dif <- a_touques_dif$A
+# 
+# lab_comp = c()
+# for(i in 1:ncol(aci_data)){
+# 
+#   label_i = colnames(aci_data)[i]
+# 
+#   b_touques_dif2[paste0("comp1_", label_i)]=a_touques_dif$A[1,i]*a_touques_dif$S[,1]
+#   b_touques_dif2[paste0("comp2_", label_i)]=a_touques_dif$A[2,i]*a_touques_dif$S[,2]
+#   #b_touques_dif2[paste0("comp3_", label_i)]=a_touques_dif$A[3,i]*a_touques_dif$S[,3]
+# 
+#   lab_comp = c(lab_comp, paste0("comp1_", label_i), paste0("comp2_", label_i)
+#               # , paste0("comp3_", label_i)
+#                )
+# 
+# }
+
+#xts_aci_touques2 =xts(b_touques[, lab_comp], order.by = b_touques[,"date"])
+# # enregistrement RData ACI dif (3 composantes) -----
+#
+# save(b_odon_dif, b_orne_dif,
+#      b_selune_dif, b_touques_dif,
+#      mat_odon_dif, mat_orne_dif, mat_selune_dif, mat_touques_dif,
+#      file = "db_aci_dif.RData")
 
 
 #####################
 #   ACPs
 ####################
 
-########
-# Préparation des données
-########
+# Sur Données Brutes -----
 
-####  Touques
-db_acp_touques = cbind(aci_t,as.data.frame(xts_aci_touques))
-db_acp_touques = merge(db_acp_touques,db_teau_tair2[,
+
+## Préparation des données -----
+
+
+#### Touques -----
+db_acp_touques = b_touques[,-c(2:4)]
+db_acp_touques = merge(db_acp_touques,db_teau_tair_diff[,
                                                     c("825Teau", "827Teau", "828Teau", "830Teau",
                                                       "825Tair", "827Tair", "828Tair", "830Tair",
                                                       "date")],
                        by="date")
 
-db_acp_touques$Diff825 = db_acp_touques$`825Teau`-db_acp_touques$`825Tair`
-db_acp_touques$Diff827 = db_acp_touques$`827Teau`-db_acp_touques$`827Tair`
-db_acp_touques$Diff828 = db_acp_touques$`828Teau`-db_acp_touques$`828Tair`
-db_acp_touques$Diff830 = db_acp_touques$`830Teau`-db_acp_touques$`830Tair`
-
-
 
 db_acp_touques = merge(db_acp_touques, db_pluvio[,c("825","827","828","830","date")],by="date",all.x=T)
-colnames(db_acp_touques)[26:29] = c("pluvio_825","pluvio_827","pluvio_828","pluvio_830")
+colnames(db_acp_touques)[22:25] = c("pluvio_825","pluvio_827","pluvio_828","pluvio_830")
 
 db_acp_touques = merge(db_acp_touques, db_soleil[,c("825","827","828","830","date")],by="date",all.x=T)
-colnames(db_acp_touques)[30:33] = c("sol_825","sol_827","sol_828","sol_830")
+colnames(db_acp_touques)[26:29] = c("sol_825","sol_827","sol_828","sol_830")
 
 db_acp_touques = merge(db_acp_touques, piezo_touques,by="date",all.x=T)
 
+# Récupération des dates seulement
 acp_Touques_date <- db_acp_touques$date
 
 
-######
-# Préparation acp_sonde_825
-######
+
+##### Préparation acp_sonde_825 -----
+
 acp_Touques_825 <- db_acp_touques[,c("comp1_825",  "comp2_825",  "comp3_825",
-                                     "825Teau" ,"825Tair","Diff825" ,
+                                     "825Teau" ,"825Tair",
                                      "pluvio_825","sol_825" ,"piezo"
                                      )]
 
-colnames(acp_Touques_825) = c("C1","C2","C3","Teau","Tair","Diff","rr","qq","piez")
+colnames(acp_Touques_825) = c("C1","C2","C3","Teau","Tair","rr","qq","piez")
 
 
 # Recherche des valeurs manquantes dans la BDD au viveau de la piezo
@@ -1924,20 +2276,15 @@ sum(is.na(acp_Touques_825)) == sum(is.na(acp_Touques_825$piez))
 res.comp <- imputePCA(acp_Touques_825)
 acp_Touques_825b <- res.comp$completeObs
 sum(is.na(acp_Touques_825b[,7])) # Plus de donn?es manquantes dans la variable pi?zo
-sum(acp_Touques_825[,1]==acp_Touques_825b[,1])# Les autres donn?es n'ont pas ?t? modifi?es OK !
-sum(acp_Touques_825[,2]==acp_Touques_825b[,2])
-sum(acp_Touques_825[,3]==acp_Touques_825b[,3])
-sum(acp_Touques_825[,4]==acp_Touques_825b[,4])
-sum(acp_Touques_825[,5]==acp_Touques_825b[,5])
-sum(acp_Touques_825[,6]==acp_Touques_825b[,6])
+
 
 colnames(acp_Touques_825b)
 acp_Touques_825b=as.data.frame(acp_Touques_825b)
-acp_Touques_825c <- acp_Touques_825b[,-c(5,6)]
-acp_Touques_825c <- acp_Touques_825c[,-3]
+acp_Touques_825_c1c2 <- acp_Touques_825b[,-3]
+acp_Touques_825_c1c3 <- acp_Touques_825b[,-2]
 
-
-res.pca=PCA(acp_Touques_825c, quanti.sup=4:6 )
+# ACP avec c1c2 -----
+res.pca=PCA(acp_Touques_825_c1c2, quanti.sup=5:7 )
 
 res.pca$eig
 # Kaiser : garder les VPs au dessus de 1 => Dim1 - 2
@@ -1948,71 +2295,226 @@ fviz_eig(res.pca, addlabels = TRUE, ylim = c(0, 50))
 
 
 
-res1 <- fviz_pca_var(res.pca,axes = c(1, 2), col.var = "cos2",title ="ACP de la Sonde 825",
+res_ACP_825_C1C2 <- fviz_pca_var(res.pca,axes = c(1, 2), col.var = "cos2",title ="ACP de la Sonde 825",
                      gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
                      repel = TRUE
 )
 
-res1
+res_ACP_825_C1C2
 
-cor(acp_Touques_825b$C2,acp_Touques_825b$qq)
+# ACP avec c1c3 -----
+res.pca=PCA(acp_Touques_825_c1c3, quanti.sup=5:7 )
 
-correlation = matrix(rep(0,ncol(acp_Touques_825b)^2),
-  ncol(acp_Touques_825b),ncol(acp_Touques_825b))
-
-for(i in 1:ncol(acp_Touques_825b)){
-  for(j in 1:ncol(acp_Touques_825b)){
-    correlation[i,j]=round(cor(acp_Touques_825b[,i],acp_Touques_825b[,j]),3)
-  }
-}
-correlation = as.data.frame(correlation)
-colnames(correlation) = colnames(acp_Touques_825b)
-rownames(correlation)=colnames(acp_Touques_825b)
+res.pca$eig
+# Kaiser : garder les VPs au dessus de 1 => Dim1 - 2
+# Plus de 95% de l'info est conserver avec les DIM 1 - 2
+fviz_eig(res.pca, addlabels = TRUE, ylim = c(0, 50))
+# Diagramme des ?bouli : coude au niveau de la 3eme DIM, donc on garde les 2
+# premi?mes dimentions
 
 
-######
-# Préparation acp_sonde_827
-######
+
+res_ACP_825_C1C3 <- fviz_pca_var(res.pca,axes = c(1, 2), col.var = "cos2",title ="ACP de la Sonde 825",
+                     gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
+                     repel = TRUE
+)
+
+res_ACP_825_C1C3
+
+
+##### Préparation acp_sonde_827 -----
+
 acp_Touques_827 <- db_acp_touques[,c("comp1_827",  "comp2_827",  "comp3_827",
-                                     "827Teau" ,"827Tair","Diff827" ,
+                                     "827Teau" ,"827Tair",
                                      "pluvio_827","sol_827" ,"piezo"
 )]
 
-colnames(acp_Touques_827) = c("C1","C2","C3","Teau","Tair","Diff","rr","qq","piez")
+colnames(acp_Touques_827) = c("C1","C2","C3","Teau","Tair","rr","qq","piez")
 
-######
-# Préparation acp_sonde_828
-######
+
+# Recherche des valeurs manquantes dans la BDD au viveau de la piezo
+sum(is.na(acp_Touques_827)) == sum(is.na(acp_Touques_827$piez))
+
+# Imputation de donn?es manquantes ? l'aide de imputePCA(missMDA)
+res.comp <- imputePCA(acp_Touques_827)
+acp_Touques_827b <- res.comp$completeObs
+sum(is.na(acp_Touques_827b[,7])) # Plus de donn?es manquantes dans la variable pi?zo
+
+
+colnames(acp_Touques_827b)
+acp_Touques_827b=as.data.frame(acp_Touques_827b)
+acp_Touques_827_c1c2 <- acp_Touques_827b[,-3]
+acp_Touques_827_c1c3 <- acp_Touques_827b[,-2]
+
+# ACP avec c1c2 -----
+res.pca=PCA(acp_Touques_827_c1c2, quanti.sup=5:7 )
+
+res.pca$eig
+# Kaiser : garder les VPs au dessus de 1 => Dim1 - 2
+# Plus de 95% de l'info est conserver avec les DIM 1 - 2
+fviz_eig(res.pca, addlabels = TRUE, ylim = c(0, 50))
+# Diagramme des ?bouli : coude au niveau de la 3eme DIM, donc on garde les 2
+# premi?mes dimentions
+
+
+
+res_ACP_827_C1C2 <- fviz_pca_var(res.pca,axes = c(1, 2), col.var = "cos2",title ="ACP de la Sonde 827",
+                                 gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
+                                 repel = TRUE
+)
+
+res_ACP_827_C1C2
+
+# ACP avec c1c3 -----
+res.pca=PCA(acp_Touques_827_c1c3, quanti.sup=5:7 )
+
+res.pca$eig
+# Kaiser : garder les VPs au dessus de 1 => Dim1 - 2
+# Plus de 95% de l'info est conserver avec les DIM 1 - 2
+fviz_eig(res.pca, addlabels = TRUE, ylim = c(0, 50))
+# Diagramme des ?bouli : coude au niveau de la 3eme DIM, donc on garde les 2
+# premi?mes dimentions
+
+
+
+res_ACP_827_C1C3 <- fviz_pca_var(res.pca,axes = c(1, 2), col.var = "cos2",title ="ACP de la Sonde 827",
+                                 gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
+                                 repel = TRUE
+)
+
+res_ACP_827_C1C3
+
+
+
+##### Préparation acp_sonde_828 -----
+
 acp_Touques_828 <- db_acp_touques[,c("comp1_828",  "comp2_828",  "comp3_828",
-                                     "828Teau" ,"828Tair","Diff828" ,
+                                     "828Teau" ,"828Tair",
                                      "pluvio_828","sol_828" ,"piezo"
 )]
 
-colnames(acp_Touques_828) = c("C1","C2","C3","Teau","Tair","Diff","rr","qq","piez")
+colnames(acp_Touques_828) = c("C1","C2","C3","Teau","Tair","rr","qq","piez")
 
-######
-# Préparation acp_sonde_830
-######
+
+# Recherche des valeurs manquantes dans la BDD au viveau de la piezo
+sum(is.na(acp_Touques_828)) == sum(is.na(acp_Touques_828$piez))
+
+# Imputation de donn?es manquantes ? l'aide de imputePCA(missMDA)
+res.comp <- imputePCA(acp_Touques_828)
+acp_Touques_828b <- res.comp$completeObs
+sum(is.na(acp_Touques_828b[,7])) # Plus de donn?es manquantes dans la variable pi?zo
+
+
+colnames(acp_Touques_828b)
+acp_Touques_828b=as.data.frame(acp_Touques_828b)
+acp_Touques_828_c1c2 <- acp_Touques_828b[,-3]
+acp_Touques_828_c1c3 <- acp_Touques_828b[,-2]
+
+# ACP avec c1c2 -----
+res.pca=PCA(acp_Touques_828_c1c2, quanti.sup=5:7 )
+
+res.pca$eig
+# Kaiser : garder les VPs au dessus de 1 => Dim1 - 2
+# Plus de 95% de l'info est conserver avec les DIM 1 - 2
+fviz_eig(res.pca, addlabels = TRUE, ylim = c(0, 50))
+# Diagramme des ?bouli : coude au niveau de la 3eme DIM, donc on garde les 2
+# premi?mes dimentions
+
+
+
+res_ACP_828_C1C2 <- fviz_pca_var(res.pca,axes = c(1, 2), col.var = "cos2",title ="ACP de la Sonde 828",
+                                 gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
+                                 repel = TRUE
+)
+
+res_ACP_828_C1C2
+
+# ACP avec c1c3 -----
+res.pca=PCA(acp_Touques_828_c1c3, quanti.sup=5:7 )
+
+res.pca$eig
+# Kaiser : garder les VPs au dessus de 1 => Dim1 - 2
+# Plus de 95% de l'info est conserver avec les DIM 1 - 2
+fviz_eig(res.pca, addlabels = TRUE, ylim = c(0, 50))
+# Diagramme des ?bouli : coude au niveau de la 3eme DIM, donc on garde les 2
+# premi?mes dimentions
+
+
+
+res_ACP_828_C1C3 <- fviz_pca_var(res.pca,axes = c(1, 2), col.var = "cos2",title ="ACP de la Sonde 828",
+                                 gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
+                                 repel = TRUE
+)
+
+res_ACP_828_C1C3
+
+
+
+
+
+##### Préparation acp_sonde_830 -----
+
 acp_Touques_830 <- db_acp_touques[,c("comp1_830",  "comp2_830",  "comp3_830",
-                                     "830Teau" ,"830Tair","Diff830" ,
+                                     "830Teau" ,"830Tair",
                                      "pluvio_830","sol_830" ,"piezo"
 )]
 
-colnames(acp_Touques_830) = c("C1","C2","C3","Teau","Tair","Diff","rr","qq","piez")
+colnames(acp_Touques_830) = c("C1","C2","C3","Teau","Tair","rr","qq","piez")
+
+
+# Recherche des valeurs manquantes dans la BDD au viveau de la piezo
+sum(is.na(acp_Touques_830)) == sum(is.na(acp_Touques_830$piez))
+
+# Imputation de donn?es manquantes ? l'aide de imputePCA(missMDA)
+res.comp <- imputePCA(acp_Touques_830)
+acp_Touques_830b <- res.comp$completeObs
+sum(is.na(acp_Touques_830b[,7])) # Plus de donn?es manquantes dans la variable pi?zo
+
+
+colnames(acp_Touques_830b)
+acp_Touques_830b=as.data.frame(acp_Touques_830b)
+acp_Touques_830_c1c2 <- acp_Touques_830b[,-3]
+acp_Touques_830_c1c3 <- acp_Touques_830b[,-2]
+
+# ACP avec c1c2 -----
+res.pca=PCA(acp_Touques_830_c1c2, quanti.sup=5:7 )
+
+res.pca$eig
+# Kaiser : garder les VPs au dessus de 1 => Dim1 - 2
+# Plus de 95% de l'info est conserver avec les DIM 1 - 2
+fviz_eig(res.pca, addlabels = TRUE, ylim = c(0, 50))
+# Diagramme des ?bouli : coude au niveau de la 3eme DIM, donc on garde les 2
+# premi?mes dimentions
 
 
 
-######
-# Préparation acp_sonde_827
-######
+res_ACP_830_C1C2 <- fviz_pca_var(res.pca,axes = c(1, 2), col.var = "cos2",title ="ACP de la Sonde 830",
+                                 gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
+                                 repel = TRUE
+)
 
-######
-# Préparation acp_sonde_828
-######
+res_ACP_830_C1C2
 
-######
-# Préparation acp_sonde_830
-######
+# ACP avec c1c3 -----
+res.pca=PCA(acp_Touques_830_c1c3, quanti.sup=5:7 )
+
+res.pca$eig
+# Kaiser : garder les VPs au dessus de 1 => Dim1 - 2
+# Plus de 95% de l'info est conserver avec les DIM 1 - 2
+fviz_eig(res.pca, addlabels = TRUE, ylim = c(0, 50))
+# Diagramme des ?bouli : coude au niveau de la 3eme DIM, donc on garde les 2
+# premi?mes dimentions
+
+
+
+res_ACP_830_C1C3 <- fviz_pca_var(res.pca,axes = c(1, 2), col.var = "cos2",title ="ACP de la Sonde 830",
+                                 gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
+                                 repel = TRUE
+)
+
+res_ACP_830_C1C3
+
+
 
 #### Orne
 
@@ -2026,21 +2528,949 @@ colnames(acp_Touques_830) = c("C1","C2","C3","Teau","Tair","Diff","rr","qq","pie
 
 
 
-#############
-# Resultats ACPs
-#############
 
 
-## xts_aci_odon, xts_aci_orne, xts_aci_selune, xts_aci_touques  -----
-# save(xts_aci_odon, xts_aci_orne, 
-#      xts_aci_selune, xts_aci_touques,
-#      mat_odon, mat_orne, mat_selune, mat_touques,
-#      file = "xts_aci.RData")
 
-# save(b_odon, b_orne, 
-#      b_selune, b_touques,
-#      mat_odon, mat_orne, mat_selune, mat_touques,
-#      file = "db_aci.RData")
+
+
+
+# ACP Sur Données Diff  -----
+
+#### Touques -----
+db_acp_diff_touques = merge(b_touques_dif2[,-c(2:3)],db_teau_tair_diff[,
+                                                                       c("825Teau", "827Teau", "828Teau", "830Teau",
+                                                                         "825Tair", "827Tair", "828Tair", "830Tair",
+                                                                         "825diff", "827diff", "828diff", "830diff",
+                                                                         "date")],
+                            by="date")
+
+
+db_acp_diff_touques = merge(db_acp_diff_touques, db_pluvio[,c("825","827","828","830","date")],by="date",all.x=T)
+colnames(db_acp_diff_touques)[22:25] = c("pluvio_825","pluvio_827","pluvio_828","pluvio_830")
+
+db_acp_diff_touques = merge(db_acp_diff_touques, db_soleil[,c("825","827","828","830","date")],by="date",all.x=T)
+colnames(db_acp_diff_touques)[26:29] = c("sol_825","sol_827","sol_828","sol_830")
+
+db_acp_diff_touques = merge(db_acp_diff_touques, piezo_touques,by="date",all.x=T)
+
+# Récupération des dates seulement
+acp_Touques_date <- db_acp_diff_touques$date
+## Sonde 825
+###### Avec 2 composantes -----
+##### Préparation acp_diff_sonde_825_2comp -----
+
+acp_diff_Touques_825 <- db_acp_diff_touques[,c("comp1_825diff",  "comp2_825diff",
+                                               "825Teau" ,"825Tair","825diff",
+                                               "pluvio_825","sol_825" ,"piezo"
+)]
+
+colnames(acp_diff_Touques_825) = c("C1","C2","Teau","Tair","Diff","rr","qq","piez")
+
+
+# Recherche des valeurs manquantes dans la BDD au viveau de la piezo
+sum(is.na(acp_diff_Touques_825)) == sum(is.na(acp_diff_Touques_825$piez))
+
+# Imputation de donn?es manquantes ? l'aide de imputePCA(missMDA)
+res.comp <- imputePCA(acp_diff_Touques_825)
+acp_diff_Touques_825b <- res.comp$completeObs
+sum(is.na(acp_diff_Touques_825b[,7])) # Plus de donn?es manquantes dans la variable pi?zo
+
+
+colnames(acp_diff_Touques_825b)
+acp_diff_Touques_825b=as.data.frame(acp_diff_Touques_825b)
+
+
+# ACP avec c1c2 -----
+res.pca=PCA(acp_diff_Touques_825b, quanti.sup=6:8 )
+
+res.pca$eig
+# Kaiser : garder les VPs au dessus de 1 => Dim1 - 2
+# Plus de 95% de l'info est conserver avec les DIM 1 - 2
+fviz_eig(res.pca, addlabels = TRUE, ylim = c(0, 50))
+# Diagramme des ?bouli : coude au niveau de la 3eme DIM, donc on garde les 2
+# premi?mes dimentions
+
+
+
+res_ACP_825_diff_2comp_C1C2 <- fviz_pca_var(res.pca,axes = c(1, 2), col.var = "cos2",title ="ACP de la Sonde 825",
+                                      gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
+                                      repel = TRUE
+)
+
+res_ACP_825_diff_2comp_C1C2
+
+###### Avec 3 composantes -----
+db_acp_diff_touques = merge(b_touques_dif3[,-c(2:4)],db_teau_tair_diff[,
+                                                    c("825Teau", "827Teau", "828Teau", "830Teau",
+                                                      "825Tair", "827Tair", "828Tair", "830Tair",
+                                                      "825diff", "827diff", "828diff", "830diff",
+                                                      "date")],
+                       by="date")
+
+
+db_acp_diff_touques = merge(db_acp_diff_touques, db_pluvio[,c("825","827","828","830","date")],by="date",all.x=T)
+colnames(db_acp_diff_touques)[26:29] = c("pluvio_825","pluvio_827","pluvio_828","pluvio_830")
+
+db_acp_diff_touques = merge(db_acp_diff_touques, db_soleil[,c("825","827","828","830","date")],by="date",all.x=T)
+colnames(db_acp_diff_touques)[30:33] = c("sol_825","sol_827","sol_828","sol_830")
+
+db_acp_diff_touques = merge(db_acp_diff_touques, piezo_touques,by="date",all.x=T)
+
+# Récupération des dates seulement
+acp_Touques_date <- db_acp_diff_touques$date
+
+
+
+##### Préparation acp_sonde_825_3comp -----
+
+acp_diff_Touques_825 <- db_acp_diff_touques[,c("comp1_825diff",  "comp2_825diff",  "comp3_825diff",
+                                     "825Teau" ,"825Tair","825diff",
+                                     "pluvio_825","sol_825" ,"piezo"
+)]
+
+colnames(acp_diff_Touques_825) = c("C1","C2","C3","Teau","Tair","Diff","rr","qq","piez")
+
+
+# Recherche des valeurs manquantes dans la BDD au viveau de la piezo
+sum(is.na(acp_diff_Touques_825)) == sum(is.na(acp_diff_Touques_825$piez))
+
+# Imputation de donn?es manquantes ? l'aide de imputePCA(missMDA)
+res.comp <- imputePCA(acp_diff_Touques_825)
+acp_diff_Touques_825b <- res.comp$completeObs
+sum(is.na(acp_diff_Touques_825b[,7])) # Plus de donn?es manquantes dans la variable pi?zo
+
+
+colnames(acp_diff_Touques_825b)
+acp_diff_Touques_825b=as.data.frame(acp_diff_Touques_825b)
+acp_diff_Touques_825_c1c2 <- acp_diff_Touques_825b[,-3]
+acp_diff_Touques_825_c1c3 <- acp_diff_Touques_825b[,-2]
+
+
+# ACP avec c1c2c3 -----
+res.pca=PCA(acp_diff_Touques_825b, quanti.sup=7:9)
+
+res.pca$eig
+# Kaiser : garder les VPs au dessus de 1 => Dim1 - 2
+# Plus de 95% de l'info est conserver avec les DIM 1 - 2
+fviz_eig(res.pca, addlabels = TRUE, ylim = c(0, 50))
+# Diagramme des ?bouli : coude au niveau de la 3eme DIM, donc on garde les 2
+# premi?mes dimentions
+
+
+
+res_ACP_825_diff_3comp_C1C2C3 <- fviz_pca_var(res.pca,axes = c(1, 3), col.var = "cos2",title ="",
+                                            gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
+                                            repel = TRUE
+)
+
+res_ACP_825_diff_3comp_C1C2C3
+
+
+# ACP avec c1c2 -----
+res.pca=PCA(acp_diff_Touques_825_c1c2, quanti.sup=6:8 )
+
+res.pca$eig
+# Kaiser : garder les VPs au dessus de 1 => Dim1 - 2
+# Plus de 95% de l'info est conserver avec les DIM 1 - 2
+fviz_eig(res.pca, addlabels = TRUE, ylim = c(0, 50))
+# Diagramme des ?bouli : coude au niveau de la 3eme DIM, donc on garde les 2
+# premi?mes dimentions
+
+
+
+res_ACP_825_diff_3comp_C1C2 <- fviz_pca_var(res.pca,axes = c(1, 2), col.var = "cos2",title ="ACP de la Sonde 825",
+                                 gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
+                                 repel = TRUE
+)
+
+res_ACP_825_diff_3comp_C1C2
+
+# ACP avec c1c3 -----
+res.pca=PCA(acp_diff_Touques_825_c1c3, quanti.sup=6:8 )
+
+res.pca$eig
+# Kaiser : garder les VPs au dessus de 1 => Dim1 - 2
+# Plus de 95% de l'info est conserver avec les DIM 1 - 2
+fviz_eig(res.pca, addlabels = TRUE, ylim = c(0, 50))
+# Diagramme des ?bouli : coude au niveau de la 3eme DIM, donc on garde les 2
+# premi?mes dimentions
+
+
+
+res_ACP_825_diff_3comp_C1C3 <- fviz_pca_var(res.pca,axes = c(1, 2), col.var = "cos2",title ="ACP de la Sonde 825",
+                                 gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
+                                 repel = TRUE
+)
+
+res_ACP_825_diff_3comp_C1C3
+
+
+
+
+
+
+
+
+## Sonde 827
+###### Avec 2 composantes -----
+##### Préparation acp_diff_sonde_827_2comp -----
+
+acp_diff_Touques_827 <- db_acp_diff_touques[,c("comp1_827diff",  "comp2_827diff",
+                                               "827Teau" ,"827Tair","827diff",
+                                               "pluvio_827","sol_827" ,"piezo"
+)]
+
+colnames(acp_diff_Touques_827) = c("C1","C2","Teau","Tair","Diff","rr","qq","piez")
+
+
+# Recherche des valeurs manquantes dans la BDD au viveau de la piezo
+sum(is.na(acp_diff_Touques_827)) == sum(is.na(acp_diff_Touques_827$piez))
+
+# Imputation de donn?es manquantes ? l'aide de imputePCA(missMDA)
+res.comp <- imputePCA(acp_diff_Touques_827)
+acp_diff_Touques_827b <- res.comp$completeObs
+sum(is.na(acp_diff_Touques_827b[,7])) # Plus de donn?es manquantes dans la variable pi?zo
+
+
+colnames(acp_diff_Touques_827b)
+acp_diff_Touques_827b=as.data.frame(acp_diff_Touques_827b)
+
+
+# ACP avec c1c2 -----
+res.pca=PCA(acp_diff_Touques_827b, quanti.sup=6:8 )
+
+res.pca$eig
+# Kaiser : garder les VPs au dessus de 1 => Dim1 - 2
+# Plus de 95% de l'info est conserver avec les DIM 1 - 2
+fviz_eig(res.pca, addlabels = TRUE, ylim = c(0, 50))
+# Diagramme des ?bouli : coude au niveau de la 3eme DIM, donc on garde les 2
+# premi?mes dimentions
+
+
+
+res_ACP_827_diff_2comp_C1C2 <- fviz_pca_var(res.pca,axes = c(1, 2), col.var = "cos2",title ="ACP de la Sonde 827",
+                                            gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
+                                            repel = TRUE
+)
+
+res_ACP_827_diff_2comp_C1C2
+
+###### Avec 3 composantes -----
+db_acp_diff_touques = merge(b_touques_dif3[,-c(2:4)],db_teau_tair_diff[,
+                                                                       c("827Teau", "827Teau", "828Teau", "830Teau",
+                                                                         "827Tair", "827Tair", "828Tair", "830Tair",
+                                                                         "827diff", "827diff", "828diff", "830diff",
+                                                                         "date")],
+                            by="date")
+
+
+db_acp_diff_touques = merge(db_acp_diff_touques, db_pluvio[,c("827","827","828","830","date")],by="date",all.x=T)
+colnames(db_acp_diff_touques)[26:29] = c("pluvio_827","pluvio_827","pluvio_828","pluvio_830")
+
+db_acp_diff_touques = merge(db_acp_diff_touques, db_soleil[,c("827","827","828","830","date")],by="date",all.x=T)
+colnames(db_acp_diff_touques)[30:33] = c("sol_827","sol_827","sol_828","sol_830")
+
+db_acp_diff_touques = merge(db_acp_diff_touques, piezo_touques,by="date",all.x=T)
+
+# Récupération des dates seulement
+acp_Touques_date <- db_acp_diff_touques$date
+
+
+
+##### Préparation acp_sonde_827 -----
+
+acp_diff_Touques_827 <- db_acp_diff_touques[,c("comp1_827diff",  "comp2_827diff",  "comp3_827diff",
+                                               "827Teau" ,"827Tair","827diff",
+                                               "pluvio_827","sol_827" ,"piezo"
+)]
+
+colnames(acp_diff_Touques_827) = c("C1","C2","C3","Teau","Tair","Diff","rr","qq","piez")
+
+
+# Recherche des valeurs manquantes dans la BDD au viveau de la piezo
+sum(is.na(acp_diff_Touques_827)) == sum(is.na(acp_diff_Touques_827$piez))
+
+# Imputation de donn?es manquantes ? l'aide de imputePCA(missMDA)
+res.comp <- imputePCA(acp_diff_Touques_827)
+acp_diff_Touques_827b <- res.comp$completeObs
+sum(is.na(acp_diff_Touques_827b[,7])) # Plus de donn?es manquantes dans la variable pi?zo
+
+
+colnames(acp_diff_Touques_827b)
+acp_diff_Touques_827b=as.data.frame(acp_diff_Touques_827b)
+acp_diff_Touques_827_c1c2 <- acp_diff_Touques_827b[,-3]
+acp_diff_Touques_827_c1c3 <- acp_diff_Touques_827b[,-2]
+
+
+# ACP avec c1c2c3 -----
+res.pca=PCA(acp_diff_Touques_827b, quanti.sup=7:9)
+
+res.pca$eig
+# Kaiser : garder les VPs au dessus de 1 => Dim1 - 2
+# Plus de 95% de l'info est conserver avec les DIM 1 - 2
+fviz_eig(res.pca, addlabels = TRUE, ylim = c(0, 50))
+# Diagramme des ?bouli : coude au niveau de la 3eme DIM, donc on garde les 2
+# premi?mes dimentions
+
+
+
+res_ACP_827_diff_3comp_C1C2C3 <- fviz_pca_var(res.pca,axes = c(1, 2), col.var = "cos2",title ="",
+                                              gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
+                                              repel = TRUE
+)
+
+res_ACP_827_diff_3comp_C1C2C3
+
+
+# ACP avec c1c2 -----
+res.pca=PCA(acp_diff_Touques_827_c1c2, quanti.sup=6:8 )
+
+res.pca$eig
+# Kaiser : garder les VPs au dessus de 1 => Dim1 - 2
+# Plus de 95% de l'info est conserver avec les DIM 1 - 2
+fviz_eig(res.pca, addlabels = TRUE, ylim = c(0, 50))
+# Diagramme des ?bouli : coude au niveau de la 3eme DIM, donc on garde les 2
+# premi?mes dimentions
+
+
+
+res_ACP_827_diff_3comp_C1C2 <- fviz_pca_var(res.pca,axes = c(1, 2), col.var = "cos2",title ="ACP de la Sonde 827",
+                                            gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
+                                            repel = TRUE
+)
+
+res_ACP_827_diff_3comp_C1C2
+
+# ACP avec c1c3 -----
+res.pca=PCA(acp_diff_Touques_827_c1c3, quanti.sup=6:8 )
+
+res.pca$eig
+# Kaiser : garder les VPs au dessus de 1 => Dim1 - 2
+# Plus de 95% de l'info est conserver avec les DIM 1 - 2
+fviz_eig(res.pca, addlabels = TRUE, ylim = c(0, 50))
+# Diagramme des ?bouli : coude au niveau de la 3eme DIM, donc on garde les 2
+# premi?mes dimentions
+
+
+
+res_ACP_827_diff_3comp_C1C3 <- fviz_pca_var(res.pca,axes = c(1, 2), col.var = "cos2",title ="ACP de la Sonde 827",
+                                            gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
+                                            repel = TRUE
+)
+
+res_ACP_827_diff_3comp_C1C3
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+## Sonde 828
+###### Avec 2 composantes -----
+##### Préparation acp_diff_sonde_828_2comp -----
+
+acp_diff_Touques_828 <- db_acp_diff_touques[,c("comp1_828diff",  "comp2_828diff",
+                                               "828Teau" ,"828Tair","828diff",
+                                               "pluvio_828","sol_828" ,"piezo"
+)]
+
+colnames(acp_diff_Touques_828) = c("C1","C2","Teau","Tair","Diff","rr","qq","piez")
+
+
+# Recherche des valeurs manquantes dans la BDD au viveau de la piezo
+sum(is.na(acp_diff_Touques_828)) == sum(is.na(acp_diff_Touques_828$piez))
+
+# Imputation de donn?es manquantes ? l'aide de imputePCA(missMDA)
+res.comp <- imputePCA(acp_diff_Touques_828)
+acp_diff_Touques_828b <- res.comp$completeObs
+sum(is.na(acp_diff_Touques_828b[,7])) # Plus de donn?es manquantes dans la variable pi?zo
+
+
+colnames(acp_diff_Touques_828b)
+acp_diff_Touques_828b=as.data.frame(acp_diff_Touques_828b)
+
+
+# ACP avec c1c2 -----
+res.pca=PCA(acp_diff_Touques_828b, quanti.sup=6:8 )
+
+res.pca$eig
+# Kaiser : garder les VPs au dessus de 1 => Dim1 - 2
+# Plus de 95% de l'info est conserver avec les DIM 1 - 2
+fviz_eig(res.pca, addlabels = TRUE, ylim = c(0, 50))
+# Diagramme des ?bouli : coude au niveau de la 3eme DIM, donc on garde les 2
+# premi?mes dimentions
+
+
+
+res_ACP_828_diff_2comp_C1C2 <- fviz_pca_var(res.pca,axes = c(1, 2), col.var = "cos2",title ="ACP de la Sonde 828",
+                                            gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
+                                            repel = TRUE
+)
+
+res_ACP_828_diff_2comp_C1C2
+
+###### Avec 3 composantes -----
+db_acp_diff_touques = merge(b_touques_dif3[,-c(2:4)],db_teau_tair_diff[,
+                                                                       c("828Teau", "827Teau", "828Teau", "830Teau",
+                                                                         "828Tair", "827Tair", "828Tair", "830Tair",
+                                                                         "828diff", "827diff", "828diff", "830diff",
+                                                                         "date")],
+                            by="date")
+
+
+db_acp_diff_touques = merge(db_acp_diff_touques, db_pluvio[,c("828","827","828","830","date")],by="date",all.x=T)
+colnames(db_acp_diff_touques)[26:29] = c("pluvio_828","pluvio_827","pluvio_828","pluvio_830")
+
+db_acp_diff_touques = merge(db_acp_diff_touques, db_soleil[,c("828","827","828","830","date")],by="date",all.x=T)
+colnames(db_acp_diff_touques)[30:33] = c("sol_828","sol_827","sol_828","sol_830")
+
+db_acp_diff_touques = merge(db_acp_diff_touques, piezo_touques,by="date",all.x=T)
+
+# Récupération des dates seulement
+acp_Touques_date <- db_acp_diff_touques$date
+
+
+
+##### Préparation acp_sonde_828_3comp -----
+
+acp_diff_Touques_828 <- db_acp_diff_touques[,c("comp1_828diff",  "comp2_828diff",  "comp3_828diff",
+                                               "828Teau" ,"828Tair","828diff",
+                                               "pluvio_828","sol_828" ,"piezo"
+)]
+
+colnames(acp_diff_Touques_828) = c("C1","C2","C3","Teau","Tair","Diff","rr","qq","piez")
+
+
+# Recherche des valeurs manquantes dans la BDD au viveau de la piezo
+sum(is.na(acp_diff_Touques_828)) == sum(is.na(acp_diff_Touques_828$piez))
+
+# Imputation de donn?es manquantes ? l'aide de imputePCA(missMDA)
+res.comp <- imputePCA(acp_diff_Touques_828)
+acp_diff_Touques_828b <- res.comp$completeObs
+sum(is.na(acp_diff_Touques_828b[,7])) # Plus de donn?es manquantes dans la variable pi?zo
+
+
+colnames(acp_diff_Touques_828b)
+acp_diff_Touques_828b=as.data.frame(acp_diff_Touques_828b)
+acp_diff_Touques_828_c1c2 <- acp_diff_Touques_828b[,-3]
+acp_diff_Touques_828_c1c3 <- acp_diff_Touques_828b[,-2]
+
+
+# ACP avec c1c2c3 -----
+res.pca=PCA(acp_diff_Touques_828b, quanti.sup=7:9)
+
+res.pca$eig
+# Kaiser : garder les VPs au dessus de 1 => Dim1 - 2
+# Plus de 95% de l'info est conserver avec les DIM 1 - 2
+fviz_eig(res.pca, addlabels = TRUE, ylim = c(0, 50))
+# Diagramme des ?bouli : coude au niveau de la 3eme DIM, donc on garde les 2
+# premi?mes dimentions
+
+
+
+res_ACP_828_diff_3comp_C1C2C3 <- fviz_pca_var(res.pca,axes = c(1, 2), col.var = "cos2",title ="",
+                                              gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
+                                              repel = TRUE
+)
+
+res_ACP_828_diff_3comp_C1C2C3
+
+
+# ACP avec c1c2 -----
+res.pca=PCA(acp_diff_Touques_828_c1c2, quanti.sup=6:8 )
+
+res.pca$eig
+# Kaiser : garder les VPs au dessus de 1 => Dim1 - 2
+# Plus de 95% de l'info est conserver avec les DIM 1 - 2
+fviz_eig(res.pca, addlabels = TRUE, ylim = c(0, 50))
+# Diagramme des ?bouli : coude au niveau de la 3eme DIM, donc on garde les 2
+# premi?mes dimentions
+
+
+
+res_ACP_828_diff_3comp_C1C2 <- fviz_pca_var(res.pca,axes = c(1, 2), col.var = "cos2",title ="ACP de la Sonde 828",
+                                            gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
+                                            repel = TRUE
+)
+
+res_ACP_828_diff_3comp_C1C2
+
+# ACP avec c1c3 -----
+res.pca=PCA(acp_diff_Touques_828_c1c3, quanti.sup=6:8 )
+
+res.pca$eig
+# Kaiser : garder les VPs au dessus de 1 => Dim1 - 2
+# Plus de 95% de l'info est conserver avec les DIM 1 - 2
+fviz_eig(res.pca, addlabels = TRUE, ylim = c(0, 50))
+# Diagramme des ?bouli : coude au niveau de la 3eme DIM, donc on garde les 2
+# premi?mes dimentions
+
+
+
+res_ACP_828_diff_3comp_C1C3 <- fviz_pca_var(res.pca,axes = c(1, 2), col.var = "cos2",title ="ACP de la Sonde 828",
+                                            gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
+                                            repel = TRUE
+)
+
+res_ACP_828_diff_3comp_C1C3
+
+
+
+
+
+
+
+
+
+
+## Sonde 830
+###### Avec 2 composantes -----
+##### Préparation acp_diff_sonde_830_2comp -----
+
+acp_diff_Touques_830 <- db_acp_diff_touques[,c("comp1_830diff",  "comp2_830diff",
+                                               "830Teau" ,"830Tair","830diff",
+                                               "pluvio_830","sol_830" ,"piezo"
+)]
+
+colnames(acp_diff_Touques_830) = c("C1","C2","Teau","Tair","Diff","rr","qq","piez")
+
+
+# Recherche des valeurs manquantes dans la BDD au viveau de la piezo
+sum(is.na(acp_diff_Touques_830)) == sum(is.na(acp_diff_Touques_830$piez))
+
+# Imputation de donn?es manquantes ? l'aide de imputePCA(missMDA)
+res.comp <- imputePCA(acp_diff_Touques_830)
+acp_diff_Touques_830b <- res.comp$completeObs
+sum(is.na(acp_diff_Touques_830b[,7])) # Plus de donn?es manquantes dans la variable pi?zo
+
+
+colnames(acp_diff_Touques_830b)
+acp_diff_Touques_830b=as.data.frame(acp_diff_Touques_830b)
+
+
+# ACP avec c1c2 -----
+res.pca=PCA(acp_diff_Touques_830b, quanti.sup=6:8 )
+
+res.pca$eig
+# Kaiser : garder les VPs au dessus de 1 => Dim1 - 2
+# Plus de 95% de l'info est conserver avec les DIM 1 - 2
+fviz_eig(res.pca, addlabels = TRUE, ylim = c(0, 50))
+# Diagramme des ?bouli : coude au niveau de la 3eme DIM, donc on garde les 2
+# premi?mes dimentions
+
+
+
+res_ACP_830_diff_2comp_C1C2 <- fviz_pca_var(res.pca,axes = c(1, 2), col.var = "cos2",title ="ACP de la Sonde 830",
+                                            gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
+                                            repel = TRUE
+)
+
+res_ACP_830_diff_2comp_C1C2
+
+###### Avec 3 composantes -----
+db_acp_diff_touques = merge(b_touques_dif3[,-c(2:4)],db_teau_tair_diff[,
+                                                                       c("830Teau", "827Teau", "828Teau", "830Teau",
+                                                                         "830Tair", "827Tair", "828Tair", "830Tair",
+                                                                         "830diff", "827diff", "828diff", "830diff",
+                                                                         "date")],
+                            by="date")
+
+
+db_acp_diff_touques = merge(db_acp_diff_touques, db_pluvio[,c("830","827","828","830","date")],by="date",all.x=T)
+colnames(db_acp_diff_touques)[26:29] = c("pluvio_830","pluvio_827","pluvio_828","pluvio_830")
+
+db_acp_diff_touques = merge(db_acp_diff_touques, db_soleil[,c("830","827","828","830","date")],by="date",all.x=T)
+colnames(db_acp_diff_touques)[30:33] = c("sol_830","sol_827","sol_828","sol_830")
+
+db_acp_diff_touques = merge(db_acp_diff_touques, piezo_touques,by="date",all.x=T)
+
+# Récupération des dates seulement
+acp_Touques_date <- db_acp_diff_touques$date
+
+
+
+##### Préparation acp_sonde_830_3comp -----
+
+acp_diff_Touques_830 <- db_acp_diff_touques[,c("comp1_830diff",  "comp2_830diff",  "comp3_830diff",
+                                               "830Teau" ,"830Tair","830diff",
+                                               "pluvio_830","sol_830" ,"piezo"
+)]
+
+colnames(acp_diff_Touques_830) = c("C1","C2","C3","Teau","Tair","Diff","rr","qq","piez")
+
+
+# Recherche des valeurs manquantes dans la BDD au viveau de la piezo
+sum(is.na(acp_diff_Touques_830)) == sum(is.na(acp_diff_Touques_830$piez))
+
+# Imputation de donn?es manquantes ? l'aide de imputePCA(missMDA)
+res.comp <- imputePCA(acp_diff_Touques_830)
+acp_diff_Touques_830b <- res.comp$completeObs
+sum(is.na(acp_diff_Touques_830b[,7])) # Plus de donn?es manquantes dans la variable pi?zo
+
+
+colnames(acp_diff_Touques_830b)
+acp_diff_Touques_830b=as.data.frame(acp_diff_Touques_830b)
+acp_diff_Touques_830_c1c2 <- acp_diff_Touques_830b[,-3]
+acp_diff_Touques_830_c1c3 <- acp_diff_Touques_830b[,-2]
+
+
+# ACP avec c1c2c3 -----
+res.pca=PCA(acp_diff_Touques_830b, quanti.sup=7:9)
+
+res.pca$eig
+# Kaiser : garder les VPs au dessus de 1 => Dim1 - 2
+# Plus de 95% de l'info est conserver avec les DIM 1 - 2
+fviz_eig(res.pca, addlabels = TRUE, ylim = c(0, 50))
+# Diagramme des ?bouli : coude au niveau de la 3eme DIM, donc on garde les 2
+# premi?mes dimentions
+
+
+
+res_ACP_830_diff_3comp_C1C2C3 <- fviz_pca_var(res.pca,axes = c(1, 2), col.var = "cos2",title ="",
+                                              gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
+                                              repel = TRUE
+)
+
+res_ACP_830_diff_3comp_C1C2C3
+
+
+# ACP avec c1c2 -----
+res.pca=PCA(acp_diff_Touques_830_c1c2, quanti.sup=6:8 )
+
+res.pca$eig
+# Kaiser : garder les VPs au dessus de 1 => Dim1 - 2
+# Plus de 95% de l'info est conserver avec les DIM 1 - 2
+fviz_eig(res.pca, addlabels = TRUE, ylim = c(0, 50))
+# Diagramme des ?bouli : coude au niveau de la 3eme DIM, donc on garde les 2
+# premi?mes dimentions
+
+
+
+res_ACP_830_diff_3comp_C1C2 <- fviz_pca_var(res.pca,axes = c(1, 2), col.var = "cos2",title ="ACP de la Sonde 830",
+                                            gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
+                                            repel = TRUE
+)
+
+res_ACP_830_diff_3comp_C1C2
+
+# ACP avec c1c3 -----
+res.pca=PCA(acp_diff_Touques_830_c1c3, quanti.sup=6:8 )
+
+res.pca$eig
+# Kaiser : garder les VPs au dessus de 1 => Dim1 - 2
+# Plus de 95% de l'info est conserver avec les DIM 1 - 2
+fviz_eig(res.pca, addlabels = TRUE, ylim = c(0, 50))
+# Diagramme des ?bouli : coude au niveau de la 3eme DIM, donc on garde les 2
+# premi?mes dimentions
+
+
+
+res_ACP_830_diff_3comp_C1C3 <- fviz_pca_var(res.pca,axes = c(1, 2), col.var = "cos2",title ="ACP de la Sonde 830",
+                                            gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
+                                            repel = TRUE
+)
+
+res_ACP_830_diff_3comp_C1C3
+
+
+
+# Enregitrement image des ACP -----
+
+# res_ACP_825_diff_2comp_C1C2
+# res_ACP_827_diff_2comp_C1C2
+# res_ACP_828_diff_2comp_C1C2
+# res_ACP_830_diff_2comp_C1C2
+#
+#
+# res_ACP_825_diff_3comp_C1C3
+# res_ACP_827_diff_3comp_C1C3
+# res_ACP_828_diff_3comp_C1C3
+# res_ACP_830_diff_3comp_C1C3
+
+# png(paste(path,"/ACP_Touques_Diff_825.png",
+#           sep=""),width = 17.5, height = 16, res=300, units="cm")
+# res_ACP_825_diff_3comp_C1C2C3
+# dev.off()
+# 
+# png(paste(path,"/ACP_Touques_Diff_827.png",
+#           sep=""),width = 17.5, height = 16, res=300, units="cm")
+# res_ACP_827_diff_3comp_C1C2C3
+# dev.off()
+# png(paste(path,"/ACP_Touques_Diff_828.png",
+#           sep=""),width = 17.5, height = 16, res=300, units="cm")
+# res_ACP_828_diff_3comp_C1C2C3
+# dev.off()
+# 
+# png(paste(path,"/ACP_Touques_Diff_830.png",
+#           sep=""),width = 17.5, height = 16, res=300, units="cm")
+# res_ACP_830_diff_3comp_C1C2C3
+# dev.off()
+
+
+
+
+
+##### tableau des corrélations -----
+
+# sonde 825 -----
+correlation_825 = matrix(rep(0,ncol(acp_Touques_825b)^2),
+                     ncol(acp_Touques_825b),ncol(acp_Touques_825b))
+
+for(i in 1:ncol(acp_Touques_825b)){
+  for(j in 1:ncol(acp_Touques_825b)){
+    correlation_825[i,j]=round(cor(acp_Touques_825b[,i],acp_Touques_825b[,j]),3)
+  }
+}
+correlation_825 = as.data.frame(correlation_825)
+colnames(correlation_825) = colnames(acp_Touques_825b)
+rownames(correlation_825)=colnames(acp_Touques_825b)
+
+
+# correlation_test = matrix(rep(0,ncol(acp_Touques_825b)^2),
+#                           ncol(acp_Touques_825b),ncol(acp_Touques_825b))
+#
+# for(i in 1:ncol(acp_Touques_825b)){
+#   for(j in 1:ncol(acp_Touques_825b)){
+#     correlation_test[i,j]=round(cor.test(acp_Touques_825b[,i],acp_Touques_825b[,j],method = "pearson")$p.value,3)
+#   }
+# }
+# correlation_test = as.data.frame(correlation_test)
+# colnames(correlation_test) = colnames(acp_Touques_825b)
+# rownames(correlation_test)=colnames(acp_Touques_825b)
+
+
+# sonde 825 -----
+correlation_827 = matrix(rep(0,ncol(acp_Touques_825b)^2),
+                         ncol(acp_Touques_825b),ncol(acp_Touques_825b))
+
+for(i in 1:ncol(acp_Touques_825b)){
+  for(j in 1:ncol(acp_Touques_825b)){
+    correlation_827[i,j]=round(cor(acp_Touques_825b[,i],acp_Touques_825b[,j]),3)
+  }
+}
+correlation_827 = as.data.frame(correlation_827)
+colnames(correlation_827) = colnames(acp_Touques_825b)
+rownames(correlation_827)=colnames(acp_Touques_825b)
+
+
+# sonde 825 -----
+correlation_828 = matrix(rep(0,ncol(acp_Touques_825b)^2),
+                         ncol(acp_Touques_825b),ncol(acp_Touques_825b))
+
+for(i in 1:ncol(acp_Touques_825b)){
+  for(j in 1:ncol(acp_Touques_825b)){
+    correlation_828[i,j]=round(cor(acp_Touques_825b[,i],acp_Touques_825b[,j]),3)
+  }
+}
+correlation_828 = as.data.frame(correlation_828)
+colnames(correlation_828) = colnames(acp_Touques_825b)
+rownames(correlation_828)=colnames(acp_Touques_825b)
+
+# sonde 825 -----
+correlation_830 = matrix(rep(0,ncol(acp_Touques_825b)^2),
+                         ncol(acp_Touques_825b),ncol(acp_Touques_825b))
+
+for(i in 1:ncol(acp_Touques_825b)){
+  for(j in 1:ncol(acp_Touques_825b)){
+    correlation_830[i,j]=round(cor(acp_Touques_825b[,i],acp_Touques_825b[,j]),3)
+  }
+}
+correlation_830 = as.data.frame(correlation_830)
+colnames(correlation_830) = colnames(acp_Touques_825b)
+rownames(correlation_830)=colnames(acp_Touques_825b)
+
+
+
+
+
+#### Orne -----
+
+###### Avec 2 composantes -----
+db_acp_diff_Orne = merge(b_Orne_dif2[,-c(2:3)],db_teau_tair_diff[,
+                                                                       c("817Teau", "819Teau", "818Teau", "830Teau",
+                                                                         "817Tair", "819Tair", "818Tair", "830Tair",
+                                                                         "817diff", "819diff", "818diff", "830diff",
+                                                                         "date")],
+                            by="date")
+
+
+db_acp_diff_Orne = merge(db_acp_diff_Orne, db_pluvio[,c("817","819","818","830","date")],by="date",all.x=T)
+colnames(db_acp_diff_Orne)[22:25] = c("pluvio_817","pluvio_819","pluvio_818","pluvio_830")
+
+db_acp_diff_Orne = merge(db_acp_diff_Orne, db_soleil[,c("817","819","818","830","date")],by="date",all.x=T)
+colnames(db_acp_diff_Orne)[26:29] = c("sol_817","sol_819","sol_818","sol_830")
+
+db_acp_diff_Orne = merge(db_acp_diff_Orne, piezo_Orne,by="date",all.x=T)
+
+# Récupération des dates seulement
+acp_Orne_date <- db_acp_diff_Orne$date
+
+
+
+##### Préparation acp_diff_sonde_817_2comp -----
+
+acp_diff_Orne_817 <- db_acp_diff_Orne[,c("comp1_817diff",  "comp2_817diff",
+                                               "817Teau" ,"817Tair","817diff",
+                                               "pluvio_817","sol_817" ,"piezo"
+)]
+
+colnames(acp_diff_Orne_817) = c("C1","C2","Teau","Tair","Diff","rr","qq","piez")
+
+
+# Recherche des valeurs manquantes dans la BDD au viveau de la piezo
+sum(is.na(acp_diff_Orne_817)) == sum(is.na(acp_diff_Orne_817$piez))
+
+# Imputation de donn?es manquantes ? l'aide de imputePCA(missMDA)
+res.comp <- imputePCA(acp_diff_Orne_817)
+acp_diff_Orne_817b <- res.comp$completeObs
+sum(is.na(acp_diff_Orne_817b[,7])) # Plus de donn?es manquantes dans la variable pi?zo
+
+
+colnames(acp_diff_Orne_817b)
+acp_diff_Orne_817b=as.data.frame(acp_diff_Orne_817b)
+
+
+# ACP avec c1c2 -----
+res.pca=PCA(acp_diff_Orne_817b, quanti.sup=6:8 )
+
+res.pca$eig
+# Kaiser : garder les VPs au dessus de 1 => Dim1 - 2
+# Plus de 95% de l'info est conserver avec les DIM 1 - 2
+fviz_eig(res.pca, addlabels = TRUE, ylim = c(0, 50))
+# Diagramme des ?bouli : coude au niveau de la 3eme DIM, donc on garde les 2
+# premi?mes dimentions
+
+
+
+res_ACP_817_diff_2comp_C1C2 <- fviz_pca_var(res.pca,axes = c(1, 2), col.var = "cos2",title ="ACP de la Sonde 817",
+                                            gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
+                                            repel = TRUE
+)
+
+res_ACP_817_diff_2comp_C1C2
+
+###### Avec 3 composantes -----
+db_acp_diff_Orne = merge(b_Orne_dif3[,-c(2:4)],db_teau_tair_diff[,
+                                                                       c("817Teau", "819Teau", "818Teau", "830Teau",
+                                                                         "817Tair", "819Tair", "818Tair", "830Tair",
+                                                                         "817diff", "819diff", "818diff", "830diff",
+                                                                         "date")],
+                            by="date")
+
+
+db_acp_diff_Orne = merge(db_acp_diff_Orne, db_pluvio[,c("817","819","818","830","date")],by="date",all.x=T)
+colnames(db_acp_diff_Orne)[26:29] = c("pluvio_817","pluvio_819","pluvio_818","pluvio_830")
+
+db_acp_diff_Orne = merge(db_acp_diff_Orne, db_soleil[,c("817","819","818","830","date")],by="date",all.x=T)
+colnames(db_acp_diff_Orne)[30:33] = c("sol_817","sol_819","sol_818","sol_830")
+
+db_acp_diff_Orne = merge(db_acp_diff_Orne, piezo_Orne,by="date",all.x=T)
+
+# Récupération des dates seulement
+acp_Orne_date <- db_acp_diff_Orne$date
+
+
+
+##### Préparation acp_sonde_817 -----
+
+acp_diff_Orne_817 <- db_acp_diff_Orne[,c("comp1_817diff",  "comp2_817diff",  "comp3_817diff",
+                                               "817Teau" ,"817Tair","817diff",
+                                               "pluvio_817","sol_817" ,"piezo"
+)]
+
+colnames(acp_diff_Orne_817) = c("C1","C2","C3","Teau","Tair","Diff","rr","qq","piez")
+
+
+# Recherche des valeurs manquantes dans la BDD au viveau de la piezo
+sum(is.na(acp_diff_Orne_817)) == sum(is.na(acp_diff_Orne_817$piez))
+
+# Imputation de donn?es manquantes ? l'aide de imputePCA(missMDA)
+res.comp <- imputePCA(acp_diff_Orne_817)
+acp_diff_Orne_817b <- res.comp$completeObs
+sum(is.na(acp_diff_Orne_817b[,7])) # Plus de donn?es manquantes dans la variable pi?zo
+
+
+colnames(acp_diff_Orne_817b)
+acp_diff_Orne_817b=as.data.frame(acp_diff_Orne_817b)
+acp_diff_Orne_817_c1c2 <- acp_diff_Orne_817b[,-3]
+acp_diff_Orne_817_c1c3 <- acp_diff_Orne_817b[,-2]
+
+
+# ACP avec c1c2c3 -----
+res.pca=PCA(acp_diff_Orne_817b, quanti.sup=7:9)
+
+res.pca$eig
+# Kaiser : garder les VPs au dessus de 1 => Dim1 - 2
+# Plus de 95% de l'info est conserver avec les DIM 1 - 2
+fviz_eig(res.pca, addlabels = TRUE, ylim = c(0, 50))
+# Diagramme des ?bouli : coude au niveau de la 3eme DIM, donc on garde les 2
+# premi?mes dimentions
+
+
+
+res_ACP_817_diff_3comp_C1C2C3 <- fviz_pca_var(res.pca,axes = c(1, 2), col.var = "cos2",title ="ACP de la Sonde 817",
+                                              gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
+                                              repel = TRUE
+)
+
+res_ACP_817_diff_3comp_C1C2C3
+
+
+# ACP avec c1c2 -----
+res.pca=PCA(acp_diff_Orne_817_c1c2, quanti.sup=6:8 )
+
+res.pca$eig
+# Kaiser : garder les VPs au dessus de 1 => Dim1 - 2
+# Plus de 95% de l'info est conserver avec les DIM 1 - 2
+fviz_eig(res.pca, addlabels = TRUE, ylim = c(0, 50))
+# Diagramme des ?bouli : coude au niveau de la 3eme DIM, donc on garde les 2
+# premi?mes dimentions
+
+
+
+res_ACP_817_diff_3comp_C1C2 <- fviz_pca_var(res.pca,axes = c(1, 2), col.var = "cos2",title ="ACP de la Sonde 817",
+                                            gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
+                                            repel = TRUE
+)
+
+res_ACP_817_diff_3comp_C1C2
+
+# ACP avec c1c3 -----
+res.pca=PCA(acp_diff_Orne_817_c1c3, quanti.sup=6:8 )
+
+res.pca$eig
+# Kaiser : garder les VPs au dessus de 1 => Dim1 - 2
+# Plus de 95% de l'info est conserver avec les DIM 1 - 2
+fviz_eig(res.pca, addlabels = TRUE, ylim = c(0, 50))
+# Diagramme des ?bouli : coude au niveau de la 3eme DIM, donc on garde les 2
+# premi?mes dimentions
+
+
+
+res_ACP_817_diff_3comp_C1C3 <- fviz_pca_var(res.pca,axes = c(1, 2), col.var = "cos2",title ="ACP de la Sonde 817",
+                                            gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
+                                            repel = TRUE
+)
+
+res_ACP_817_diff_3comp_C1C3
+
+
+
+
+
+
+
+
+
 ############## Enregistrement des données -----
 
 #save(db_stats, db_stats_Touques, dbMM, db2, file="RData/dbA.RData")
@@ -2070,9 +3500,9 @@ save(db_stats,
      db_Odon_xtsa, db_Odon_xtsb, db_Odon_xtsc,
      db_Selune_xtsa, db_Selune_xtsb, db_Selune_xtsc,
      db_Touques_stats_MM30_mois, db_Touques_stats_MM30_An,
-      db_Orne_stats_MM30_mois, db_Orne_stats_MM30_An,
-      db_Odon_stats_MM30_mois, db_Odon_stats_MM30_An,
-      db_Selune_stats_MM30_mois, db_Selune_stats_MM30_An,
+     db_Orne_stats_MM30_mois, db_Orne_stats_MM30_An,
+     db_Odon_stats_MM30_mois, db_Odon_stats_MM30_An,
+     db_Selune_stats_MM30_mois, db_Selune_stats_MM30_An,
      db_xts_comp_teau_moy, db_xts_comp_teau_MM30, db_xts_comp_teau_MM365, db_xts_comp_teau_bih,
      db_teau_tair, db_teau_tair2, db_teau_tair3,
      dataReg, dataRegCoeff,
@@ -2082,5 +3512,10 @@ save(db_stats,
      #dataRegSelune, dataRegSelune825, dataRegSelune827, dataRegSelune828, dataRegSelune830,
      db_ordriscoll, coefficient, odris, regOdris, #riv,
      xts_aci_odon, xts_aci_orne, xts_aci_selune, xts_aci_touques,
+     res_ACP_825_diff_3comp_C1C2C3,
+     res_ACP_827_diff_3comp_C1C2C3,
+     res_ACP_828_diff_3comp_C1C2C3,
+     res_ACP_830_diff_3comp_C1C2C3,
+     mat_touques_dif_3comp,
      file = "RData/treated_data.RData")
 
