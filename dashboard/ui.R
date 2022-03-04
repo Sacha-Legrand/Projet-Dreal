@@ -1890,7 +1890,38 @@ dashboardPage(
                     )
                   ),
                   
-                  # ACI diff
+                  # ACI diff 3 composantes
+                  # h2("Analyse en Composantes Indépendantes Diff Teau-Tair"),
+                  # # ------------------------------ #
+                  # fluidRow(
+                  #   br(),
+                  #   column(
+                  #     width = 4,
+                  #     br(),
+                  #     wellPanel(
+                  #       h3("Menu"),
+                  #       radioButtons("sondes_touques_aci_dif", "Choix de la sonde",
+                  #                    c("Touques T1" = "825",
+                  #                      "Touques T3" = "827",
+                  #                      "Touques T4" = "828",
+                  #                      "Touques T6" = "830"), 
+                  #                    selected = "825"),
+                  #       br(),
+                  #       p(strong("Choix des compsantes")),
+                  #       checkboxInput(inputId = "comp1_touques_dif", label = "Composante 1", value = T),
+                  #       checkboxInput(inputId = "comp2_touques_dif", label = "Composante 2", value = T),
+                  #       checkboxInput(inputId = "comp3_touques_dif", label = "Composante 3", value = T)
+                  #       
+                  #     )
+                  #   ),
+                  #   
+                  #   column(
+                  #     width = 8,
+                  #     #h3("ACI"),
+                  #     dygraphOutput("aci_touques_dif")
+                  #   )
+                  # ),
+                  
                   h2("Analyse en Composantes Indépendantes Diff Teau-Tair"),
                   # ------------------------------ #
                   fluidRow(
@@ -1909,8 +1940,8 @@ dashboardPage(
                         br(),
                         p(strong("Choix des compsantes")),
                         checkboxInput(inputId = "comp1_touques_dif", label = "Composante 1", value = T),
-                        checkboxInput(inputId = "comp2_touques_dif", label = "Composante 2", value = T),
-                        checkboxInput(inputId = "comp3_touques_dif", label = "Composante 3", value = T)
+                        checkboxInput(inputId = "comp2_touques_dif", label = "Composante 2", value = T)#,
+                        #checkboxInput(inputId = "comp3_touques_dif", label = "Composante 3", value = T)
                         
                       )
                     ),
