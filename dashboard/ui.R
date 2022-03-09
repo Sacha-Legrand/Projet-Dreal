@@ -12,7 +12,7 @@
 
 # ---------------------------------------------------------------------- #
 # ------------------------------ TITRE --------------------------------- #
-# ---------------------------------------------------------------------- #
+# ----------------------------------------------------------------------
 
 
 
@@ -62,7 +62,7 @@ dashboardPage(
                              # les sub-menus
                              menuSubItem("Contexte de l'étude", tabName="sub_menu_contexte"),
                              menuSubItem("Données de l'étude", tabName="sub_menu_data"),
-                             menuSubItem("Lexique", tabName="sub_menu_lexique"),
+                             menuSubItem("Quelques notions", tabName="sub_menu_lexique"),
                              menuSubItem("Bibliographie", tabName = "sub_menu_biblio")
 
 
@@ -175,7 +175,8 @@ dashboardPage(
                     '#DATE2{color: black;font-size: 10px;}',
                     '#link_to_details_sonde{color: #30a8cf;font-size: 14px;}',
                     '#link_to_details_sonde{color: #30a8cf;font-size: 14px;}',
-                    '#id_lab_txt{font-size: 24px; font-weight: bold;}'
+                    '#id_lab_txt{font-size: 24px; font-weight: bold;}',
+                    '#p{"text-align: justify;"}'
                 )
             )
         ),
@@ -198,12 +199,57 @@ dashboardPage(
             tabItem(tabName = "sub_menu_contexte",
                     # Premier onglet du Menu 1 Introduction : Contexte de l'étude
 
-                    h2("Contexte de l'étude des températures des cours d'eau"),
+                    h2("Etude des températures des cours d'eau"),
+                    br(),
+                    h2("Contexte"),
 
 
-                    fluidRow(
 
-                    ) # End fluidRow
+                        p(style="text-align: justify;",
+                          "La température de l’eau est un facteur fondamental des écosystèmes des rivières.
+                          En effet, elle peut avoir une influence sur la croissance [1][2], la reproduction
+                          et le développement des poissons, ainsi que de leurs embryons et larves [3].
+                          Une augmentation de la température des rivières peut par ailleurs entraîner un
+                          dysfonctionnement des écosystèmes aquatiques en favorisant la prolifération de
+                          certaines espèces (macrophytes, algues et cyanobactéries), contribuant à la
+                          diminution de l'oxygène dissous, qui est essentiel à la vie aquatique [4][5]."),
+
+                        p(style="text-align: justify;",
+                          "De plus, de nombreux organismes des rivières sont dits poïkilothermes, c’est-à-dire
+                          qu’ils ne peuvent pas réguler leur température corporelle eux-même et donc que
+                          celle-ci dépend de la température du milieu environnant."),
+
+                         p(style="text-align: justify;",
+                           "Ainsi, une perturbation de la température des cours d’eau peut avoir un effet particulièrement dévastateur sur les écosystèmes aquatiques.
+                          Dans un contexte de réchauffement climatique, le suivi de la température des cours d’eau prend toute son importance."),
+
+                     p(style="text-align: justify;",
+                       "Depuis les années 70, la température des grands fleuves est étudiée en France [6][7][8], et depuis 2008, grâce à la
+                          création d'un réseau national par l'Office Français de la Biodiversité (OFB), la surveillance environnementale de la température des rivières s'est généralisée.
+                          Toutefois jusqu’à récemment, l’étude approfondie de la température des cours d’eau est restée rare, mise à part pour
+                          les cours d'eau principaux [9][10][11][12][13][14]."),
+
+                    p(style="text-align: justify;",
+                      "En Normandie, la Direction régionale de l'environnement, de l'aménagement et du logement (DREAL), du ministère de la Transition
+                          écologique et solidaire, s’est lancée dans l’entreprise d’une meilleure compréhension des effets du changement climatique en milieu aquatique, ainsi que des facteurs
+                          (humain ou environnementaux) influençant la température des cours d’eau. Pour se faire, depuis 2011 une trentaine de sondes de température HOBO®
+                          water Temp Pro v2 (U22-001) de précision ±0,2°C, enregistrant la température de l’eau à intervalle de 2 heures, ont été disposées dans différents
+                          cours d’eau du territoire normand."),
+
+                    br(),
+                    h2("Objectifs"),
+
+                   p(style="text-align: justify;",
+                     "Dans le cadre de ce projet, la demande a été de proposer un outil de data-visualisation pour valoriser les données recueillies par la DREAL.
+                     Cette interface permet d’obtenir :"),
+                   tags$ol(type = "i",
+                           tags$li("une synthèse des résultats du dispositif mis en place depuis plus de 10 ans ;"),
+                           tags$li("une analyse de certains facteurs influençant la température des cours d’eau (e.g. eaux souterraines, barrages).")),
+
+                    p("Cet outil a été pensé pour être utile à la fois aux différents corps de métiers gravitant autour l’écologie en milieu aquatique,
+                      mais aussi pour être accessible à un public plus large s’intéressant à l’environnement.")
+
+
 
             ), # End tabItem 1 (onglet 1 du menu 1)
             # -------------------------------------------------- #
@@ -234,7 +280,7 @@ dashboardPage(
 
 
             ####################################
-            # Sous-menu : Lexique
+            # Sous-menu : Queslques notions
             ####################################
 
             # -------------------------------------------------- #
@@ -242,12 +288,96 @@ dashboardPage(
                     # Onglet 3 du Menu 1 Introduction : Lexique
 
 
-                    h2("Lexique"),
+                    h2("Quelques notions"),
+
+                        p(style="text-align: justify;",
+                          "Vous trouverez dans cet onglet quelques explications à propos de
+                          certaines notions relatives à l’hydrobiologie, l’hydrogéologie ainsi
+                          que certaines méthodologies statistiques abordées au sein de cette
+                          étude."),
+
+                    h3(strong("Hydrobiologie")),
+
+                    h4(strong("Préférendum thermiques")),
+
+                    p(style="text-align: justify;",
+                      "La notion de préférendum thermique fait référence à une gamme de températures
+                      optimales, pour lesquelles les espèces d’un milieu aquatique ne vont pas être en
+                      état de stress (i.e., elle ne présentent pas de comportements anormaux concernant
+                      leur alimentation, leur reproduction etc.)."),
+
+                    p(style="text-align: justify;",
+                      "Toutefois, hors de cette gamme de températures optimales, les espèces peuvent se
+                      trouver en état de stress thermique, i.e. et des comportements anormaux, et des anomalies
+                      métaboliques peuvent survenir. "),
+
+                    p(style="text-align: justify;",
+                      "Enfin, lorsque des valeurs de températures extrêmes sont atteintes (températures létales),
+                      la survie directe de l’espèce est compromise : l’espèce ne peut plus maintenir ses fonctions
+                      vitales primaires."),
+
+                    p(style="text-align: justify;",
+                      "Ces gammes de températures, qu’il s’agisse du préférendum thermique, des températures
+                      menant à de l’état de stress thermique ou encore les températures létales varient selon
+                      les espèces [15]."),
+
+                    p(style="text-align: justify;",
+                      "Au cours de cette étude, les préférendum thermiques de la truite et du brochet, espèces
+                      couramment retrouvées dans les cours d’eau normands, seront abordés. "),
+
+                    h3(strong("Hydrogéologie")),
+
+                    h4(strong("Bassin versant")),
+
+                    p(style="text-align: justify;",
+                      "Le bassin versant est une surface de collecte des eaux de pluie nécessaire au bon
+                      fonctionnement d’un cours d’eau. Il comprend le cours d’eau lui-même, ainsi que ses
+                      affluents  [16]."),
+
+                    h3(strong("Statistiques")),
+
+                    h4(strong("Analyse en Composantes Principales (ACP)")),
+
+                    p(style="text-align: justify;",
+                      "L’Analyse en Composantes Principales est une méthode d’analyse des données
+                      permettant de transformer des variables liées entre elles en nouvelles variables
+                      décorrélées. Ces variables corrélées forment les composantes principales. Ce type
+                      d’analyse permet d’obtenir un nombre de variable réduit, à partir de données
+                      multivariées parfois de grande dimensions [17]. "),
 
 
-                    fluidRow(
+                    h4(strong("Analyse en Composantes Indépendantes (ACI)")),
 
-                    ) # End fluidRow
+                    p(style="text-align: justify;",
+                        "Analyse en Composantes Indépendantes est une méthode d’analyse de
+                      données permettant d’obtenir des composantes élémentaires, à partir
+                      de l’enregistrement de signaux mixtes (i.e. différentes séries
+                      temporelles  ou chroniques), qui seront ici des données de
+                      températures récoltées au sein d’un même cours d’eau.
+                      Cette méthode permet notamment de dégager des signatures de
+                      phénomènes (variables latentes), non visibles par l’observation
+                      simple des séries temporelles [18]. Par ailleurs, il est possible
+                      de réaliser une ACP à la suite d’une ACI pour tenter de comprendre
+                      la nature des signaux obtenue par l’ACI."),
+
+                    h4(strong("O’Driscoll et DeWalle")),
+
+                    p(style="text-align: justify;",
+                      "La méthode O’Driscoll et DeWalle permet d’obtenir des informations
+                      concernant l’influence des eaux souterraines sur la température des
+                      cours d'eau. Elle consiste à réaliser la régression linéaire de la
+                      température de l’eau en fonction de la température de l’air, sonde
+                      par sonde, et d’en extraire la pente et l’ordonnée à l’origine.
+                      Une nouvelle régression linéaire est ensuite réalisée, des ordonnées
+                      à l’origine en fonction des pentes des régressions réalisées
+                      précédemment. Ainsi, les sondes avec une ordonnée à l’origine et une
+                      faible pente sont caractéristiques des cours d’eau dont la
+                      température est influencée par la température des eaux souterraines,
+                      alors que les sondes au profil inverse sont caractéristiques de cours
+                      d’eau dont les températures sont peu influencées par la nappe
+                      phréatique [19].")
+
+
 
             ), # End tabItem 3 (onglet 3 du menu 1)
             # -------------------------------------------------- #
@@ -265,7 +395,141 @@ dashboardPage(
 
                     fluidRow(
 
-                    ) # End fluidRow
+                        tags$ol(
+                            #1
+                            tags$li("Wieser, W., Frostner, H., Schiemer, F. and Mark, W. 1988. Growth rates and
+                                    growth efficiencies in larvae and juveniles of Rutilus rutilus and other cyprinid
+                                    species : effects of temperature and food in the laboratory and in the field.
+                                    Canadian Journal of Fisheries and Aquatic Sciences, 45, 943–950,",
+                                    tags$a(href="https://doi.org/10.1139/f88-116","https://doi.org/10.1139/f88-116")
+                                   ),
+                            br(),
+                            #2
+                            tags$li("Wolter, C. 2007. Temperature influence on the fish assemblage structure in
+                                    a large lowland river, the lower Oder River, Germany. Ecology of Freshwater Fish,
+                                    16, 493–503,",
+                                    tags$a(href="https://doi.org/10.1111/j.1600-0633.2007.00237.x",
+                                           "https://doi.org/10.1111/j.1600-0633.2007.00237.x")
+                            ),
+
+                            #3
+                            br(),
+                            tags$li("De Vlaming, V.L. 1972. Environmental
+                                    control of teleost reproductive cycles: a brief review. Journal of Fish Biology,
+                                    4, 131–140, ",
+                                    tags$a(href="https://doi.org/10.1111/j.1095-8649.1972.tb05661.x",
+                                           "https://doi.org/10.1111/j.1095-8649.1972.tb05661.x")
+                            ),
+                            #4
+                            br(),
+                            tags$li("Carpenter, J.H. 1966. New measurements of oxygen solubility in
+                                    pure and natural water. Limnology and Oceanography,11, 264–277, ",
+                                    tags$a(href="https://doi.org/10.4319/lo.1966.11.2.0264",
+                                           "https://doi.org/10.4319/lo.1966.11.2.0264")
+                            ),
+                            #5
+                            br(),
+                            tags$li("Gresselin F., Dardaillon B., Bordier C., Parais F. & Kauffmann F., 2021. Use of statistical methods to characterize the influence of groundwater on the thermal regime of rivers in Normandy, France: comparison between the highly permeable, chalk catchment of the Touques River and the low
+                                    permeability, crystalline rock catchment of the Orne River. Geological Society, London, Special Publications, 517. ",
+                                    tags$a(href="https://doi.org/10.1144/SP517-2020-117",
+                                           "https://doi.org/10.1144/SP517-2020-117")
+                            ),
+                            #6
+                            br(),
+                            tags$li("Moatar, F. and Gailhard, J. 2006. Water temperature behaviour in
+                                    the River Loire since 1976 and 1881. Comptes Rendus Geosciences, 338, 319–328,  ",
+                                    tags$a(href="https://doi.org/10.1016/j.crte.2006.02.011",
+                                           "https://doi.org/10.1016/j.crte.2006.02.011")
+                            ),
+                            #7
+                            br(),
+                            tags$li("Poirel, A., Lauters, F. and Desaint, B. 2008. 1977–2006 : trente années de mesures des températures de l’eau dans le Bassin du Rhône. 1977–2006:
+                                    thirty years of water temperature measurements in the Rhône Basin. Hydroécologie Appliquée, 16, 91–213,",
+                                    tags$a(href="https://doi.org/10.1051/hydro/2009002",
+                                           "https://doi.org/10.1051/hydro/2009002")
+                            ),
+                            #8
+                            br(),
+                            tags$li("Larnier, K., Roux, H., Dartus, D. and Croze, O. 2010. Water tempearture modeling in the Garonne River (France).
+                                    Knowledge and Management of Aquatic Ecosystems, 398, ",
+                                    tags$a(href="https://doi.org/10.1051/kmae/2010031",
+                                           "https://doi.org/10.1051/kmae/2010031")
+                            ),
+                            #9
+                            br(),
+                            tags$li("Ducharne, A., Baubion, C. et al. 2007. Long term prospective of the Seine River system: Confronting climatic
+                                    and direct anthropogenic changes. Science of the Total Environment, 375, 292–311,",
+                                    tags$a(href="https://doi.org/10.1016/J.SCITOTENV.2006.12.011",
+                                           "https://doi.org/10.1016/J.SCITOTENV.2006.12.011")
+                            ),
+                            #10
+                            br(),
+                            tags$li("Ducharne, A. 2008. Importance of stream temperature to climate change impact on water quality.
+                                    Hydrology and Earth System Sciences, 12, 797–810, ",
+                                    tags$a(href="https://doi.org/10.5194/hess-12-797-2008",
+                                           "https://doi.org/10.5194/hess-12-797-2008")
+                            ),
+                            #11
+                            br(),
+                            tags$li("Bustillo, V., Moatar, F., Ducharne, A., Thiéry, D. and Poirel, A. 2014. A multimodel comparison
+                                    for assessing water temperatures under changing climate conditions via the equilibrium temperature
+                                    concept: case study of the middle Loire river, France. Hydrological Processes, 28, 1507–1524, ",
+                                    tags$a(href="https://doi.org/10.1002/hyp.9683",
+                                           "https://doi.org/10.1002/hyp.9683")
+                            ),
+                            #12
+                            br(),
+                            tags$li("Beaufort, A. 2015. Modélisation physique de la température des cours d’eau à l’échelle régionale:
+                                    application au bassin versant de la Loire. PhD thesis, Tours University."
+
+                            ),
+
+                            #13
+                            br(),
+                            tags$li("Beaufort, A., Curie, F., Moatar, F., Ducharne, A., Melin, E. and Thiery, D. 2016a. T-NET, a dynamic
+                                    model for simulating daily stream temperature at the regional scale based on a network topology.
+                                    Hydrological Processes, 30, 2196–2210, ",
+                                    tags$a(href="https://doi.org/10.1002/hyp.10787",
+                                           "https://doi.org/10.1002/hyp.10787")
+                            ),
+                            #14
+                            br(),
+                            tags$li( "Beaufort, A., Moatar, F., Curie, F., Ducharne, A., Bustillo, V. and Thiery, D. 2016b.
+                                     River temperature modelling by Strahler order at the regional scale in the Loire river basin, France.
+                                     River Research Applications, 32, 597–609, ",
+                                    tags$a(href="https://doi.org/10.1002/rra.2888",
+                                           "https://doi.org/10.1002/rra.2888")
+                            ),
+                            #15
+                            br(),
+                            tags$li( "Fédération du Haut-Rhin pour la Pêche et la Protection du Milieu Aquatique., 2020. Suivi thermique des
+                                     eaux du département du Haut-Rhin : BILAN 2019. p.10-12."),
+
+                            #16
+                             br(),
+                             tags$li("DREAL. 2016. Première partie : Notions d’hydrologie ; Eléments de compréhension. L’hydrologie en
+                                     Basse-Normandie. Caen; 2016. p. 10-11."),
+
+                            #17
+                            br(),
+                            tags$li("Husson F., Lê S, Pagès J. 2016. Analyse en composantes principales.
+                                    In. Analyse de données avec R. Presses Universitaires de Rennes. Rennes; p. 1-54."),
+                            #18
+                            br(),
+                            tags$li("Hérault, J., Jutten, C. and Ans, B. 1985. Détection de grandeurs primitives dans
+                                    un message composite par une architecture de calcul neuromimétique en apprentissage non supervisé.
+                                    Actes du Xème Colloque de Nice GRETSI, Nice, France, 2, 1017–1022."),
+                            #19
+                            br(),
+                            tags$li( "O’Driscoll, M.A. and DeWalle, D.R. 2006. Stream–air temperature relations to classify stream-groundwater
+                                     interactions in a karst setting, central Pennsylvania, USA Journal of Hydrology, 329, 140–153, ",
+                                     tags$a(href="https://doi.org/10.1016/j.jhydrol.2006.02.010",
+                                            "https://doi.org/10.1016/j.jhydrol.2006.02.010")
+                            )
+
+                    )
+                    )
+
 
             ), # End tabItem 4 (onglet 4 du menu 1)
             # -------------------------------------------------- #
@@ -285,9 +549,6 @@ dashboardPage(
             ####################################################
             # Deuxième Menu : Cartographie
             ####################################################
-
-
-
 
 
             # -------------------------------------------------- #
@@ -974,14 +1235,13 @@ dashboardPage(
                         tabPanel(strong("Description"),
                                  fluidRow(
 
-                                     # column(width = 2,
-                                     #
-                                     #
-                                     #        img(src="Odon.png")),
+                                     column(width = 2,
+                                            img(src="Odon.png",width="140px",height="550px")
+                                            ),
 
                                      column( width = 6,
 
-                                             h3(strong("La Odon")),
+                                             h3(strong("L'Odon")),
                                              br(),
                                              status = "primary",solidHeader = TRUE,
 
@@ -1734,7 +1994,8 @@ dashboardPage(
                         column(
                             width = 7,
                             h3("Périodogramme"),
-                            plotOutput("perio_sonde_synthese", width = "95%")
+                            plotOutput("perio_sonde_synthese", width = "95%"),
+                            textOutput("perio")
                         )
                     )
                     # ---------------------------------------- #
@@ -1841,13 +2102,7 @@ dashboardPage(
             ),
 
 
-            ####################################################
-            # Sixième  Menu : Références
-            ####################################################
-            tabItem(tabName = "Reference"#,
-                    #includeMarkdown(paste0(path,"/read.md"))
 
-            ),
 
             ####################################################
             # Septième  Menu : ACI ACP
@@ -1859,15 +2114,19 @@ dashboardPage(
                         tabPanel(
                             "Touques",
 
-                            h2("Analyse en Composantes Indépendantes"),
+                            h1("Influence des eaux souterraines sur la température de la Touques"),
+
+                            p("blabla de l'intro"),
+                            br(),
                             # ------------------------------ #
+                            h2("La différence entre la température de l'eau et de l'air semble indiquer un
+                                       phénomène qui réchauffe l'eau en hiver et la refroidit en été"),
                             fluidRow(
-                                br(),
                                 column(
                                     width = 4,
                                     br(),
                                     wellPanel(
-                                        h3("Menu"),
+                                       # h3("Menu"),
                                         radioButtons("sondes_touques_desc", "Choix de la sonde",
                                                      c("Touques T1" = "825",
                                                        "Touques T3" = "827",
@@ -1885,17 +2144,19 @@ dashboardPage(
 
                                 column(
                                     width = 8,
-                                    #h3("ACI"),
+
                                     dygraphOutput("desc_touques")
                                 )
                             ),
                             fluidRow(
                                 br(),
+                                h3(strong("Existence de 2 signaux périodiques et déphasés")),
                                 column(
                                     width = 4,
                                     br(),
+
                                     wellPanel(
-                                        h3("Menu"),
+                                        #h3("Menu"),
                                         radioButtons("sondes_touques_aci", "Choix de la sonde",
                                                      c("Touques T1" = "825",
                                                        "Touques T3" = "827",
@@ -1905,17 +2166,23 @@ dashboardPage(
                                         br(),
                                         p(strong("Choix des compsantes")),
                                         checkboxInput(inputId = "comp1_touques", label = "Composante 1", value = T),
-                                        checkboxInput(inputId = "comp2_touques", label = "Composante 2", value = T),
-                                        checkboxInput(inputId = "comp3_touques", label = "Composante 3", value = T)
+                                        checkboxInput(inputId = "comp2_touques", label = "Composante 2", value = T)
+                                        #checkboxInput(inputId = "comp3_touques", label = "Composante 3", value = T)
 
                                     )
                                 ),
 
                                 column(
                                     width = 8,
-                                    #h3("ACI"),
+
                                     dygraphOutput("aci_touques")
                                 )
+                            ),
+                            # Matrice de passage
+                            h3("Matrice de passage"),
+                            fluidRow(
+                                tableOutput("mat_pass_Touques")
+
                             ),
 
                             # ACI diff
@@ -1928,7 +2195,7 @@ dashboardPage(
                                     width = 4,
                                     br(),
                                     wellPanel(
-                                        h3("Menu"),
+                                        #h3("Menu"),
                                         radioButtons("sondes_touques_aci_dif3", "Choix de la sonde",
                                                      c("Touques T1" = "825",
                                                        "Touques T3" = "827",
@@ -1953,7 +2220,7 @@ dashboardPage(
                             # Matrice de passage
                             h3("Matrice de passage"),
                             fluidRow(
-                                tableOutput("mat_pass_Touques")
+                                tableOutput("mat_pass_Touques_diff")
 
                             ),
                             # # ACI diff
@@ -2003,11 +2270,22 @@ dashboardPage(
                                 plotOutput("ACP_827_diff", width = "95%"),
                                        h3(strong("Touques T6")),
                                 plotOutput("ACP_830_diff", width = "95%")
-                                )
+                                ),
+                                p("* Teau = Température de l'eau ;
+                                  Tair = Température de l'air ;
+                                  Diff = Différence (Teau-Tair) ;
+                                  piez = Piezométrie ;
+                                  qq = Ensoleillement ;
+                                  rr = Pluviométrie ;
+                                  C1 = Composante 1 ;
+                                  C2 = Composante 2 ;
+                                  C3 = Composante 3" )
+                            ),
+
+                            h2("Table des corrélations"),
+                            fluidRow(
+                            DT::dataTableOutput("touques_corr")
                             )
-
-
-
 
                         ),
                         # ---------------------------------------- #
@@ -2016,6 +2294,33 @@ dashboardPage(
 
                             h2("Analyse en Composantes Indépendantes"),
                             # ------------------------------ #
+                            fluidRow(
+                                br(),
+                                column(
+                                    width = 4,
+                                    br(),
+                                    wellPanel(
+                                        h3("Menu"),
+                                        radioButtons("sondes_orne_desc", "Choix de la sonde",
+                                                     c("Orne T1" = "817",
+                                                       "Orne T2" = "819",
+                                                       "Orne T3" = "818"),
+                                                     selected = "817"),
+                                        br(),
+                                        p(strong("Choix des compsantes")),
+                                        checkboxInput(inputId = "Teau_orne", label = "Température de l'eau", value = T),
+                                        checkboxInput(inputId = "Tair_orne", label = "Température de l'air", value = T),
+                                        checkboxInput(inputId = "diff_orne", label = "Différence entre températures (Teau-Tair)", value = T)
+
+                                    )
+                                ),
+
+                                column(
+                                    width = 8,
+                                    #h3("ACI"),
+                                    dygraphOutput("desc_orne")
+                                )
+                            ),
                             fluidRow(
                                 br(),
                                 column(
@@ -2043,9 +2348,17 @@ dashboardPage(
                                     dygraphOutput("aci_orne")
                                 )
                             ),
+                            # Matrice de passage
+                            h3("Matrice de passage"),
+                            fluidRow(
+                                tableOutput("mat_pass_orne")
 
-                            h2("Analyse en Composantes Indépendantes Diff Teau-Tair"),
+                            ),
+
+                            # ACI diff (2 composantes)
+                            h2("Analyse en Composantes Indépendantes Diff Teau-Tair (2 composantes)"),
                             # ------------------------------ #
+
                             fluidRow(
                                 br(),
                                 column(
@@ -2053,7 +2366,44 @@ dashboardPage(
                                     br(),
                                     wellPanel(
                                         h3("Menu"),
-                                        radioButtons("sondes_orne_aci_dif", "Choix de la sonde",
+                                        radioButtons("sondes_orne_aci_dif2", "Choix de la sonde",
+                                                     c("orne T1" = "817",
+                                                       "orne T2" = "819",
+                                                       "orne T3" = "818"),
+                                                     selected = "817"),
+                                        br(),
+                                        p(strong("Choix des compsantes")),
+                                        checkboxInput(inputId = "comp1_orne_dif2", label = "Composante 1", value = T),
+                                        checkboxInput(inputId = "comp2_orne_dif2", label = "Composante 2", value = T)
+                                        #checkboxInput(inputId = "comp3_orne_dif", label = "Composante 3", value = T)
+
+                                    )
+                                ),
+
+                                column(
+                                    width = 8,
+                                    #h3("ACI"),
+                                    dygraphOutput("aci_orne_dif2")
+                                )
+                            ),
+                            h3("Matrice de passage"),
+                            fluidRow(
+                                tableOutput("mat_pass_orne_diff2")
+
+                            ),
+
+                            # ACI diff 3 composantes
+                            h2("Analyse en Composantes Indépendantes Diff Teau-Tair (3 composantes)"),
+                            # ------------------------------ #
+
+                            fluidRow(
+                                br(),
+                                column(
+                                    width = 4,
+                                    br(),
+                                    wellPanel(
+                                        h3("Menu"),
+                                        radioButtons("sondes_orne_aci_dif3", "Choix de la sonde",
                                                      c("Orne T1" = "817",
                                                        "Orne T2" = "819",
                                                        "Orne T3" = "818"),
@@ -2070,22 +2420,81 @@ dashboardPage(
                                 column(
                                     width = 8,
                                     #h3("ACI"),
-                                    dygraphOutput("aci_orne_dif")
+                                    dygraphOutput("aci_orne_dif3")
                                 )
+                            ),
+                            # Matrice de passage
+                            h3("Matrice de passage"),
+                            fluidRow(
+                                tableOutput("mat_pass_orne_diff3")
+
                             ),
 
                             h2("Analyse en Composantes Principales"),
                             # ------------------------------ #
                             fluidRow(
+                                column(width = 6,
+                                       h3(strong("Orne T1")),
+                                       plotOutput("ACP_817_diff", width = "95%"),
+                                       h3(strong("Orne T3")),
+                                       plotOutput("ACP_818_diff", width = "95%")
+                                ),
+                                column(width = 6,
+                                       h3(strong("Orne T2")),
+                                       plotOutput("ACP_819_diff", width = "95%")
 
+                                )
+                                ),
+                                fluidRow(
+                                p("* Teau = Température de l'eau ;
+                                  Tair = Température de l'air ;
+                                  Diff = Différence (Teau-Tair) ;
+                                  piez = Piezométrie ;
+                                  qq = Ensoleillement ;
+                                  rr = Pluviométrie ;
+                                  C1 = Composante 1 ;
+                                  C2 = Composante 2 ;
+                                  C3 = Composante 3" )
+                            ),
+
+                            h2("Table des corrélations"),
+                            fluidRow(
+                                DT::dataTableOutput("orne_corr")
                             )
 
                         ),
                         # ---------------------------------------- #
                         tabPanel(
                             "Odon",
+                            fluidRow(
+                                br(),
+                                column(
+                                    width = 4,
+                                    br(),
+                                    wellPanel(
+                                        h3("Menu"),
+                                        radioButtons("sondes_odon_desc", "Choix de la sonde",
+                                                     c("Odon T1" = "812",
+                                                       "Odon T2" = "813",
+                                                       "Odon T4" = "815"),
+                                                     selected = "812"),
+                                        br(),
+                                        p(strong("Choix des compsantes")),
+                                        checkboxInput(inputId = "Teau_odon", label = "Température de l'eau", value = T),
+                                        checkboxInput(inputId = "Tair_odon", label = "Température de l'air", value = T),
+                                        checkboxInput(inputId = "diff_odon", label = "Différence entre températures (Teau-Tair)", value = T)
 
-                            h2("Analyse en Composantes Indépendantes"),
+                                    )
+                                ),
+
+                                column(
+                                    width = 8,
+                                    #h3("ACI"),
+                                    dygraphOutput("desc_odon")
+                                )
+                            ),
+
+                            h2("Analyse en Composantes Indépendantes (2 composantes)"),
                             # ------------------------------ #
                             fluidRow(
                                 br(),
@@ -2094,29 +2503,34 @@ dashboardPage(
                                     br(),
                                     wellPanel(
                                         h3("Menu"),
-                                        radioButtons("sondes_odon_aci", "Choix de la sonde",
+                                        radioButtons("sondes_odon_aci_2comp", "Choix de la sonde",
                                                      c("Odon T1" = "812",
                                                        "Odon T2" = "813",
-                                                       "Odon T4" = "815",
-                                                       "Odon T5" = "816"),
+                                                       "Odon T4" = "815"),
+                                                       #"Odon T5" = "816"),
                                                      selected = "812"),
                                         br(),
                                         p(strong("Choix des compsantes")),
-                                        checkboxInput(inputId = "comp1_odon", label = "Composante 1", value = T),
-                                        checkboxInput(inputId = "comp2_odon", label = "Composante 2", value = T),
-                                        checkboxInput(inputId = "comp3_odon", label = "Composante 3", value = T)
+                                        checkboxInput(inputId = "comp1_odon_2comp", label = "Composante 1", value = T),
+                                        checkboxInput(inputId = "comp2_odon_2comp", label = "Composante 2", value = T)
+                                       # checkboxInput(inputId = "comp3_odon_2comp", label = "Composante 3", value = T)
 
                                     )
                                 ),
 
                                 column(
                                     width = 8,
-                                    #h3("ACI"),
-                                    dygraphOutput("aci_odon")
+                                    h3("ACI"),
+                                    dygraphOutput("aci_odon_2comp")
                                 )
                             ),
+                            h3("Matrice de passage"),
+                            fluidRow(
+                                tableOutput("mat_odon_2comp")
 
-                            h2("Analyse en Composantes Indépendantes Diff Teau-Tair"),
+                            ),
+
+                            h2("Analyse en Composantes Indépendantes (3 composantes)",
                             # ------------------------------ #
                             fluidRow(
                                 br(),
@@ -2125,17 +2539,17 @@ dashboardPage(
                                     br(),
                                     wellPanel(
                                         h3("Menu"),
-                                        radioButtons("sondes_odon_aci_dif", "Choix de la sonde",
+                                        radioButtons("sondes_odon_aci_3comp", "Choix de la sonde",
                                                      c("Odon T1" = "812",
                                                        "Odon T2" = "813",
-                                                       "Odon T4" = "815",
-                                                       "Odon T5" = "816"),
+                                                       "Odon T4" = "815"),
+                                                       #"Odon T5" = "816"),
                                                      selected = "812"),
                                         br(),
                                         p(strong("Choix des compsantes")),
-                                        checkboxInput(inputId = "comp1_odon_dif", label = "Composante 1", value = T),
-                                        checkboxInput(inputId = "comp2_odon_dif", label = "Composante 2", value = T),
-                                        checkboxInput(inputId = "comp3_odon_dif", label = "Composante 3", value = T)
+                                        checkboxInput(inputId = "comp1_odon_3comp", label = "Composante 1", value = T),
+                                        checkboxInput(inputId = "comp2_odon_3comp", label = "Composante 2", value = T),
+                                        checkboxInput(inputId = "comp3_odon_3comp", label = "Composante 3", value = T)
 
                                     )
                                 ),
@@ -2143,22 +2557,54 @@ dashboardPage(
                                 column(
                                     width = 8,
                                     #h3("ACI"),
-                                    dygraphOutput("aci_odon_dif")
+                                    dygraphOutput("aci_odon_3comp")
                                 )
                             ),
-
-                            h2("Analyse en Composantes Principales"),
-                            # ------------------------------ #
+                            h3("Matrice de passage"),
                             fluidRow(
+                                tableOutput("mat_odon_3comp")
 
-                            )
+                            ),
+                            # h2("Analyse en Composantes Principales"),
+                            # # ------------------------------ #
+                            # fluidRow(
+                            #
+                            # )
 
-                        ),
+                        )),
                         # ---------------------------------------- #
                         tabPanel(
                             "Sélune",
 
-                            h2("Analyse en Composantes Indépendantes"),
+
+                            fluidRow(
+                                br(),
+                                column(
+                                    width = 4,
+                                    br(),
+                                    wellPanel(
+                                        h3("Menu"),
+                                        radioButtons("sondes_selune_desc", "Choix de la sonde",
+                                                     c("Selune T1" = "824",
+                                                       "Selune T2" = "821",
+                                                       "Selune T3" = "823"),
+                                                     selected = "824"),
+                                        br(),
+                                        p(strong("Choix des compsantes")),
+                                        checkboxInput(inputId = "Teau_selune", label = "Température de l'eau", value = T),
+                                        checkboxInput(inputId = "Tair_selune", label = "Température de l'air", value = T),
+                                        checkboxInput(inputId = "diff_selune", label = "Différence entre températures (Teau-Tair)", value = T)
+
+                                    )
+                                ),
+
+                                column(
+                                    width = 8,
+                                    #h3("ACI"),
+                                    dygraphOutput("desc_selune")
+                                )
+                            ),
+                            h2("Analyse en Composantes Indépendantes 2 composantes"),
                             # ------------------------------ #
                             fluidRow(
                                 br(),
@@ -2167,17 +2613,17 @@ dashboardPage(
                                     br(),
                                     wellPanel(
                                         h3("Menu"),
-                                        radioButtons("sondes_selune_aci", "Choix de la sonde",
+                                        radioButtons("sondes_selune_aci_2comp", "Choix de la sonde",
                                                      c("Sélune T1" = "824",
                                                        "Sélune T2" = "821",
-                                                       "Sélune T4" = "820",
+                                                       # "Sélune T4" = "820",
                                                        "Sélune T5" = "823"),
                                                      selected = "824"),
                                         br(),
                                         p(strong("Choix des compsantes")),
-                                        checkboxInput(inputId = "comp1_selune", label = "Composante 1", value = T),
-                                        checkboxInput(inputId = "comp2_selune", label = "Composante 2", value = T),
-                                        checkboxInput(inputId = "comp3_selune", label = "Composante 3", value = T)
+                                        checkboxInput(inputId = "comp1_selune_2comp", label = "Composante 1", value = T),
+                                        checkboxInput(inputId = "comp2_selune_2comp", label = "Composante 2", value = T),
+
 
                                     )
                                 ),
@@ -2185,13 +2631,17 @@ dashboardPage(
                                 column(
                                     width = 8,
                                     #h3("ACI"),
-                                    dygraphOutput("aci_selune")
+                                    dygraphOutput("aci_selune_2comp")
                                 )
                             ),
 
+                            h3("Matrice de passage"),
+                            fluidRow(
+                                tableOutput("mat_selune_2comp")
 
-                            h2("Analyse en Composantes Indépendantes Diff Teau-Tair"),
+                            ),
                             # ------------------------------ #
+                            h2("Analyse en Composantes Indépendantes 3 composantes"),
                             fluidRow(
                                 br(),
                                 column(
@@ -2199,17 +2649,17 @@ dashboardPage(
                                     br(),
                                     wellPanel(
                                         h3("Menu"),
-                                        radioButtons("sondes_selune_aci_dif", "Choix de la sonde",
+                                        radioButtons("sondes_selune_aci_3comp", "Choix de la sonde",
                                                      c("Sélune T1" = "824",
                                                        "Sélune T2" = "821",
-                                                       "Sélune T4" = "820",
+                                                       #"Sélune T4" = "820",
                                                        "Sélune T5" = "823"),
                                                      selected = "824"),
                                         br(),
                                         p(strong("Choix des compsantes")),
-                                        checkboxInput(inputId = "comp1_selune_dif", label = "Composante 1", value = T),
-                                        checkboxInput(inputId = "comp2_selune_dif", label = "Composante 2", value = T),
-                                        checkboxInput(inputId = "comp3_selune_dif", label = "Composante 3", value = T)
+                                        checkboxInput(inputId = "comp1_selune_3comp", label = "Composante 1", value = T),
+                                        checkboxInput(inputId = "comp2_selune_3comp", label = "Composante 2", value = T),
+                                        checkboxInput(inputId = "comp3_selune_3comp", label = "Composante 3", value = T)
 
                                     )
                                 ),
@@ -2217,27 +2667,93 @@ dashboardPage(
                                 column(
                                     width = 8,
                                     #h3("ACI"),
-                                    dygraphOutput("aci_selune_dif")
+                                    dygraphOutput("aci_selune_3comp")
                                 )
                             ),
-
-
-
-                            h2("Analyse en Composantes Principales"),
-                            # ------------------------------ #
+                            h3("Matrice de passage"),
                             fluidRow(
+                                tableOutput("mat_selune_3comp")
 
-                            )
+                            ),
+
+                            # h2("Analyse en Composantes Principales"),
+                            # # ------------------------------ #
+                            # h4("3 composantes"),
+                            # fluidRow(
+                            #     column(width = 6,
+                            #            h3(strong("Selune T1")),
+                            #            plotOutput("ACP_824_3comp", width = "95%"),
+                            #            h3(strong("Selune T5")),
+                            #            plotOutput("ACP_823_3comp", width = "95%")
+                            #     ),
+                            #     column(width = 6,
+                            #            h3(strong("Selune T2")),
+                            #            plotOutput("ACP_821_3comp", width = "95%")
+                            #
+                            #     )),
+                            #   fluidRow(
+                            #     h4("2 composantes"),
+                            #     column(width = 6,
+                            #            h3(strong("Selune T1")),
+                            #            plotOutput("ACP_824_2comp", width = "95%"),
+                            #            h3(strong("Selune T5")),
+                            #            plotOutput("ACP_823_2comp", width = "95%")
+                            #     ),
+                            #     column(width = 6,
+                            #            h3(strong("Selune T2")),
+                            #            plotOutput("ACP_821_2comp", width = "95%")
+                            #
+                            #     )
+                            #
+                            #
+                            # ),
+                            # fluidRow(
+                            #     p("* Teau = Température de l'eau ;
+                            #       Tair = Température de l'air ;
+                            #       qq = Ensoleillement ;
+                            #       rr = Pluviométrie ;
+                            #       C1 = Composante 1 ;
+                            #       C2 = Composante 2 ")
+                            # ),
+                            #
+                            # h2("Table des corrélations"),
+                            # fluidRow(
+                            #     DT::dataTableOutput("selune_corr")
+                            # )
 
                         )
                         # ---------------------------------------- #
                     )
 
 
-            )# Fin tabItem 7
+            ),# Fin tabItem 7
             # ################################################## #
 
 
+
+            ####################################################
+            # Sixième  Menu : Références
+            ####################################################
+            tabItem(tabName = "Reference",
+                    h2("Hydrologie et hydrobiologie des cours d'eau Normands"),
+                    br(),
+                    h3("Etude réalisée par :"),
+                    br(),
+                    h3("Conception de l'interface :"),
+                    p("- Sacha Legrand : legrand.sacha14@gmail.com"),
+                    p("- Lucie Letorey : lucieletorey@gmail.com"),
+                    p("- Julien Marie  : julien.marie133@gmail.com"),
+                    br(),
+                    h3("Encadrement :"),
+                    p("- Bruno Dardaillon : bruno.dardaillon@developpement-durable.gouv.fr"),
+                    p("- Frédéric Gresselin : frederic.gresselin@developpement-durable.gouv.fr"),
+                    p("- Fabrice Parais : fabrice.parais@developpement-durable.gouv.fr"),
+
+
+                    img(src="Equipe2.png",heigth=500,width=500),
+                    p("De la gauche vers la droite : Sacha Legrand, Lucie Letorey,
+                      Julien Marie, Fabrice Parais, Frédéric Gresselin, Bruno Dardaillon")
+        )
 
 
         ) # End tabItems
