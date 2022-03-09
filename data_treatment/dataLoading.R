@@ -112,6 +112,11 @@ if(!require(ifa)){
   install.packages("ifa")
   library(ifa)
 }
+if(!require(readODS)){
+  install.packages("readODS")
+  library(readODS)
+}
+
 
 
 
