@@ -119,18 +119,24 @@ if(!require(ifa)){
 ############## Working Directory -----
 
 # Path to working directory
-path = "/Users/julien/Desktop/projetM2/GitHub/data_treatment/"
+path = "D:/Users/Desktop/Cours/M2stat/Projet2/Projet-Dreal-main/data_treatment/"
 
 # Setting working Directory
 setwd(path)
 
+
+# Fichier des desciptions de variables
+Variables = readODS::read_ods(paste0(path,"/Description_Variables.ods"),sheet=1)
+save(Variables, file = "RData/Variables.RData")
 
 ############## Ajouter le code qui permet d'avoir db ? -----
 
 # Chargement et extraction des données des sondes
 
 pathSondes = paste0( path,"sondes")
+
 setwd(pathSondes)
+
 NomF <- list.files()
 NomF
 
@@ -228,11 +234,13 @@ db = db[,-2]
 
 db = db[,c(4,3,2,1)]
 
-rm(NomF,pathSondes)
 
+rm(NomF,pathSondes)
 setwd(path)
 # enregistrement des données dans un RData
 save(db, file = "RData/db.RData")
+
+
 
 ############## Fichiers kmls (données géographiques) -----
 
@@ -246,20 +254,13 @@ save(SondesOFB, coursEau2, BV1, file = "RData/KMLs.RData")
 
 
 
-
-
-
-
-
-
-
 ############## db_sonde_synthese et db_temp -----
 
 
 ## db_sonde_synthese
 
 # lecture du fichier xlsx
-db_sonde_synthese <- openxlsx::read.xlsx("Bilan activité sondes T.xlsx",sheet=1,
+db_sonde_synthese <- openxlsx::read.xlsx("BilanSonde.xlsx",sheet=1,
                                          startRow = 5,colNames=T,rowNames = F)
 
 
@@ -272,7 +273,7 @@ colnames(db_sonde_synthese) <- c("id_sonde","label","latitude","longitude","Alti
 for (i in 1:nrow(db_sonde_synthese)){
   if (db_sonde_synthese$id_sonde[i] %in% unique(db$id_sonde))
   {
-    db_sonde_synthese$id_sonde[i] = db_sonde_synthese$id_sonde[i] 
+    db_sonde_synthese$id_sonde[i] = db_sonde_synthese$id_sonde[i]
   }
   else{db_sonde_synthese$id_sonde[i] = NA}
 }
@@ -296,9 +297,6 @@ db_sonde_synthese = merge(db_sonde_synthese,modif, by="id_sonde")
 
 rm(modif)
 
-#as.character(db_sonde_synthese$id_sonde)
-#str(db_sonde_synthese)
-
 
 
 # calcul taille des fleuves
@@ -314,34 +312,34 @@ for (i in 1:dim(coursEau2)[1]){
   D=vector()
   longitude2=vector()
   latitude2=vector()
-  
+
   Name = coursEau2$Name[i]
-  
+
   coord = coordinates(coursEau2[coursEau2@data$Name == Name,])
-  
+
   lng <- coord[[1]][[1]][,1]
   longitude = coord[[1]][[1]][,1]
   lat <- coord[[1]][[1]][,2]
   latitude=coord[[1]][[1]][,2]
-  
+
   longitude2 = longitude*(pi/180)
   latitude2 = latitude*(pi/180)
-  
+
   for (j in 1:length(latitude)){
     d= (2 * asin( sqrt(
       (sin((latitude2[j]-latitude2[j+1])/2))^2 + cos(latitude2[j])*cos(latitude2[j+1])* ( sin((longitude2[j]-longitude2[j+1])/2)) ^2
     )
-    
+
     ))*6366
-    
+
     D=append(D,d)
   }
-  
+
   taille= sum(D,na.rm=T)
   #print(taille)
   Taille = append(Taille,taille)
   name = append(name,Name)
-  
+
 }
 #Taille
 
@@ -359,8 +357,8 @@ Name=as.character(Name)
 db_sonde_synthese$label2 = gsub(" T\\d+","",db_sonde_synthese$label)
 coursEau3 <- coursEau2
 coursEau3@data$Name <- as.character(coursEau3@data$Name)
-coursEau3@data$Name[coursEau3@data$Name == "Fontaine au HÃ©ron"] = "Fontaine au Héron" 
-coursEau3@data$Name[coursEau3@data$Name == "Grande Vallee"] = "Grande Vallée" 
+coursEau3@data$Name[coursEau3@data$Name == "Fontaine au HÃ©ron"] = "Fontaine au Héron"
+coursEau3@data$Name[coursEau3@data$Name == "Grande Vallee"] = "Grande Vallée"
 coursEau3@data$Name[coursEau3@data$Name == "Vieux Ruisseau (Vingt bec)"] = "Vingt Bec"
 
 coord_sondes = as.data.frame(cbind(as.character(db_sonde_synthese$id_sonde),
@@ -374,42 +372,44 @@ coord_sondes$latitude <- as.numeric(coord_sondes$latitude)
 coord_sondes$longitude <- as.character(coord_sondes$longitude)
 coord_sondes$longitude <- as.numeric(coord_sondes$longitude)
 coord_sondes$dist = NA
+
+
 for (i in 1:nrow(coord_sondes)){
   print(i)
   c_eau = coursEau3
   c_eau = coordinates(c_eau[c_eau@data$Name == as.character(coord_sondes$label[i]),])
   c_eau$d = NA
   c_eau$di = NA
-  
-  
+
+
   longitude = c_eau[[1]][[1]][,1]
   latitude = c_eau[[1]][[1]][,2]
-  
+
   longitude2 = longitude*(pi/180)
   latitude2 = latitude*(pi/180)
-  
+
   for (j in 1:length(latitude)){
-    
+
     c_eau$d[j]= (2 * asin( sqrt(
       (sin((latitude2[j]-latitude2[j+1])/2))^2 + cos(latitude2[j])*cos(latitude2[j+1])* ( sin((longitude2[j]-longitude2[j+1])/2)) ^2
     )
-    
+
     ))*6366
-    
+
     c_eau$di[j] = (2 * asin( sqrt(
-      (sin((latitude2[j]-(coord_sondes$latitude[i]*(pi/180)))/2))^2 + 
-        cos(latitude2[j])*cos((coord_sondes$latitude[i]*(pi/180)))* 
+      (sin((latitude2[j]-(coord_sondes$latitude[i]*(pi/180)))/2))^2 +
+        cos(latitude2[j])*cos((coord_sondes$latitude[i]*(pi/180)))*
         ( sin((longitude2[j]-(coord_sondes$longitude[i]*(pi/180)))/2)) ^2
     )
     )
     )*6366
-    
+
   }
   dist = c_eau$d[1:which(c_eau$di== min(c_eau$di))]
   coord_sondes$dist[i]=sum(dist)
   #print(sum(dist))
-  
-} 
+
+}
 
 
 db_sonde_synthese$distance_source = round(coord_sondes$dist)
@@ -420,20 +420,15 @@ rm(coursEau3)
 
 
 ## db_temp
-db_temp = data.frame(id_sonde = db_sonde_synthese$id_sonde, 
-                     cours_eau = c("Monne", "Vie", "Taute", "Barge", "Grande Vallee",
-                                   "Souleuvre", "See Rousse", "Egrenne", "Durance", "See",
-                                   "Berence", "Glanon", "Vieux Ruisseau (Vingt bec)",
-                                   "Fontaine au Heron", rep("Odon", 4), rep("Orne", 3),
-                                   rep("Selune", 5), rep("Touques", 4)),
-                     pos = c(3, 4, 14, 2, 13, 9, 12, 11, 10, 17, 16, 15, 8, 6, 
-                             rep(1, 4), rep(7, 3), rep(18, 5), rep(5, 4)))
-
-#Cette base de données te donne la position du cours d'eau dans coursEau2
-
-#db_temp[which(db_temp$id_sonde == 830),]$pos
-
-
+# db_temp = data.frame(id_sonde = db_sonde_synthese$id_sonde,
+#                      cours_eau = c("Monne", "Vie", "Taute", "Barge", "Grande Vallee",
+#                                    "Souleuvre", "See Rousse", "Egrenne", "Durance", "See",
+#                                    "Berence", "Glanon", "Vieux Ruisseau (Vingt bec)",
+#                                    "Fontaine au Heron", rep("Odon", 4), rep("Orne", 3),
+#                                    rep("Selune", 5), rep("Touques", 4)),
+#                      pos = c(3, 4, 14, 2, 13, 9, 12, 11, 10, 17, 16, 15, 8, 6,
+#                              rep(1, 4), rep(7, 3), rep(18, 5), rep(5, 4)))
+#
 
 #db_sonde_synthese$label
 
@@ -451,7 +446,7 @@ db_sonde_synthese$label = as.factor(db_sonde_synthese$label)
 db_sonde_synthese$label <- factor(db_sonde_synthese$label,
                                   levels = db_sonde_synthese$label,
                                   labels =riv
-)
+                                  )
 db_sonde_synthese$label <- as.character(db_sonde_synthese$label)
 
 
@@ -466,15 +461,13 @@ save(db_sonde_synthese, db_temp, file = "RData/db_temp_synthese.RData")
 ############## Fichiers nc (données E-OBS) -----
 
 
-
-
 sonde_lon = db_sonde_synthese$longitude
 sonde_lat = db_sonde_synthese$latitude
 sonde_coord = cbind(sonde_lon, sonde_lat)
 
 
 # Température moyenne de l'air
-nc_tair = raster::brick(paste0(path,"/nc_files/tg_ens_mean_0.1deg_reg_2011-2021_v24.0e.nc"))
+nc_tair = raster::brick(paste0(path,"nc_files/tg_ens_mean_0.1deg_reg_2011-2021_v24.0e.nc"))
 
 
 db_Tair_moy = raster::extract(nc_tair, sonde_coord, method = "bilinear")
@@ -493,7 +486,7 @@ rm(db_Tair_moy_temp)
 
 
 # Pluviométrie
-nc_pluvio = raster::brick(paste0(path,"/nc_files/rr_ens_mean_0.1deg_reg_2011-2021_v24.0e.nc"))
+nc_pluvio = raster::brick(paste0(path,"nc_files/rr_ens_mean_0.1deg_reg_2011-2021_v24.0e.nc"))
 
 
 db_pluvio = raster::extract(nc_pluvio, sonde_coord, method = "bilinear")
@@ -512,45 +505,45 @@ rm(db_pluvio_temp)
 
 
 # Température de l'air max
-nc_Tair_max = raster::brick(paste0(path,"/nc_files/tx_ens_mean_0.1deg_reg_2011-2021_v24.0e.nc"))
-
-
-db_Tair_max = raster::extract(nc_Tair_max, sonde_coord, method = "bilinear")
-
-rownames(db_Tair_max) = db_sonde_synthese$id_sonde
-
-
-db_Tair_max_temp = t(db_Tair_max)
-
-db_Tair_max = as.data.frame(db_Tair_max_temp)
-db_Tair_max$date = ymd(substring(rownames(db_Tair_max),2))
-
-rownames(db_Tair_max) = 1:nrow(db_Tair_max)
-
-rm(db_Tair_max_temp)
+# nc_Tair_max = raster::brick(paste0(path,"nc_files/tx_ens_mean_0.1deg_reg_2011-2021_v24.0e.nc"))
+#
+#
+# db_Tair_max = raster::extract(nc_Tair_max, sonde_coord, method = "bilinear")
+#
+# rownames(db_Tair_max) = db_sonde_synthese$id_sonde
+#
+#
+# db_Tair_max_temp = t(db_Tair_max)
+#
+# db_Tair_max = as.data.frame(db_Tair_max_temp)
+# db_Tair_max$date = ymd(substring(rownames(db_Tair_max),2))
+#
+# rownames(db_Tair_max) = 1:nrow(db_Tair_max)
+#
+# rm(db_Tair_max_temp)
 
 
 # Température de l'air min
-nc_Tair_min = raster::brick(paste0(path,"/nc_files/tn_ens_mean_0.1deg_reg_2011-2021_v24.0e.nc"))
+# nc_Tair_min = raster::brick(paste0(path,"nc_files/tn_ens_mean_0.1deg_reg_2011-2021_v24.0e.nc"))
+#
+#
+# db_Tair_min = raster::extract(nc_Tair_min, sonde_coord, method = "bilinear")
+#
+# rownames(db_Tair_min) = db_sonde_synthese$id_sonde
+#
+#
+# db_Tair_min_temp = t(db_Tair_min)
+#
+# db_Tair_min = as.data.frame(db_Tair_min_temp)
+# db_Tair_min$date = ymd(substring(rownames(db_Tair_min),2))
+#
+# rownames(db_Tair_min) = 1:nrow(db_Tair_min)
+#
+# rm(db_Tair_min_temp)
 
 
-db_Tair_min = raster::extract(nc_Tair_min, sonde_coord, method = "bilinear")
-
-rownames(db_Tair_min) = db_sonde_synthese$id_sonde
-
-
-db_Tair_min_temp = t(db_Tair_min)
-
-db_Tair_min = as.data.frame(db_Tair_min_temp)
-db_Tair_min$date = ymd(substring(rownames(db_Tair_min),2))
-
-rownames(db_Tair_min) = 1:nrow(db_Tair_min)
-
-rm(db_Tair_min_temp)
-
-
-# Température éclaircissement 
-nc_soleil = raster::brick(paste0(path,"/nc_files/qq_ens_mean_0.1deg_reg_2011-2021_v24.0e.nc"))
+# Température éclaircissement
+nc_soleil = raster::brick(paste0(path,"nc_files/qq_ens_mean_0.1deg_reg_2011-2021_v24.0e.nc"))
 
 
 db_soleil = raster::extract(nc_soleil, sonde_coord, method = "bilinear")
@@ -571,17 +564,38 @@ rm(db_soleil_temp)
 
 # enregistrement des bases de données
 
-save(db_Tair_moy, db_pluvio, db_Tair_max, db_Tair_min, db_soleil, 
+save(db_Tair_moy, db_pluvio,  db_soleil,
      file = "RData/db_nc_files.RData")
 
 
 
+## Piezométrie
+
+### PiezoTouques
+piezo_touques = read.table(paste0(path,"piezo/chroniquesTouques.txt"),
+                           sep="|",dec=".",header=F,encoding="UTF_8",skip=1
+                           )
+
+piezo_touques=piezo_touques[,c(5,7)]
+colnames(piezo_touques) = c("date","piezo")
+piezo_touques$date = str_sub(piezo_touques$date,1, -10)
+
+piezo_touques$date = as.Date(piezo_touques$date,format="%d/%m/%Y")
 
 
+### PiezoOrne
+piezo_orne = read.table(paste0(path,"piezo/chroniquesOrne.txt"),
+                           sep="|",dec=".",header=F,encoding="UTF_8",skip=1
+)
 
+piezo_orne=piezo_orne[,c(5,7)]
+colnames(piezo_orne) = c("date","piezo")
+piezo_orne$date = str_sub(piezo_orne$date,1, -10)
 
+piezo_orne$date = as.Date(piezo_orne$date,format="%d/%m/%Y")
 
+# enregistrement des bases de données
 
-
-
+save(piezo_orne, piezo_touques,
+     file = "RData/db_piezo.RData")
 
