@@ -124,7 +124,7 @@ if(!require(rsconnect)){
 ############## Working Directory -----
 
 # Path to working directory
-path = "/Users/julien/Desktop/projetM2/GitHub/dashboard/"
+path = "D:/Users/Desktop/Cours/M2stat/Projet2/Projet-Dreal-main/dashboard/"
 
 # Setting working Directory
 setwd(path)
@@ -140,6 +140,8 @@ load("RData/db.RData")
 load("RData/KMLs.RData")
 load("RData/db_temp_synthese.RData")
 load("RData/db_nc_files.RData")
+load("RData/db_piezo.RData")
+# load("RData/dbA.RData")
 # load("RData/dbA.RData")
 # load("RData/dbB.RData")
 # load("RData/dbC.RData")
@@ -152,3 +154,5 @@ load("RData/db_nc_files.RData")
 # load("RData/dbJ.RData")
 # load("RData/dbK.RData")
 load("RData/treated_data.RData")
+load("RData/db_aci_acp.RData")
+load("RData/Variables.RData")
