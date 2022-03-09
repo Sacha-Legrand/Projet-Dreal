@@ -116,6 +116,10 @@ if(!require(readODS)){
   install.packages("readODS")
   library(readODS)
 }
+if(!require(stringr)){
+  install.packages("stringr")
+  library(stringr)
+}
 
 
 
