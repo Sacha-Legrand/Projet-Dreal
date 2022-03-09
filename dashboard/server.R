@@ -5798,9 +5798,11 @@ shinyServer(function(input,output,session){
         sonde_db = as.data.frame(db[db$id_sonde==817,]),
         sonde_deb = "2011-06-17",
         sonde_fin = "2021-10-19",
-        sonde_nb_obs = 45330,
-
-        sonde_debit = "0",
+        sonde_nb_obs = 1,
+        freq = 0 ,
+        nb_jour = 0,
+        periodicite = 0,
+        #sonde_debit = "0",
         sonde_dist_source = "137",
         sonde_alt = "33"
     )
@@ -5827,9 +5829,7 @@ shinyServer(function(input,output,session){
         sonde_synthese_reactive$sonde_nb_obs = sonde_info$nb_obs
 
 
-
-
-    },ignoreInit = TRUE)
+    },ignoreInit = F)
 
     observeEvent(input$return_to_sub_menu_map_sonde, {
         updateNavbarPage(session=session, inputId = "menu_principal", selected = "sub_menu_sondes")
@@ -5889,7 +5889,12 @@ shinyServer(function(input,output,session){
 
     # Periodogramme
     output$perio_sonde_synthese <- renderPlot({
-        perio <- periodogram(log(db2[which(db2$id_sonde==sonde_synthese_reactive$id_sonde_num),]$`Température moyenne`))
+        db_tempo2=db2[which(db2$id_sonde==sonde_synthese_reactive$id_sonde_num),]
+        perio <- periodogram(db_tempo2$`Température moyenne`,log="yes",xlim=c(0,0.005))
+        i = which.max(perio$spec)
+        sonde_synthese_reactive$freq = perio$freq[i]
+        sonde_synthese_reactive$nb_jour = length(na.omit(db_xts_comp_teau_moy[[sonde_synthese_reactive$id_sonde_char]]))
+       # print(sonde_synthese_reactive$freq)
     })
 
 
@@ -5898,9 +5903,9 @@ shinyServer(function(input,output,session){
         paste0(sonde_synthese_reactive$label_sonde," : ","sondes n°",sonde_synthese_reactive$id_sonde_char)
     })
 
-    output$debit_txt <- renderText({
-        paste0("Débit : ", sonde_synthese_reactive$sonde_debit)
-    })
+    # output$debit_txt <- renderText({
+    #     paste0("Débit : ", sonde_synthese_reactive$sonde_debit)
+    # })
 
     output$dist_source_txt <- renderText({
         paste0("Distance à la source : ", sonde_synthese_reactive$sonde_dist_source, " km")
@@ -5921,10 +5926,20 @@ shinyServer(function(input,output,session){
     })
 
     output$nb_obs_txt <- renderText({
-        paste0(as.character(sonde_synthese_reactive$sonde_nb_obs), " observations.")
+        paste0(as.character(sonde_synthese_reactive$sonde_nb_obs), " observations (à pas de temps bi-horaire).")
     })
 
-
+    output$perio <- renderText({
+        paste0("Fréquence maximale de ",
+               round(sonde_synthese_reactive$freq,6),
+               " x ",
+               sonde_synthese_reactive$nb_jour, " observations journalières ",
+               ", soit ",
+               round(sonde_synthese_reactive$freq*sonde_synthese_reactive$nb_jour,3),
+               " événements sur  ",
+               year(sonde_synthese_reactive$sonde_fin)-year(sonde_synthese_reactive$sonde_deb),
+               " ans.")
+    })
 
 
 
@@ -6126,7 +6141,6 @@ shinyServer(function(input,output,session){
     # Analyse de données avancée
     #############################################################
 
-
     ##########################################
     # O'Driscoll
     ##########################################
@@ -6181,18 +6195,19 @@ shinyServer(function(input,output,session){
                                    "Température de l'air",
                                    "Différence Teau-Tair")[desc_touques_reactive$choix_composantes]
         lab_sonde = db_sonde_synthese[which(db_sonde_synthese$id_sonde == desc_touques_reactive$choix_sonde),]$label
-        dygraph(db_xts_tempo, paste0("Composantes indépendantes de ", lab_sonde)) %>%
+        dygraph(db_xts_tempo,ylab = "Température (en °C)",xlab="Temps") %>%
+
             dyOptions(colors = c("blue", "red", "black")[desc_touques_reactive$choix_composantes])
     })
 
     ###############
-    # Touques
+    # Touques ACI Données brutes
     ###############
     aci_touques_reactive <- reactiveValues(
         choix_sonde = "825",
-        choix_composantes = c(T, T, T),
-        composantes = c("comp1", "comp2", "comp3"),
-        col_label = c("comp1_825", "comp2_825", "comp3_825")
+        choix_composantes = c(T, T),
+        composantes = c("comp1", "comp2"),
+        col_label = c("comp1_825", "comp2_825")
     )
 
     observeEvent(input$sondes_touques_aci, {
@@ -6206,21 +6221,24 @@ shinyServer(function(input,output,session){
     observeEvent(input$comp2_touques, {
         aci_touques_reactive$choix_composantes[2] = input$comp2_touques
     })
-    observeEvent(input$comp3_touques, {
-        aci_touques_reactive$choix_composantes[3] = input$comp3_touques
-    })
+    # observeEvent(input$comp3_touques, {
+    #     aci_touques_reactive$choix_composantes[3] = input$comp3_touques
+    # })
 
     output$aci_touques <- renderDygraph({
         db_xts_tempo = xts(b_touques[,aci_touques_reactive$col_label[aci_touques_reactive$choix_composantes]],
                            b_touques[,"date"])
-        colnames(db_xts_tempo) = c("Composante 1", "Composante 2", "Composante 3")[aci_touques_reactive$choix_composantes]
+        colnames(db_xts_tempo) = c("Composante 1", "Composante 2")[aci_touques_reactive$choix_composantes]
         lab_sonde = db_sonde_synthese[which(db_sonde_synthese$id_sonde == aci_touques_reactive$choix_sonde),]$label
         dygraph(db_xts_tempo, paste0("Composantes indépendantes de ", lab_sonde)) %>%
-            dyOptions(colors = c("blue", "red", "black")[aci_touques_reactive$choix_composantes])
+            dyOptions(colors = c("blue", "red")[aci_touques_reactive$choix_composantes])
     })
-
     ###############
-    # Touques diff
+    # Touques matrice de passage Données Brutes
+    ###############
+    output$mat_pass_Touques= renderTable(mat_touques_3comp,rownames=T)
+    ###############
+    # Touques diff 3 comp
     ###############
     aci_touques_dif3_reactive <- reactiveValues(
         choix_sonde = "825",
@@ -6254,7 +6272,7 @@ shinyServer(function(input,output,session){
     })
 
     ###############
-    # Touques diff
+    # Touques diff 2 comp
     ###############
     aci_touques_dif2_reactive <- reactiveValues(
         choix_sonde = "825",
@@ -6285,9 +6303,9 @@ shinyServer(function(input,output,session){
             dyOptions(colors = c("blue", "red", "black")[aci_touques_dif2_reactive$choix_composantes])
     })
     ###############
-    # Touques matrice de passage
+    # Touques matrice de passage Données Diff
     ###############
-    output$mat_pass_Touques= renderTable( mat_touques_dif_3comp,rownames=T)
+    output$mat_pass_Touques_diff= renderTable( mat_touques_dif_3comp,rownames=T)
 
 
     ###############
@@ -6304,6 +6322,55 @@ shinyServer(function(input,output,session){
     })
     output$ACP_830_diff <- renderPlot({
         res_ACP_830_diff_3comp_C1C2C3
+    })
+
+    ###############
+    # Touques corrélations
+    ###############
+
+    output$touques_corr = DT::renderDataTable(
+
+        correlation_touques,  rownames = NULL,
+        filter = 'top', options = list(
+            pageLength = 5, autoWidth = TRUE
+        )
+
+    )
+
+    ###############
+    # orne Desc
+    ###############
+    desc_orne_reactive <- reactiveValues(
+        choix_sonde = "817",
+        choix_composantes = c(T, T, T),
+        composantes = c("Teau", "Tair", "diff"),
+        col_label = c("817Teau", "817Tair", "817diff")
+    )
+
+    observeEvent(input$sondes_orne_desc, {
+        desc_orne_reactive$choix_sonde = input$sondes_orne_desc
+        desc_orne_reactive$col_label = paste0(desc_orne_reactive$choix_sonde,desc_orne_reactive$composantes)
+    })
+
+    observeEvent(input$Teau_orne, {
+        desc_orne_reactive$choix_composantes[1] = input$Teau_orne
+    })
+    observeEvent(input$Tair_orne, {
+        desc_orne_reactive$choix_composantes[2] = input$Tair_orne
+    })
+    observeEvent(input$diff_orne, {
+        desc_orne_reactive$choix_composantes[3] = input$diff_orne
+    })
+
+    output$desc_orne <- renderDygraph({
+        db_xts_tempo = xts(teau_tair_diff_orne[,desc_orne_reactive$col_label[desc_orne_reactive$choix_composantes]],
+                           teau_tair_diff_orne[,"date"])
+        colnames(db_xts_tempo) = c("Température de l'eau",
+                                   "Température de l'air",
+                                   "Différence Teau-Tair")[desc_orne_reactive$choix_composantes]
+        lab_sonde = db_sonde_synthese[which(db_sonde_synthese$id_sonde == desc_orne_reactive$choix_sonde),]$label
+        dygraph(db_xts_tempo, paste0("Composantes indépendantes de ", lab_sonde)) %>%
+            dyOptions(colors = c("blue", "red", "black")[desc_orne_reactive$choix_composantes])
     })
 
     ###############
@@ -6344,44 +6411,177 @@ shinyServer(function(input,output,session){
 
 
     ###############
-    # Orne diff
+    # orne matrice de passage Données Brutes
     ###############
-    aci_orne_dif_reactive <- reactiveValues(
+    output$mat_pass_orne= renderTable(mat_orne_3comp,rownames=T)
+
+    ###############
+    # orne diff 3 comp
+    ###############
+    aci_orne_dif3_reactive <- reactiveValues(
         choix_sonde = "817",
         choix_composantes = c(T, T, T),
         composantes = c("comp1", "comp2", "comp3"),
-        #nb_composantes = 3,
-        col_label = c("comp1_817diff", "comp2_817diff", "comp3_817diff")#,
-        #graphe_label = c("Composante 1", "Composante 2", "Composante 3")
+        col_label = c("comp1_817diff", "comp2_817diff", "comp3_817diff")
     )
 
-    observeEvent(input$sondes_orne_aci_dif, {
-        aci_orne_dif_reactive$choix_sonde = input$sondes_orne_aci_dif
-        aci_orne_dif_reactive$col_label = paste0(aci_orne_dif_reactive$composantes, "_", aci_orne_dif_reactive$choix_sonde, "diff")
+    observeEvent(input$sondes_orne_aci_dif3, {
+        aci_orne_dif3_reactive$choix_sonde = input$sondes_orne_aci_dif3
+        aci_orne_dif3_reactive$col_label = paste0(aci_orne_dif3_reactive$composantes, "_", aci_orne_dif3_reactive$choix_sonde,"diff")
     })
 
     observeEvent(input$comp1_orne_dif, {
-        aci_orne_dif_reactive$choix_composantes[1] = input$comp1_orne_dif
+        aci_orne_dif3_reactive$choix_composantes[1] = input$comp1_orne_dif
     })
     observeEvent(input$comp2_orne_dif, {
-        aci_orne_dif_reactive$choix_composantes[2] = input$comp2_orne_dif
+        aci_orne_dif3_reactive$choix_composantes[2] = input$comp2_orne_dif
     })
     observeEvent(input$comp3_orne_dif, {
-        aci_orne_dif_reactive$choix_composantes[3] = input$comp3_orne_dif
+        aci_orne_dif3_reactive$choix_composantes[3] = input$comp3_orne_dif
     })
 
-    output$aci_orne_dif <- renderDygraph({
-        db_xts_tempo = xts(b_orne_dif[,aci_orne_dif_reactive$col_label[aci_orne_dif_reactive$choix_composantes]],
-                           b_orne_dif[,"date"])
-        colnames(db_xts_tempo) = c("Composante 1", "Composante 2", "Composante 3")[aci_orne_dif_reactive$choix_composantes]
-        lab_sonde = db_sonde_synthese[which(db_sonde_synthese$id_sonde == aci_orne_dif_reactive$choix_sonde),]$label
+    output$aci_orne_dif3 <- renderDygraph({
+        db_xts_tempo = xts(b_orne_dif3[,aci_orne_dif3_reactive$col_label[aci_orne_dif3_reactive$choix_composantes]],
+                           b_orne_dif3[,"date"])
+        colnames(db_xts_tempo) = c("Composante 1", "Composante 2", "Composante 3")[aci_orne_dif3_reactive$choix_composantes]
+        lab_sonde = db_sonde_synthese[which(db_sonde_synthese$id_sonde == aci_orne_dif3_reactive$choix_sonde),]$label
         dygraph(db_xts_tempo, paste0("Composantes indépendantes de ", lab_sonde)) %>%
-            dyOptions(colors = c("blue", "red", "black")[aci_orne_dif_reactive$choix_composantes])
+            dyOptions(colors = c("blue", "red", "black")[aci_orne_dif3_reactive$choix_composantes])
     })
+
+    ###############
+    # orne diff 2 comp
+    ###############
+    aci_orne_dif2_reactive <- reactiveValues(
+        choix_sonde = "817",
+        choix_composantes = c(T, T),
+        composantes = c("comp1", "comp2"),
+        col_label = c("comp1_817diff", "comp2_817diff")
+    )
+
+    observeEvent(input$sondes_orne_aci_dif2, {
+        aci_orne_dif2_reactive$choix_sonde = input$sondes_orne_aci_dif2
+        aci_orne_dif2_reactive$col_label = paste0(aci_orne_dif2_reactive$composantes, "_", aci_orne_dif2_reactive$choix_sonde,"diff")
+    })
+
+    observeEvent(input$comp1_orne_dif2, {
+        aci_orne_dif2_reactive$choix_composantes[1] = input$comp1_orne_dif2
+    })
+    observeEvent(input$comp2_orne_dif2, {
+        aci_orne_dif2_reactive$choix_composantes[2] = input$comp2_orne_dif2
+    })
+
+
+    output$aci_orne_dif2 <- renderDygraph({
+        db_xts_tempo = xts(b_orne_dif2[,aci_orne_dif2_reactive$col_label[aci_orne_dif2_reactive$choix_composantes]],
+                           b_orne_dif2[,"date"])
+        colnames(db_xts_tempo) = c("Composante 1", "Composante 2")[aci_orne_dif2_reactive$choix_composantes]
+        lab_sonde = db_sonde_synthese[which(db_sonde_synthese$id_sonde == aci_orne_dif2_reactive$choix_sonde),]$label
+        dygraph(db_xts_tempo, paste0("Composantes indépendantes de ", lab_sonde)) %>%
+            dyOptions(colors = c("blue", "red", "black")[aci_orne_dif2_reactive$choix_composantes])
+    })
+    ###############
+    # orne matrice de passage Données Diff
+    ###############
+    output$mat_pass_orne_diff3= renderTable( mat_orne_dif_3comp,rownames=T)
+    output$mat_pass_orne_diff2= renderTable( mat_orne_dif_2comp,rownames=T)
+    ###############
+    # orne ACPs
+    ###############
+    output$ACP_817_diff <- renderPlot({
+        res_ACP_817_diff_3comp_C1C2C3
+    })
+    output$ACP_819_diff <- renderPlot({
+        res_ACP_819_diff_3comp_C1C2C3
+    })
+    output$ACP_818_diff <- renderPlot({
+        res_ACP_818_diff_3comp_C1C2C3
+    })
+
+    ###############
+    # Orne corrélations
+    ###############
+
+    output$orne_corr = DT::renderDataTable(
+
+        correlation_orne,  rownames = NULL,
+        filter = 'top', options = list(
+            pageLength = 5, autoWidth = TRUE
+        )
+
+    )
 
 
     ###############
-    # Odon
+    # odon Desc
+    ###############
+
+    desc_odon_reactive <- reactiveValues(
+        choix_sonde = "812",
+        choix_composantes = c(T, T, T),
+        composantes = c("Teau", "Tair", "diff"),
+        col_label = c("812Teau", "812Tair", "812diff")
+    )
+
+    observeEvent(input$sondes_odon_desc, {
+        desc_odon_reactive$choix_sonde = input$sondes_odon_desc
+        desc_odon_reactive$col_label = paste0(desc_odon_reactive$choix_sonde,desc_odon_reactive$composantes)
+    })
+
+    observeEvent(input$Teau_odon, {
+        desc_odon_reactive$choix_composantes[1] = input$Teau_odon
+    })
+    observeEvent(input$Tair_odon, {
+        desc_odon_reactive$choix_composantes[2] = input$Tair_odon
+    })
+    observeEvent(input$diff_odon, {
+        desc_odon_reactive$choix_composantes[3] = input$diff_odon
+    })
+
+    output$desc_odon <- renderDygraph({
+        db_xts_tempo = xts(teau_tair_diff_odon[,desc_odon_reactive$col_label[desc_odon_reactive$choix_composantes]],
+                           teau_tair_diff_odon[,"date"])
+        colnames(db_xts_tempo) = c("Température de l'eau",
+                                   "Température de l'air",
+                                   "Différence Teau-Tair")[desc_odon_reactive$choix_composantes]
+        lab_sonde = db_sonde_synthese[which(db_sonde_synthese$id_sonde == desc_odon_reactive$choix_sonde),]$label
+        dygraph(db_xts_tempo, paste0("Composantes indépendantes de ", lab_sonde)) %>%
+            dyOptions(colors = c("blue", "red", "black")[desc_odon_reactive$choix_composantes])
+    })
+
+    ###############
+    # Odon 2 comp
+    ###############
+    aci_odon_2comp_reactive <- reactiveValues(
+        choix_sonde = "812",
+        choix_composantes = c(T, T),
+        composantes = c("comp1", "comp2"),
+        col_label = c("comp1_812", "comp2_812")
+    )
+
+    observeEvent(input$sondes_odon_aci_2comp, {
+        aci_odon_2comp_reactive$choix_sonde = input$sondes_odon_aci_2comp
+        aci_odon_2comp_reactive$col_label = paste0(aci_odon_2comp_reactive$composantes, "_", aci_odon_2comp_reactive$choix_sonde)
+    })
+
+    observeEvent(input$comp1_odon_2comp, {
+        aci_odon_2comp_reactive$choix_composantes[1] = input$comp1_odon_2comp
+    })
+    observeEvent(input$comp2_odon_2comp, {
+        aci_odon_2comp_reactive$choix_composantes[2] = input$comp2_odon_2comp
+    })
+
+    output$aci_odon_2comp <- renderDygraph({
+        db_xts_tempo = xts(b_odon2[,aci_odon_2comp_reactive$col_label[aci_odon_2comp_reactive$choix_composantes]],
+                           b_odon2[,"t"])
+        colnames(db_xts_tempo) = c("Composante 1", "Composante 2")[aci_odon_2comp_reactive$choix_composantes]
+        lab_sonde = db_sonde_synthese[which(db_sonde_synthese$id_sonde == aci_odon_2comp_reactive$choix_sonde),]$label
+        dygraph(db_xts_tempo, paste0("Composantes indépendantes de ", lab_sonde)) %>%
+            dyOptions(colors = c("blue", "red", "black")[aci_odon_2comp_reactive$choix_composantes])
+    })
+
+    ###############
+    # Odon 3 comp
     ###############
     aci_odon_reactive <- reactiveValues(
         choix_sonde = "812",
@@ -6390,8 +6590,8 @@ shinyServer(function(input,output,session){
         col_label = c("comp1_812", "comp2_812", "comp3_812")
     )
 
-    observeEvent(input$sondes_odon_aci, {
-        aci_odon_reactive$choix_sonde = input$sondes_odon_aci
+    observeEvent(input$sondes_odon_aci_3comp, {
+        aci_odon_reactive$choix_sonde = input$sondes_odon_aci_3comp
         aci_odon_reactive$col_label = paste0(aci_odon_reactive$composantes, "_", aci_odon_reactive$choix_sonde)
     })
 
@@ -6405,120 +6605,200 @@ shinyServer(function(input,output,session){
         aci_odon_reactive$choix_composantes[3] = input$comp3_odon
     })
 
-    output$aci_odon <- renderDygraph({
-        db_xts_tempo = xts(b_odon[,aci_odon_reactive$col_label[aci_odon_reactive$choix_composantes]],
-                           b_odon[,"date"])
+    output$aci_odon_3comp <- renderDygraph({
+        db_xts_tempo = xts(b_odon3[,aci_odon_reactive$col_label[aci_odon_reactive$choix_composantes]],
+                           b_odon3[,"t"])
         colnames(db_xts_tempo) = c("Composante 1", "Composante 2", "Composante 3")[aci_odon_reactive$choix_composantes]
         lab_sonde = db_sonde_synthese[which(db_sonde_synthese$id_sonde == aci_odon_reactive$choix_sonde),]$label
         dygraph(db_xts_tempo, paste0("Composantes indépendantes de ", lab_sonde)) %>%
             dyOptions(colors = c("blue", "red", "black")[aci_odon_reactive$choix_composantes])
     })
-
-
     ###############
     # Odon Diff
     ###############
-    aci_odon_dif_reactive <- reactiveValues(
-        choix_sonde = "812",
+    # aci_odon_dif_reactive <- reactiveValues(
+    #     choix_sonde = "812",
+    #     choix_composantes = c(T, T, T),
+    #     composantes = c("comp1", "comp2", "comp3"),
+    #     col_label = c("comp1_812diff", "comp2_812diff", "comp3_812diff")
+    # )
+    #
+    # observeEvent(input$sondes_odon_aci_dif, {
+    #     aci_odon_dif_reactive$choix_sonde = input$sondes_odon_aci_dif
+    #     aci_odon_dif_reactive$col_label = paste0(aci_odon_dif_reactive$composantes, "_", aci_odon_dif_reactive$choix_sonde, "diff")
+    # })
+    #
+    # observeEvent(input$comp1_odon_dif, {
+    #     aci_odon_dif_reactive$choix_composantes[1] = input$comp1_odon_dif
+    # })
+    # observeEvent(input$comp2_odon_dif, {
+    #     aci_odon_dif_reactive$choix_composantes[2] = input$comp2_odon_dif
+    # })
+    # observeEvent(input$comp3_odon_dif, {
+    #     aci_odon_dif_reactive$choix_composantes[3] = input$comp3_odon_dif
+    # })
+    #
+    # output$aci_odon_dif <- renderDygraph({
+    #     db_xts_tempo = xts(b_odon_dif[,aci_odon_dif_reactive$col_label[aci_odon_dif_reactive$choix_composantes]],
+    #                        b_odon_dif[,"date"])
+    #     colnames(db_xts_tempo) = c("Composante 1", "Composante 2", "Composante 3")[aci_odon_dif_reactive$choix_composantes]
+    #     lab_sonde = db_sonde_synthese[which(db_sonde_synthese$id_sonde == aci_odon_dif_reactive$choix_sonde),]$label
+    #     dygraph(db_xts_tempo, paste0("Composantes indépendantes de ", lab_sonde)) %>%
+    #         dyOptions(colors = c("blue", "red", "black")[aci_odon_dif_reactive$choix_composantes])
+    # })
+
+
+    ###############
+    # odon matrice de passage
+    ###############
+    output$mat_odon_3comp= renderTable( mat_odon_3comp,rownames=T)
+    output$mat_odon_2comp= renderTable( mat_odon_2comp,rownames=T)
+
+    ###############
+    # selune Desc
+    ###############
+
+    desc_selune_reactive <- reactiveValues(
+        choix_sonde = "824",
         choix_composantes = c(T, T, T),
-        composantes = c("comp1", "comp2", "comp3"),
-        col_label = c("comp1_812diff", "comp2_812diff", "comp3_812diff")
+        composantes = c("Teau", "Tair", "diff"),
+        col_label = c("824Teau", "824Tair", "824diff")
     )
 
-    observeEvent(input$sondes_odon_aci_dif, {
-        aci_odon_dif_reactive$choix_sonde = input$sondes_odon_aci_dif
-        aci_odon_dif_reactive$col_label = paste0(aci_odon_dif_reactive$composantes, "_", aci_odon_dif_reactive$choix_sonde, "diff")
+    observeEvent(input$sondes_selune_desc, {
+        desc_selune_reactive$choix_sonde = input$sondes_selune_desc
+        desc_selune_reactive$col_label = paste0(desc_selune_reactive$choix_sonde,desc_selune_reactive$composantes)
     })
 
-    observeEvent(input$comp1_odon_dif, {
-        aci_odon_dif_reactive$choix_composantes[1] = input$comp1_odon_dif
+    observeEvent(input$Teau_selune, {
+        desc_selune_reactive$choix_composantes[1] = input$Teau_selune
     })
-    observeEvent(input$comp2_odon_dif, {
-        aci_odon_dif_reactive$choix_composantes[2] = input$comp2_odon_dif
+    observeEvent(input$Tair_selune, {
+        desc_selune_reactive$choix_composantes[2] = input$Tair_selune
     })
-    observeEvent(input$comp3_odon_dif, {
-        aci_odon_dif_reactive$choix_composantes[3] = input$comp3_odon_dif
+    observeEvent(input$diff_selune, {
+        desc_selune_reactive$choix_composantes[3] = input$diff_selune
     })
 
-    output$aci_odon_dif <- renderDygraph({
-        db_xts_tempo = xts(b_odon_dif[,aci_odon_dif_reactive$col_label[aci_odon_dif_reactive$choix_composantes]],
-                           b_odon_dif[,"date"])
-        colnames(db_xts_tempo) = c("Composante 1", "Composante 2", "Composante 3")[aci_odon_dif_reactive$choix_composantes]
-        lab_sonde = db_sonde_synthese[which(db_sonde_synthese$id_sonde == aci_odon_dif_reactive$choix_sonde),]$label
+    output$desc_selune <- renderDygraph({
+        db_xts_tempo = xts(teau_tair_diff_selune[,desc_selune_reactive$col_label[desc_selune_reactive$choix_composantes]],
+                           teau_tair_diff_selune[,"date"])
+        colnames(db_xts_tempo) = c("Température de l'eau",
+                                   "Température de l'air",
+                                   "Différence Teau-Tair")[desc_selune_reactive$choix_composantes]
+        lab_sonde = db_sonde_synthese[which(db_sonde_synthese$id_sonde == desc_selune_reactive$choix_sonde),]$label
         dygraph(db_xts_tempo, paste0("Composantes indépendantes de ", lab_sonde)) %>%
-            dyOptions(colors = c("blue", "red", "black")[aci_odon_dif_reactive$choix_composantes])
+            dyOptions(colors = c("blue", "red", "black")[desc_selune_reactive$choix_composantes])
     })
 
-
     ###############
-    # Selune
+    # Selune 3 composantes
     ###############
-    aci_selune_reactive <- reactiveValues(
-        choix_sonde = "824",
+    aci_selune_3comp_reactive <- reactiveValues(
+        choix_sonde = "812",
         choix_composantes = c(T, T, T),
         composantes = c("comp1", "comp2", "comp3"),
         col_label = c("comp1_824", "comp2_824", "comp3_824")
     )
 
-    observeEvent(input$sondes_selune_aci, {
-        aci_selune_reactive$choix_sonde = input$sondes_selune_aci
-        aci_selune_reactive$col_label = paste0(aci_selune_reactive$composantes, "_", aci_selune_reactive$choix_sonde)
+    observeEvent(input$sondes_selune_aci_3comp, {
+        aci_selune_3comp_reactive$choix_sonde = input$sondes_selune_aci_3comp
+        aci_selune_3comp_reactive$col_label = paste0(aci_selune_3comp_reactive$composantes, "_", aci_selune_3comp_reactive$choix_sonde)
     })
 
-    observeEvent(input$comp1_selune, {
-        aci_selune_reactive$choix_composantes[1] = input$comp1_selune
+    observeEvent(input$comp1_selune_3comp, {
+        aci_selune_3comp_reactive$choix_composantes[1] = input$comp1_selune_3comp
     })
-    observeEvent(input$comp2_selune, {
-        aci_selune_reactive$choix_composantes[2] = input$comp2_selune
+    observeEvent(input$comp2_selune_3comp, {
+        aci_selune_3comp_reactive$choix_composantes[2] = input$comp2_selune_3comp
     })
-    observeEvent(input$comp3_selune, {
-        aci_selune_reactive$choix_composantes[3] = input$comp3_selune
+    observeEvent(input$comp3_selune_3comp, {
+        aci_selune_3comp_reactive$choix_composantes[3] = input$comp3_selune_3comp
     })
 
-    output$aci_selune <- renderDygraph({
-        db_xts_tempo = xts(b_selune[,aci_selune_reactive$col_label[aci_selune_reactive$choix_composantes]],
-                           b_selune[,"date"])
-        colnames(db_xts_tempo) = c("Composante 1", "Composante 2", "Composante 3")[aci_selune_reactive$choix_composantes]
-        lab_sonde = db_sonde_synthese[which(db_sonde_synthese$id_sonde == aci_selune_reactive$choix_sonde),]$label
+    output$aci_selune_3comp <- renderDygraph({
+        db_xts_tempo = xts(b_selune3[,aci_selune_3comp_reactive$col_label[aci_selune_3comp_reactive$choix_composantes]],
+                           b_selune3[,"t"])
+        colnames(db_xts_tempo) = c("Composante 1", "Composante 2", "Composante 3")[aci_selune_3comp_reactive$choix_composantes]
+        lab_sonde = db_sonde_synthese[which(db_sonde_synthese$id_sonde == aci_selune_3comp_reactive$choix_sonde),]$label
         dygraph(db_xts_tempo, paste0("Composantes indépendantes de ", lab_sonde)) %>%
-            dyOptions(colors = c("blue", "red", "black")[aci_selune_reactive$choix_composantes])
+            dyOptions(colors = c("blue", "red", "black")[aci_selune_3comp_reactive$choix_composantes])
     })
 
 
     ###############
-    # Selune Diff
+    # Selune 2 comp
     ###############
-    aci_selune_dif_reactive <- reactiveValues(
+    aci_selune_2comp_reactive <- reactiveValues(
         choix_sonde = "824",
-        choix_composantes = c(T, T, T),
-        composantes = c("comp1", "comp2", "comp3"),
-        col_label = c("comp1_824diff", "comp2_824diff", "comp3_824diff")
+        choix_composantes = c(T, T),
+        composantes = c("comp1", "comp2"),
+        col_label = c("comp1_824", "comp2_824")
     )
 
-    observeEvent(input$sondes_selune_aci_dif, {
-        aci_selune_dif_reactive$choix_sonde = input$sondes_selune_aci_dif
-        aci_selune_dif_reactive$col_label = paste0(aci_selune_dif_reactive$composantes, "_", aci_selune_dif_reactive$choix_sonde, "diff")
+    observeEvent(input$sondes_selune_aci_2comp, {
+        aci_selune_2comp_reactive$choix_sonde = input$sondes_selune_aci_2comp
+        aci_selune_2comp_reactive$col_label = paste0(aci_selune_2comp_reactive$composantes, "_", aci_selune_2comp_reactive$choix_sonde)
     })
 
-    observeEvent(input$comp1_selune_dif, {
-        aci_selune_dif_reactive$choix_composantes[1] = input$comp1_selune_dif
+    observeEvent(input$comp1_selune_2comp, {
+        aci_selune_2comp_reactive$choix_composantes[1] = input$comp1_selune_2comp
     })
-    observeEvent(input$comp2_selune_dif, {
-        aci_selune_dif_reactive$choix_composantes[2] = input$comp2_selune_dif
-    })
-    observeEvent(input$comp3_selune_dif, {
-        aci_selune_dif_reactive$choix_composantes[3] = input$comp3_selune_dif
+    observeEvent(input$comp2_selune_2comp, {
+        aci_selune_2comp_reactive$choix_composantes[2] = input$comp2_selune_2comp
     })
 
-    output$aci_selune_dif <- renderDygraph({
-        db_xts_tempo = xts(b_selune_dif[,aci_selune_dif_reactive$col_label[aci_selune_dif_reactive$choix_composantes]],
-                           b_selune_dif[,"date"])
-        colnames(db_xts_tempo) = c("Composante 1", "Composante 2", "Composante 3")[aci_selune_dif_reactive$choix_composantes]
-        lab_sonde = db_sonde_synthese[which(db_sonde_synthese$id_sonde == aci_selune_dif_reactive$choix_sonde),]$label
+
+    output$aci_selune_2comp <- renderDygraph({
+        db_xts_tempo = xts(b_selune2[,aci_selune_2comp_reactive$col_label[aci_selune_2comp_reactive$choix_composantes]],
+                           b_selune2[,"t"])
+        colnames(db_xts_tempo) = c("Composante 1", "Composante 2")[aci_selune_2comp_reactive$choix_composantes]
+        lab_sonde = db_sonde_synthese[which(db_sonde_synthese$id_sonde == aci_selune_2comp_reactive$choix_sonde),]$label
         dygraph(db_xts_tempo, paste0("Composantes indépendantes de ", lab_sonde)) %>%
-            dyOptions(colors = c("blue", "red", "black")[aci_selune_dif_reactive$choix_composantes])
+            dyOptions(colors = c("blue", "red")[aci_selune_2comp_reactive$choix_composantes])
     })
 
+
+
+    ###############
+    # Selune matrice de passage
+    ###############
+    output$mat_selune_3comp= renderTable( mat_selune_3comp,rownames=T)
+    output$mat_selune_2comp= renderTable( mat_selune_2comp,rownames=T)
+
+    ###############
+    # selune ACPs
+    ###############
+    # output$ACP_824_3comp <- renderPlot({
+    #     res_ACP_824_3comp_C1C2C3
+    # })
+    # output$ACP_821_3comp <- renderPlot({
+    #     res_ACP_821_3comp_C1C2C3
+    # })
+    # output$ACP_823_3comp <- renderPlot({
+    #     res_ACP_823_3comp_C1C2C3
+    # })
+    # output$ACP_824_2comp <- renderPlot({
+    #     res_ACP_824_2comp_C1C2
+    # })
+    # output$ACP_821_2comp <- renderPlot({
+    #     res_ACP_821_2comp_C1C2
+    # })
+    # output$ACP_823_2comp <- renderPlot({
+    #     res_ACP_823_2comp_C1C2
+    # })
+    ###############
+    # selune corrélations
+    ###############
+
+    # output$selune_corr = DT::renderDataTable(
+    #
+    #     correlation_selune,  rownames = NULL,
+    #     filter = 'top', options = list(
+    #         pageLength = 5, autoWidth = TRUE
+    #     )
+    #
+    # )
 
 
 }) # Fin shinyServer
