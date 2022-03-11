@@ -116,7 +116,7 @@ dashboardPage(
 
                              # les sub-menus
                              #menuSubItem("O'Driscoll", tabName = "ODriscoll"),
-                             menuSubItem("ACI et ACP", tabName = "aci_acp"),
+                             #menuSubItem("ACI et ACP", tabName = "aci_acp"),
                              menuSubItem("Effet des nappes phréatiques", tabName = "nappe"),
                              menuSubItem("Effet barrage", tabName = "barrage")
 
@@ -2159,9 +2159,14 @@ dashboardPage(
             tabItem(tabName = "nappe",
                     h1("Effets de eaux souterraines"),
                     tabsetPanel(
-                    ############
-                    # O'Driscoll
-                    ###########
+
+            ##############################
+            # Effet Nappe
+            ##############################
+
+            ############
+            # O'Driscoll
+            ###########
 
 
                         tabPanel("La méthode O'Driscoll",
@@ -2529,461 +2534,163 @@ dashboardPage(
 
 
 
-            ####################################################
-            # Septième  Menu : ACI ACP
-            ####################################################
-            tabItem(tabName = "aci_acp",
-                    h1("ACI et ACP"),
-                    tabsetPanel(
-                        # ---------------------------------------- #
-                        tabPanel("Touques",
-                            ),
-                            # ------------------------------ #
+            #####################
+            # Effet barrage
+            #####################
+            tabItem(tabName = "barrage",
+                    h1("Analyse de l'effet barrage sur le fleuve de la Sélune"),
+                    br(),
+                    fluidRow(
+                    column( width = 8,
+                    p(style="text-align: justify;",
+                      "La Sélune est un fleuve situé dans la Manche, sur lequel a été
+                      construit deux barrages : le barrage de Vézins et de la Roche-Qui-Boit,
+                      dont les hauteurs respectives sont de 36 et de 16 mètres. Dans une
+                      optique de préservation des écosystèmes fluviaux, la destruction de
+                      ces infrastructures a été décidée en 2009 par l’Etat Français.
+                      Ainsi, le barrage de Vézins a été démantelé depuis 2019, et la
+                      destruction du barrage de la Roche-Qui-Boit est prévue pour l’année 2022.\n
+                      En effet, ces infrastructures peuvent avoir une influence
+                      significative sur la température de l’eau."),
 
+                    p(style="text-align: justify;",
+                      "Le but de l’analyse qui suit est d'essayer d’extraire un signal qui pourrait
+                      s'apparenter à un effet barrage, via une Analyse en Composantes Indépendantes (ACI)."),
 
+                    p(style="text-align: justify;",
+                      paste0("Les données utilisées pour mener cette étude sont les températures d’eau à pas de
+                             temps bi-horaire des sondes de la Sélune T1, T2, T5. Elles s’étendent de la période du ",
+                             str_sub(as.character(min(db_aci_bih_selune$t)),1,10) ," au ",
+                             str_sub(as.character(max(db_aci_bih_selune$t)),1,10)  ,
+                        " ce qui représente ", dim(db_aci_bih_selune)[1], " observations."))
+                    ),
 
-                        # ---------------------------------------- #
-                        tabPanel(
-                            "Orne",
+                    column( width = 4, height=200,
+                            h4(strong("Localisation des sondes et barrages")),
+                            leafletOutput("map_Selune_ACI",height = 200)
+                    )
+                    ),
 
-                            h2("Analyse en Composantes Indépendantes"),
-                            # ------------------------------ #
-                            fluidRow(
-                                br(),
-                                column(
-                                    width = 4,
-                                    br(),
-                                    wellPanel(
-                                        h3("Menu"),
-                                        radioButtons("sondes_orne_desc", "Choix de la sonde",
-                                                     c("Orne T1" = "817",
-                                                       "Orne T2" = "819",
-                                                       "Orne T3" = "818"),
-                                                     selected = "817"),
-                                        br(),
-                                        p(strong("Choix des compsantes")),
-                                        checkboxInput(inputId = "Teau_orne", label = "Température de l'eau", value = T),
-                                        checkboxInput(inputId = "Tair_orne", label = "Température de l'air", value = T),
-                                        checkboxInput(inputId = "diff_orne", label = "Différence entre températures (Teau-Tair)", value = T)
+                    br(),
 
-                                    )
-                                ),
+                    h3(style="text-align: justify;",
+                       "Pas d’effet barrage a priori"),
 
-                                column(
-                                    width = 8,
-                                    #h3("ACI"),
-                                    dygraphOutput("desc_orne")
-                                )
-                            ),
-                            fluidRow(
-                                br(),
-                                column(
-                                    width = 4,
-                                    br(),
-                                    wellPanel(
-                                        h3("Menu"),
-                                        radioButtons("sondes_orne_aci", "Choix de la sonde",
-                                                     c("Orne T1" = "817",
-                                                       "Orne T2" = "819",
-                                                       "Orne T3" = "818"),
-                                                     selected = "817"),
-                                        br(),
-                                        p(strong("Choix des compsantes")),
-                                        checkboxInput(inputId = "comp1_orne", label = "Composante 1", value = T),
-                                        checkboxInput(inputId = "comp2_orne", label = "Composante 2", value = T),
-                                        checkboxInput(inputId = "comp3_orne", label = "Composante 3", value = T)
-
-                                    )
-                                ),
-
-                                column(
-                                    width = 8,
-                                    #h3("ACI"),
-                                    dygraphOutput("aci_orne")
-                                )
-                            ),
-                            # Matrice de passage
-                            h3("Matrice de passage"),
-                            fluidRow(
-                                tableOutput("mat_pass_orne")
-
-                            ),
-
-                            # ACI diff (2 composantes)
-                            h2("Analyse en Composantes Indépendantes Diff Teau-Tair (2 composantes)"),
-                            # ------------------------------ #
-
-                            fluidRow(
-                                br(),
-                                column(
-                                    width = 4,
-                                    br(),
-                                    wellPanel(
-                                        h3("Menu"),
-                                        radioButtons("sondes_orne_aci_dif2", "Choix de la sonde",
-                                                     c("orne T1" = "817",
-                                                       "orne T2" = "819",
-                                                       "orne T3" = "818"),
-                                                     selected = "817"),
-                                        br(),
-                                        p(strong("Choix des compsantes")),
-                                        checkboxInput(inputId = "comp1_orne_dif2", label = "Composante 1", value = T),
-                                        checkboxInput(inputId = "comp2_orne_dif2", label = "Composante 2", value = T)
-                                        #checkboxInput(inputId = "comp3_orne_dif", label = "Composante 3", value = T)
-
-                                    )
-                                ),
-
-                                column(
-                                    width = 8,
-                                    #h3("ACI"),
-                                    dygraphOutput("aci_orne_dif2")
-                                )
-                            ),
-                            h3("Matrice de passage"),
-                            fluidRow(
-                                tableOutput("mat_pass_orne_diff2")
-
-                            ),
-
-                            # ACI diff 3 composantes
-                            h2("Analyse en Composantes Indépendantes Diff Teau-Tair (3 composantes)"),
-                            # ------------------------------ #
-
-                            fluidRow(
-                                br(),
-                                column(
-                                    width = 4,
-                                    br(),
-                                    wellPanel(
-                                        h3("Menu"),
-                                        radioButtons("sondes_orne_aci_dif3", "Choix de la sonde",
-                                                     c("Orne T1" = "817",
-                                                       "Orne T2" = "819",
-                                                       "Orne T3" = "818"),
-                                                     selected = "817"),
-                                        br(),
-                                        p(strong("Choix des compsantes")),
-                                        checkboxInput(inputId = "comp1_orne_dif", label = "Composante 1", value = T),
-                                        checkboxInput(inputId = "comp2_orne_dif", label = "Composante 2", value = T),
-                                        checkboxInput(inputId = "comp3_orne_dif", label = "Composante 3", value = T)
-
-                                    )
-                                ),
-
-                                column(
-                                    width = 8,
-                                    #h3("ACI"),
-                                    dygraphOutput("aci_orne_dif3")
-                                )
-                            ),
-                            # Matrice de passage
-                            h3("Matrice de passage"),
-                            fluidRow(
-                                tableOutput("mat_pass_orne_diff3")
-
-                            ),
-
-                            h2("Analyse en Composantes Principales"),
-                            # ------------------------------ #
-                            fluidRow(
-                                column(width = 6,
-                                       h3(strong("Orne T1")),
-                                       plotOutput("ACP_817_diff", width = "95%"),
-                                       h3(strong("Orne T3")),
-                                       plotOutput("ACP_818_diff", width = "95%")
-                                ),
-                                column(width = 6,
-                                       h3(strong("Orne T2")),
-                                       plotOutput("ACP_819_diff", width = "95%")
-
-                                )
-                                ),
-                                fluidRow(
-                                p("* Teau = Température de l'eau ;
-                                  Tair = Température de l'air ;
-                                  Diff = Différence (Teau-Tair) ;
-                                  piez = Piezométrie ;
-                                  qq = Ensoleillement ;
-                                  rr = Pluviométrie ;
-                                  C1 = Composante 1 ;
-                                  C2 = Composante 2 ;
-                                  C3 = Composante 3" )
-                            ),
-
-                            h2("Table des corrélations"),
-                            fluidRow(
-                                DT::dataTableOutput("orne_corr")
+                    fluidRow(
+                        br(),
+                        column(
+                            width = 4,
+                            br(),
+                            wellPanel(
+                               # h3("Menu"),
+                                radioButtons("selune_choix_sonde", "Choix de la sonde",
+                                             c("Selune T1" = "824",
+                                               "Selune T2" = "821",
+                                               "Selune T3" = "823"),
+                                             selected = "824")
                             )
+                        ),
+
+                        column(
+                            width = 8,
+                            #h3("ACI"),
+                            dygraphOutput("desc_selune")
+                        )
+                    ),
+
+                    p(style="text-align: justify;",
+                      "Les impacts des barrages ne sont pas forcément visibles à l’oeil
+                      nu sur les choniques simples, mais nous allons essayer de les
+                      “voire” via une aci."),
+
+                    br(),
+                    h3(style="text-align: justify;",
+                       "Un signal qui montre l’influence du barrage de Vézins"),
+
+                    fluidRow(
+                        br(),
+                        column(
+                            width = 4,
+                            br(),
+                            wellPanel(
+
+                                radioButtons("sondes_selune_aci_2comp", "Choix de la sonde",
+                                             c("Sélune T1" = "824",
+                                               "Sélune T2" = "821",
+                                               # "Sélune T4" = "820",
+                                               "Sélune T5" = "823"),
+                                             selected = "824"),
+                                br(),
+                                p(strong("Choix des compsantes")),
+                                checkboxInput(inputId = "comp1_selune_2comp", label = "Composante 1", value = T),
+                                checkboxInput(inputId = "comp2_selune_2comp", label = "Composante 2", value = T),
+
+
+                            )
+                        ),
+
+                        column(
+                            width = 8,
+                            #h3("ACI"),
+                            dygraphOutput("aci_selune_2comp")
+                        )
+                    ),
+
+                    h4("Matrice de passage"),
+                    fluidRow(
+                        tableOutput("mat_selune_2comp")
+
+                    ),
+
+                    br(),
+
+                    p(style="text-align: justify;",
+                      "L’ACI a permis d’extraire deux signaux principaux."),
+
+
+                    p(style="text-align: justify;",
+                      "La première composante montre un signal saisonnier évident,
+                      qui atteint son minimum en hiver et son maximum en été.
+                      Les coefficients élevés de la matrice de passage vont dans ce sens,
+                      cependant ils devraient s’accroître d’amont en aval.
+                      Or, le coefficient en T2 est inférieur à ceux en T1 et T5,
+                      ce qui pourrait être dû d’une part à la proximité de la sonde
+                      T2 avec le barrage de Vézins ou à l’enfouissement de la sonde sur
+                      la période de 2019 à 2021. En effet, à la suite de la destruction
+                      du barrage, les conditions du site ont été perturbées, et la sonde
+                      a été recouverte par une importante couche de sédiment."),
+
+                    p(style="text-align: justify;",
+                      "De plus, une seconde composante se dégage de l’ACI. Celle-ci a un profil
+                      erratique du début de la chronique jusqu’en 2019, date à laquelle le
+                      barrage a été détruit. Par la suite le signal présente un pattern structuré
+                      suivant un cycle saisonnier, qui semble correspondre, par sa faible variabilité,
+                      à l’enfouissement de la sonde protégée des influences de l’air et de l’eau.
+                      Par ailleurs, le coefficient de la matrice de passage est beaucoup plus
+                      important en T2 par rapport aux autres sondes. Ces caractéristiques laissent
+                      à penser qu’il s’agit de l’influence du barrage de Vézins qui se dessine dans
+                      ce signal. Effectivement, cela explique les différences dans les amplitudes
+                      du signal observé. Les fortes amplitudes pourraient correspondre aux périodes
+                      de retenues des eaux du barrage, lorsque le débit en amont est faible.
+                      La quantité d’eau relâchée est alors insuffisante pour que la sonde reste immergée.
+                      Ainsi la sonde exposée à l’air libre, mesure la température atmosphérique.
+                      A contrario, durant les périodes de grandes crues, les eaux n’ont pas besoin
+                      d’être retenues par le barrage. La sonde reste alors immergée, et les variations
+                      du signal de la composante 2 sont donc plus faibles. Ces événements se sont
+                      produits lors des hiver 2014, 2015 et 2016, et correspondent bien au signal décrit."),
+
+                    br(),
+                    h3(style="text-align: justify;",
+                       "Conclusion"),
+
+
+                    p(style="text-align: justify;",
+                      "L’ACI a donc bien permis d’extraire un signal barrage, et met aussi en lumière
+                      des incidents techniques tels que l’enfouissement de la sonde T2, ce qui
+                      n’aurait pas été possible d’observer par la simple analyse des chroniques brutes."),
+
 
                         ),
-                        # ---------------------------------------- #
-                        tabPanel(
-                            "Odon",
-                            fluidRow(
-                                br(),
-                                column(
-                                    width = 4,
-                                    br(),
-                                    wellPanel(
-                                        h3("Menu"),
-                                        radioButtons("sondes_odon_desc", "Choix de la sonde",
-                                                     c("Odon T1" = "812",
-                                                       "Odon T2" = "813",
-                                                       "Odon T4" = "815"),
-                                                     selected = "812"),
-                                        br(),
-                                        p(strong("Choix des compsantes")),
-                                        checkboxInput(inputId = "Teau_odon", label = "Température de l'eau", value = T),
-                                        checkboxInput(inputId = "Tair_odon", label = "Température de l'air", value = T),
-                                        checkboxInput(inputId = "diff_odon", label = "Différence entre températures (Teau-Tair)", value = T)
-
-                                    )
-                                ),
-
-                                column(
-                                    width = 8,
-                                    #h3("ACI"),
-                                    dygraphOutput("desc_odon")
-                                )
-                            ),
-
-                            h2("Analyse en Composantes Indépendantes (2 composantes)"),
-                            # ------------------------------ #
-                            fluidRow(
-                                br(),
-                                column(
-                                    width = 4,
-                                    br(),
-                                    wellPanel(
-                                        h3("Menu"),
-                                        radioButtons("sondes_odon_aci_2comp", "Choix de la sonde",
-                                                     c("Odon T1" = "812",
-                                                       "Odon T2" = "813",
-                                                       "Odon T4" = "815"),
-                                                       #"Odon T5" = "816"),
-                                                     selected = "812"),
-                                        br(),
-                                        p(strong("Choix des compsantes")),
-                                        checkboxInput(inputId = "comp1_odon_2comp", label = "Composante 1", value = T),
-                                        checkboxInput(inputId = "comp2_odon_2comp", label = "Composante 2", value = T)
-                                       # checkboxInput(inputId = "comp3_odon_2comp", label = "Composante 3", value = T)
-
-                                    )
-                                ),
-
-                                column(
-                                    width = 8,
-                                    h3("ACI"),
-                                    dygraphOutput("aci_odon_2comp")
-                                )
-                            ),
-                            h3("Matrice de passage"),
-                            fluidRow(
-                                tableOutput("mat_odon_2comp")
-
-                            ),
-
-                            h2("Analyse en Composantes Indépendantes (3 composantes)",
-                            # ------------------------------ #
-                            fluidRow(
-                                br(),
-                                column(
-                                    width = 4,
-                                    br(),
-                                    wellPanel(
-                                        h3("Menu"),
-                                        radioButtons("sondes_odon_aci_3comp", "Choix de la sonde",
-                                                     c("Odon T1" = "812",
-                                                       "Odon T2" = "813",
-                                                       "Odon T4" = "815"),
-                                                       #"Odon T5" = "816"),
-                                                     selected = "812"),
-                                        br(),
-                                        p(strong("Choix des compsantes")),
-                                        checkboxInput(inputId = "comp1_odon_3comp", label = "Composante 1", value = T),
-                                        checkboxInput(inputId = "comp2_odon_3comp", label = "Composante 2", value = T),
-                                        checkboxInput(inputId = "comp3_odon_3comp", label = "Composante 3", value = T)
-
-                                    )
-                                ),
-
-                                column(
-                                    width = 8,
-                                    #h3("ACI"),
-                                    dygraphOutput("aci_odon_3comp")
-                                )
-                            ),
-                            h3("Matrice de passage"),
-                            fluidRow(
-                                tableOutput("mat_odon_3comp")
-
-                            ),
-                            # h2("Analyse en Composantes Principales"),
-                            # # ------------------------------ #
-                            # fluidRow(
-                            #
-                            # )
-
-                        )),
-                        # ---------------------------------------- #
-                        tabPanel(
-                            "Sélune",
-
-
-                            fluidRow(
-                                br(),
-                                column(
-                                    width = 4,
-                                    br(),
-                                    wellPanel(
-                                        h3("Menu"),
-                                        radioButtons("sondes_selune_desc", "Choix de la sonde",
-                                                     c("Selune T1" = "824",
-                                                       "Selune T2" = "821",
-                                                       "Selune T3" = "823"),
-                                                     selected = "824"),
-                                        br(),
-                                        p(strong("Choix des compsantes")),
-                                        checkboxInput(inputId = "Teau_selune", label = "Température de l'eau", value = T),
-                                        checkboxInput(inputId = "Tair_selune", label = "Température de l'air", value = T),
-                                        checkboxInput(inputId = "diff_selune", label = "Différence entre températures (Teau-Tair)", value = T)
-
-                                    )
-                                ),
-
-                                column(
-                                    width = 8,
-                                    #h3("ACI"),
-                                    dygraphOutput("desc_selune")
-                                )
-                            ),
-                            h2("Analyse en Composantes Indépendantes 2 composantes"),
-                            # ------------------------------ #
-                            fluidRow(
-                                br(),
-                                column(
-                                    width = 4,
-                                    br(),
-                                    wellPanel(
-                                        h3("Menu"),
-                                        radioButtons("sondes_selune_aci_2comp", "Choix de la sonde",
-                                                     c("Sélune T1" = "824",
-                                                       "Sélune T2" = "821",
-                                                       # "Sélune T4" = "820",
-                                                       "Sélune T5" = "823"),
-                                                     selected = "824"),
-                                        br(),
-                                        p(strong("Choix des compsantes")),
-                                        checkboxInput(inputId = "comp1_selune_2comp", label = "Composante 1", value = T),
-                                        checkboxInput(inputId = "comp2_selune_2comp", label = "Composante 2", value = T),
-
-
-                                    )
-                                ),
-
-                                column(
-                                    width = 8,
-                                    #h3("ACI"),
-                                    dygraphOutput("aci_selune_2comp")
-                                )
-                            ),
-
-                            h3("Matrice de passage"),
-                            fluidRow(
-                                tableOutput("mat_selune_2comp")
-
-                            ),
-                            # ------------------------------ #
-                            h2("Analyse en Composantes Indépendantes 3 composantes"),
-                            fluidRow(
-                                br(),
-                                column(
-                                    width = 4,
-                                    br(),
-                                    wellPanel(
-                                        h3("Menu"),
-                                        radioButtons("sondes_selune_aci_3comp", "Choix de la sonde",
-                                                     c("Sélune T1" = "824",
-                                                       "Sélune T2" = "821",
-                                                       #"Sélune T4" = "820",
-                                                       "Sélune T5" = "823"),
-                                                     selected = "824"),
-                                        br(),
-                                        p(strong("Choix des compsantes")),
-                                        checkboxInput(inputId = "comp1_selune_3comp", label = "Composante 1", value = T),
-                                        checkboxInput(inputId = "comp2_selune_3comp", label = "Composante 2", value = T),
-                                        checkboxInput(inputId = "comp3_selune_3comp", label = "Composante 3", value = T)
-
-                                    )
-                                ),
-
-                                column(
-                                    width = 8,
-                                    #h3("ACI"),
-                                    dygraphOutput("aci_selune_3comp")
-                                )
-                            ),
-                            h3("Matrice de passage"),
-                            fluidRow(
-                                tableOutput("mat_selune_3comp")
-
-                            ),
-
-                            # h2("Analyse en Composantes Principales"),
-                            # # ------------------------------ #
-                            # h4("3 composantes"),
-                            # fluidRow(
-                            #     column(width = 6,
-                            #            h3(strong("Selune T1")),
-                            #            plotOutput("ACP_824_3comp", width = "95%"),
-                            #            h3(strong("Selune T5")),
-                            #            plotOutput("ACP_823_3comp", width = "95%")
-                            #     ),
-                            #     column(width = 6,
-                            #            h3(strong("Selune T2")),
-                            #            plotOutput("ACP_821_3comp", width = "95%")
-                            #
-                            #     )),
-                            #   fluidRow(
-                            #     h4("2 composantes"),
-                            #     column(width = 6,
-                            #            h3(strong("Selune T1")),
-                            #            plotOutput("ACP_824_2comp", width = "95%"),
-                            #            h3(strong("Selune T5")),
-                            #            plotOutput("ACP_823_2comp", width = "95%")
-                            #     ),
-                            #     column(width = 6,
-                            #            h3(strong("Selune T2")),
-                            #            plotOutput("ACP_821_2comp", width = "95%")
-                            #
-                            #     )
-                            #
-                            #
-                            # ),
-                            # fluidRow(
-                            #     p("* Teau = Température de l'eau ;
-                            #       Tair = Température de l'air ;
-                            #       qq = Ensoleillement ;
-                            #       rr = Pluviométrie ;
-                            #       C1 = Composante 1 ;
-                            #       C2 = Composante 2 ")
-                            # ),
-                            #
-                            # h2("Table des corrélations"),
-                            # fluidRow(
-                            #     DT::dataTableOutput("selune_corr")
-                            # )
-
-                        )
-                        # ---------------------------------------- #
-                    )
-
-
-            ),# Fin tabItem 7
-            # ################################################## #
-
-
 
             ####################################################
             # Sixième  Menu : Références
