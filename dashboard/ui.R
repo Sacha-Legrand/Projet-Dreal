@@ -61,8 +61,8 @@ dashboardPage(
 
                              # les sub-menus
                              menuSubItem("Contexte de l'étude", tabName="sub_menu_contexte"),
-                             menuSubItem("Données de l'étude", tabName="sub_menu_data"),
                              menuSubItem("Quelques notions", tabName="sub_menu_lexique"),
+                             menuSubItem("Données de l'étude", tabName="sub_menu_data"),
                              menuSubItem("Bibliographie", tabName = "sub_menu_biblio")
 
 
@@ -72,7 +72,7 @@ dashboardPage(
 
 
                     # ------------------------------------------------------------ #
-                    menuItem("Cartographie", tabName = "menu_cartes", icon = icon("map")
+                    menuItem("Cartographie & Dispositif", tabName = "menu_cartes", icon = icon("map")
                              # deuxième menu : cartographie
 
                     ), # End deuxième menu cartographie
@@ -115,8 +115,12 @@ dashboardPage(
                              # Cinquième  menu : Analyse de données
 
                              # les sub-menus
-                             menuSubItem("O'Driscoll", tabName = "ODriscoll"),
-                             menuSubItem("ACI et ACP", tabName = "aci_acp")
+                             #menuSubItem("O'Driscoll", tabName = "ODriscoll"),
+                             menuSubItem("ACI et ACP", tabName = "aci_acp"),
+                             menuSubItem("Effet des nappes phréatiques", tabName = "nappe"),
+                             menuSubItem("Effet barrage", tabName = "barrage")
+
+
 
                     ), # End  Cinquième  menu : Analyse de données
                     # ------------------------------------------------------------ #
@@ -199,11 +203,13 @@ dashboardPage(
             tabItem(tabName = "sub_menu_contexte",
                     # Premier onglet du Menu 1 Introduction : Contexte de l'étude
 
-                    h2("Etude des températures des cours d'eau"),
+                    h1("Hydrologie des cours d'eau Normands"),
                     br(),
+
                     h2("Contexte"),
 
-
+                    fluidRow(
+                        column(width=8,
 
                         p(style="text-align: justify;",
                           "La température de l’eau est un facteur fondamental des écosystèmes des rivières.
@@ -216,7 +222,7 @@ dashboardPage(
 
                         p(style="text-align: justify;",
                           "De plus, de nombreux organismes des rivières sont dits poïkilothermes, c’est-à-dire
-                          qu’ils ne peuvent pas réguler leur température corporelle eux-même et donc que
+                          qu’ils ne peuvent pas réguler leur température corporelle eux-même, et donc que
                           celle-ci dépend de la température du milieu environnant."),
 
                          p(style="text-align: justify;",
@@ -232,11 +238,20 @@ dashboardPage(
                     p(style="text-align: justify;",
                       "En Normandie, la Direction régionale de l'environnement, de l'aménagement et du logement (DREAL), du ministère de la Transition
                           écologique et solidaire, s’est lancée dans l’entreprise d’une meilleure compréhension des effets du changement climatique en milieu aquatique, ainsi que des facteurs
-                          (humain ou environnementaux) influençant la température des cours d’eau. Pour se faire, depuis 2011 une trentaine de sondes de température HOBO®
-                          water Temp Pro v2 (U22-001) de précision ±0,2°C, enregistrant la température de l’eau à intervalle de 2 heures, ont été disposées dans différents
-                          cours d’eau du territoire normand."),
+                          (humain ou environnementaux) influençant la température des cours d’eau. Pour se faire, depuis 2011, une trentaine de sondes de température
+                            enregistrant la température de l’eau à intervalle de 2 heures, ont été disposées dans différents
+                          cours d’eau du territoire normand.")
+                    ),
+                    column(width=4,
+                           img(src="Intro.png",height=500),
+                           p(style="text-align: justify;font-size: 12px;",
+                             em("Image de la rivière de l'Odon (Louvigny).")
+                           )
+                           )
+                    ),
 
                     br(),
+
                     h2("Objectifs"),
 
                    p(style="text-align: justify;",
@@ -248,6 +263,7 @@ dashboardPage(
 
                     p("Cet outil a été pensé pour être utile à la fois aux différents corps de métiers gravitant autour l’écologie en milieu aquatique,
                       mais aussi pour être accessible à un public plus large s’intéressant à l’environnement.")
+
 
 
 
@@ -292,11 +308,29 @@ dashboardPage(
 
                         p(style="text-align: justify;",
                           "Vous trouverez dans cet onglet quelques explications à propos de
-                          certaines notions relatives à l’hydrobiologie, l’hydrogéologie ainsi
+                          certaines notions relatives à l’hydrologie ainsi
                           que certaines méthodologies statistiques abordées au sein de cette
                           étude."),
 
-                    h3(strong("Hydrobiologie")),
+
+
+                    h3(strong("Hydrologie")),
+
+                    h4(strong("Bassin versant")),
+
+                    p(style="text-align: justify;",
+                      "Le bassin versant est une surface de collecte des eaux de pluie nécessaire au bon
+                      fonctionnement d’un cours d’eau. Il comprend le cours d’eau lui-même, ainsi que ses
+                      affluents  [15]."),
+
+                    h4(strong("Piézométrie")),
+
+                    p(style="text-align: justify;",
+                    "La piézométrie est une mesure de la
+                    profondeur de la surface de la nappe d’eau souterraine.
+                    Elle est exprimée par rapport à l’altitude zéro du niveau
+                    de la mer en mettre Nivellement Général Français (NGF).[15]"),
+
 
                     h4(strong("Préférendum thermiques")),
 
@@ -319,20 +353,12 @@ dashboardPage(
                     p(style="text-align: justify;",
                       "Ces gammes de températures, qu’il s’agisse du préférendum thermique, des températures
                       menant à de l’état de stress thermique ou encore les températures létales varient selon
-                      les espèces [15]."),
+                      les espèces [16]."),
 
                     p(style="text-align: justify;",
                       "Au cours de cette étude, les préférendum thermiques de la truite et du brochet, espèces
                       couramment retrouvées dans les cours d’eau normands, seront abordés. "),
 
-                    h3(strong("Hydrogéologie")),
-
-                    h4(strong("Bassin versant")),
-
-                    p(style="text-align: justify;",
-                      "Le bassin versant est une surface de collecte des eaux de pluie nécessaire au bon
-                      fonctionnement d’un cours d’eau. Il comprend le cours d’eau lui-même, ainsi que ses
-                      affluents  [16]."),
 
                     h3(strong("Statistiques")),
 
@@ -356,9 +382,29 @@ dashboardPage(
                       températures récoltées au sein d’un même cours d’eau.
                       Cette méthode permet notamment de dégager des signatures de
                       phénomènes (variables latentes), non visibles par l’observation
-                      simple des séries temporelles [18]. Par ailleurs, il est possible
+                      simple des séries temporelles [18], tels qu’un signal nappe phréatique
+                      ou encore le signal de l’effet d’un barrage. Par ailleurs, il est possible
                       de réaliser une ACP à la suite d’une ACI pour tenter de comprendre
                       la nature des signaux obtenue par l’ACI."),
+
+                    h4(strong("Moyennes mobiles")),
+
+                    p(style="text-align: justify;",
+                      "La moyenne mobile (MM) est une méthode de lissage des séries
+                      temporelles, permettant d’adoucir des fluctuations transitoires
+                      des dites séries, et donc de souligner des tendances à plus ou moins
+                      long terme. Ces moyennes sont dites mobiles, car elles sont calculées
+                      pour chaque observation, selon un pas de temps prédéfini."),
+
+                    p(style="text-align: justify;",
+                      "Dans cette étude, les MM d’ordre 7, 30 et 365 seront appliquées.
+                      Ainsi, la MM d’ordre 7 (MM7), consiste à lisser les courbes à l’échelle
+                      d’une semaine, et permet de s’abstenir des fluctuations transitoires qui
+                      peuvent survenir au cours d’une semaine. La MM d’ordre 30 (MM 30) lisse
+                      quant à elle à l’échelle d’un mois. Enfin, la MM 365 (MM 365) lisse la
+                      chronique à l’échelle de l’année, et désaisonnalise en quelque sorte les
+                      séries temporelles qui ont une saisonnalité annuelle, comme c’est le cas
+                      pour la température des cours d’eau."),
 
                     h4(strong("O’Driscoll et DeWalle")),
 
@@ -370,7 +416,7 @@ dashboardPage(
                       par sonde, et d’en extraire la pente et l’ordonnée à l’origine.
                       Une nouvelle régression linéaire est ensuite réalisée, des ordonnées
                       à l’origine en fonction des pentes des régressions réalisées
-                      précédemment. Ainsi, les sondes avec une ordonnée à l’origine et une
+                      précédemment. Ainsi, les sondes avec une ordonnée à l’origine forte et une
                       faible pente sont caractéristiques des cours d’eau dont la
                       température est influencée par la température des eaux souterraines,
                       alors que les sondes au profil inverse sont caractéristiques de cours
@@ -500,15 +546,15 @@ dashboardPage(
                                     tags$a(href="https://doi.org/10.1002/rra.2888",
                                            "https://doi.org/10.1002/rra.2888")
                             ),
+
                             #15
+                            br(),
+                            tags$li("DREAL. 2016. Première partie : Notions d’hydrologie ; Eléments de compréhension. L’hydrologie en
+                                     Basse-Normandie. Caen; 2016. p. 10-11."),
+                            #16
                             br(),
                             tags$li( "Fédération du Haut-Rhin pour la Pêche et la Protection du Milieu Aquatique., 2020. Suivi thermique des
                                      eaux du département du Haut-Rhin : BILAN 2019. p.10-12."),
-
-                            #16
-                             br(),
-                             tags$li("DREAL. 2016. Première partie : Notions d’hydrologie ; Eléments de compréhension. L’hydrologie en
-                                     Basse-Normandie. Caen; 2016. p. 10-11."),
 
                             #17
                             br(),
@@ -555,11 +601,18 @@ dashboardPage(
             tabItem(tabName = "menu_cartes",
                     # Carte des sondes
 
+                    h2("Le dispositif mis en place"),
 
-                    h2("Emplacement des sondes thermiques"),
+                    p( p(style="text-align: justify;",
+                         "Depuis 2011, les agents de la DREAL de Normandie
+                         ont placé une trentaine de sondes dans des cours
+                         d’eau appartenant au territoire de la Manche,
+                         du Calvados et de l’Orne. Trente d’entre elles ont
+                         pu permettre d’obtenir des chroniques assez longues
+                         et fiables. La localisation de ces 30 sondes sont
+                         observables ci-dessous."),),
 
-
-
+                    h3("Localisation des sondes thermiques"),
 
                     # ---------------------------------------- #
                     fluidRow(
@@ -567,11 +620,6 @@ dashboardPage(
                         column(
                             width = 8,
                             box(
-                                # column(width = 2, checkboxInput(inputId = "DREAL", label = "Sondes DREAL", value=TRUE)),
-                                # column(width = 2, checkboxInput(inputId = "OFB", label = "Sondes OFB")),
-                                # column(width = 2, checkboxInput(inputId = "BV1", label = "Grand BV", value=F)),
-                                # column(width = 2, checkboxInput(inputId = "ceau", label = "Cours d'eau", value=F)),
-
 
                                 width = 12, height = "100%",
                                 leafletOutput("map_sondes")
@@ -583,15 +631,6 @@ dashboardPage(
 
                         column(
                             width = 4,
-                            # box(
-                            #   width = 12,
-                            #   checkboxInput(inputId = "DREAL", label = "Sondes DREAL", value=TRUE),
-                            #   checkboxInput(inputId = "OFB", label = "Sondes OFB"),
-                            #   checkboxInput(inputId = "BV1", label = "Grand BV", value=F),
-                            #   checkboxInput(inputId = "ceau", label = "Cours d'eau", value=F)
-                            # ),
-
-
                             hidden(
 
                                 wellPanel(
@@ -631,13 +670,53 @@ dashboardPage(
 
 
 
-                    ) # End fluidRow
+                    ), # End fluidRow
                     # ---------------------------------------- #
 
+                    h3("Les sondes"),
+                    fluidRow(
+                    column(width=8,
+                    p(style="text-align: justify;",
+                         "Les sondes thermiques déposées dans les cours d’eau
+                         sont des HOBO® water Temp Pro v2 (U22-001) de précision
+                         ±0,2°C. Elles sont constituées d’un capteur de température
+                         qui enregistre la température du milieu toutes les 2 heures,
+                         et d’un système de lecteur optique qui permet de récolter
+                         les données enregistrées par la sonde. Les relèves de données
+                         se font généralement de manière annuelle."),
 
+                    p(style="text-align: justify;",
+                      "Elles ont été fixées dans les cours d’eau au niveau du chevelus
+                      racinaires d'arbres, et cachées pour que tout un chacun ne puisse
+                      pas les récupérer.")),
 
+                    column(width=4,
+                    img(src="Sonde.png",width="300px"),
+                    p(style="text-align: justify;font-size: 12px;",
+                      em("Image d'une sonde thermique HOBO® water Temp Pro v2 (U22-001).")
+                      )
 
+                    )
+                    ),#End FluidRow
+                    br(),
 
+                    h3("Plusieurs sondes pour un même cours d’eau"),
+                    p(style="text-align: justify;",
+                      "Pour plusieurs cours d’eau, que sont la Touques,
+                      l’Orne, l’Odon et la Sélune, il a été choisi de placer
+                      plusieurs sondes thermiques. Ce choix a été fait pour
+                      pouvoir étudier la dynamique d’évolution des températures
+                      de ces cours d’eau d’amont en aval, et permettre de dégager
+                      certains facteurs tels que le rôle de la ripisylve par
+                      exemple."),
+
+                      p(style="text-align: justify;",
+                    "Pour distinguer l'appellation des sondes d’un
+                      même fleuve ou d’une même rivière, le nom du cours d’eau
+                      est suivit d’un gradient d’amont en aval (e.g. Touques T1
+                      représente la sonde qui se trouve la plus dans les terres,
+                      et Touques T6 représente la sonde qui est la plus proche
+                      de la mer).")
 
             ), # End tabItem 1 (onglet 1 du menu 2)
 
@@ -2077,7 +2156,15 @@ dashboardPage(
             # Cinquième  Menu : Analyses de données avancée
             ####################################################
 
-            tabItem(tabName = "ODriscoll",
+            tabItem(tabName = "nappe",
+                    h1("Effets de eaux souterraines"),
+                    tabsetPanel(
+                    ############
+                    # O'Driscoll
+                    ###########
+
+
+                        tabPanel("La méthode O'Driscoll",
                     fluidRow(
 
                         h3(strong("")),
@@ -2100,6 +2187,344 @@ dashboardPage(
                     )
 
             ),
+            ############
+            # ACI & ACP Touques
+            ###########
+            ######
+            #Intro
+            ######
+            tabPanel("Analyse du signal nappe de la Touques",
+
+                        h2("Analyse du signal nappe de la Touques"),
+
+                        p(style="text-align: justify;",
+                         " La température des cours d’eau peut être influencée
+                         par de nombreux facteurs, qu’ils soient climatiques
+                         (e.g. température de l’air, le rayonnement solaire etc.),
+                         ou non climatique (eg. les eaux souterraines).
+                         Il a été décrit précédemment que la nappe phréatique
+                         joue un rôle dans la température du cours d’eau de la Touques."),
+
+
+                       p(style="text-align: justify;",
+                       "L’analyse qui suit a pour but de mieux caractériser ce phénomène,
+                       et essayer d’extraire son signal via une Analyse en Composantes
+                       Indépendantes (ACI), et l’identifier via une Analyse en Composantes
+                       Principales (ACP)."),
+
+
+                        p(style="text-align: justify;",
+                        paste0("Pour cette étude, les données de température agrégées en moyenne
+                        journalière des sondes T1, T3 ,T4 et T6 ont été utilisées.
+                        Elles s’étendent de la période du ",
+                        min(db_aci_moy_touques$date) ," au ",max(db_aci_moy_touques$date) ,
+                        " ce qui représente ", dim(db_aci_moy_touques)[1], " observations.")),
+
+            br(),
+
+            ######
+            #Graphe Teau Tair et Diff
+            ######
+
+            h3(style="text-align: justify;",
+               "La différence entre la température de l'eau et de l'air semble indiquer un
+               phénomène qui réchauffe l'eau en hiver et la refroidit en été"),
+            fluidRow(
+                column(
+                    width = 4,
+                    br(),
+                    wellPanel(
+                        # h3("Menu"),
+                        radioButtons("sondes_touques_desc", "Choix de la sonde",
+                                     c("Touques T1" = "825",
+                                       "Touques T3" = "827",
+                                       "Touques T4" = "828",
+                                       "Touques T6" = "830"),
+                                     selected = "825"),
+                        br(),
+                        p(strong("Choix des compsantes")),
+                        checkboxInput(inputId = "Teau_touques", label = "Température de l'eau", value = T),
+                        checkboxInput(inputId = "Tair_touques", label = "Température de l'air", value = T),
+                        checkboxInput(inputId = "diff_touques", label = "Différence entre températures (Teau-Tair)", value = T)
+
+                    )
+                ),
+
+                column(
+                    width = 8,
+
+                    dygraphOutput("desc_touques")
+                )
+            ),# End FluidRow
+
+            br(),
+
+            p(style="text-align: justify;",
+              "La température de l’air semble avoir une forte influence sur la température de l’eau.
+              Comme attendu, des variations saisonnières sont observées pour la température de l’air
+              et de l’eau. Leurs températures baissent en hiver et augmentent en été dans des proportions
+              similaires. Un lien fort semble donc exister entre les températures de l’air et de l’eau."),
+
+
+             p(style="text-align: justify;",
+              "Le but étant d’observer l’influence des eaux souterraines sur la température de l’eau,
+              il est courant d’étudier la différence entre la température de l’eau et de l’air. En effet,
+              la différence entre la température de l’eau et celle de l’air semble suivre un
+              cycle saisonnier inverse ; elle est positive en hiver et négative en été.
+              Cela démontre qu’il existe une source non climatique qui réchauffe l’eau en hiver et la
+              refroidit en été."
+            ),
+
+            p(style="text-align: justify;",
+            "Pour tenter de dégager des signaux sous-jacents aux chroniques brutes
+            des des températures de l'eau pour les 4 sondes de la
+            Touques, une ACI a été réalisée."),
+
+            br(),
+
+            ######
+            # ACI données Brutes
+            ######
+
+            h3(style="text-align: justify;",
+               "Deux signaux périodiques déphasés"),
+
+            fluidRow(
+                br(),
+
+                column(
+                    width = 4,
+                    br(),
+
+                    wellPanel(
+                        #h3("Menu"),
+                        radioButtons("sondes_touques_aci", "Choix de la sonde",
+                                     c("Touques T1" = "825",
+                                       "Touques T3" = "827",
+                                       "Touques T4" = "828",
+                                       "Touques T6" = "830"),
+                                     selected = "825"),
+                        br(),
+                        p(strong("Choix des compsantes")),
+                        checkboxInput(inputId = "comp1_touques", label = "Composante 1", value = T),
+                        checkboxInput(inputId = "comp2_touques", label = "Composante 2", value = T)
+                        #checkboxInput(inputId = "comp3_touques", label = "Composante 3", value = T)
+
+                    )
+                ),
+
+                column(
+                    width = 8,
+
+                    dygraphOutput("aci_touques")
+                )
+            ),
+            # Matrice de passage
+            h4("Matrice de passage"),
+            fluidRow(
+                tableOutput("mat_pass_Touques")
+
+            ),
+
+            br(),
+
+            p(style="text-align: justify;",
+             "Dans un premier temps, l’ACI a permis d’identifier deux signaux.
+              Ils semblent suivre des cycles saisonniers cependant, ceux-ci sont asynchrones."
+             ),
+
+            p(style="text-align: justify;",
+              "La première composante montre un signal saisonnier qui est minimum en hiver et maximum
+              en été. Par ailleurs, la matrice de passage montre des coefficients qui semblent croître
+              d’amont en aval (avec juste une légère diminution pour la sonde Touques 6 la plus en aval).
+              Cette composante semble donc correspondre au signal saisonnier."
+            ),
+            p(style="text-align: justify;",
+              "Concernant la seconde composante, elle semble suivre un comportement saisonnier,
+              mais qui est déphasé, et parfois opposé par rapport au signal de la première composante.
+              Cette seconde composante pourrait-être liée à l’influence des nappes phréatiques."
+            ),
+            p(style="text-align: justify;",
+              "Une ACI sur les données de différences  entre les températures d’eau et d’air pourrait
+              apporter des indications complémentaires sur la caractérisation des signaux de nappe
+              phréatique."
+            ),
+
+            br(),
+
+
+            ######
+            # ACI données diff
+            ######
+
+            h3(style="text-align: justify;",
+               "Deux signaux opposés aux signaux des données brutes"),
+
+            fluidRow(
+                br(),
+                column(
+                    width = 4,
+                    br(),
+                    wellPanel(
+                        #h3("Menu"),
+                        radioButtons("sondes_touques_aci_dif3", "Choix de la sonde",
+                                     c("Touques T1" = "825",
+                                       "Touques T3" = "827",
+                                       "Touques T4" = "828",
+                                       "Touques T6" = "830"),
+                                     selected = "825"),
+                        br(),
+                        p(strong("Choix des compsantes")),
+                        checkboxInput(inputId = "comp1_touques_dif", label = "Composante 1", value = T),
+                        checkboxInput(inputId = "comp2_touques_dif", label = "Composante 2", value = T),
+                        checkboxInput(inputId = "comp3_touques_dif", label = "Composante 3", value = T)
+
+                    )
+                ),
+
+                column(
+                    width = 8,
+                    #h3("ACI"),
+                    dygraphOutput("aci_touques_dif3")
+                )
+            ),
+            # Matrice de passage
+
+            h4("Matrice de passage"),
+            fluidRow(
+                tableOutput("mat_pass_Touques_diff")
+
+            ),
+
+            br(),
+
+            p(style="text-align: justify;",
+              "Concernant l’ACI réalisée avec les données de
+              différences entre les températures d’eau et d’air,
+              3 composantes ont été extraites."
+            ),
+
+            p(style="text-align: justify;",
+              "Il est à remarquer que les composantes 1 des ACI de données brutes et
+              des données de différence suivent des profils similaires mais inversés.
+              En effet, la composante 1 des données de différences, atteint ses maxima
+              en hiver et minima en été, et les coefficients de la matrice de passage
+              diminuent d’amont en aval. Il s’agirait donc encore ici de la composante
+              saisonnière des données de différence."
+            ),
+
+            p(style="text-align: justify;",
+              "De la même manière les profils de la composante 3 des données de différences
+              et de la composante 2 des données brutes suivent des profils similaires mais
+              inversés. De plus, comme pour les données brutes, la composante 3 et la
+              composante 1 des données de différence sont déphasées."
+            ),
+
+            p(style="text-align: justify;",
+              "Par ailleurs, l’ACI des données de différence met en exergue la composante 2
+              (graphique de droite), qui porte la trace d’événements atypiques et de
+              variations météorologiques brutales. Ces événements peuvent être du à des
+              phénomènes de ruissellement sur sol chaud, ou encore peut être lié à la fonte
+              des neiges, toutefois, l’ACP ne permettra pas de vérifier ces hypothèses."
+            ),
+
+            p(style="text-align: justify;",
+              "Pour essayer de mieux comprendre et vérifier les hypothèses émises sur la nature
+              de ces signaux de l’ACI précédente, des ACP sont effectuées pour les données de
+              chaque sondes."
+            ),
+
+
+            br(),
+
+            ######
+            # ACP
+            ######
+
+            h3(style="text-align: justify;",
+               "La composante 3 semble être le signal de la nappe souterraine"),
+
+            fluidRow(
+                column(width = 6,
+                       h3(strong("Touques T1")),
+                       plotOutput("ACP_825_diff", width = "95%"),
+                       h3(strong("Touques T4")),
+                       plotOutput("ACP_828_diff", width = "95%")
+                ),
+                column(width = 6,
+                       h3(strong("Touques T3")),
+                       plotOutput("ACP_827_diff", width = "95%"),
+                       h3(strong("Touques T6")),
+                       plotOutput("ACP_830_diff", width = "95%")
+                ),
+                p(em("* Teau = Température de l'eau ;
+                                  Tair = Température de l'air ;
+                                  Diff = Différence (Teau-Tair) ;
+                                  piez = Piezométrie ;
+                                  qq = Ensoleillement ;
+                                  rr = Pluviométrie ;
+                                  C1 = Composante 1 ;
+                                  C2 = Composante 2 ;
+                                  C3 = Composante 3" ))
+            ),
+
+            br(),
+
+            p(style="text-align: justify;",
+              "Les résultats des différentes ACP permettent de valider le fait que la
+              composante 1 représente le signal saisonnier extraite par l’ACI des données
+              de différences. En effet, celle-ci est fortement corrélée négativement à
+              l’ensoleillement qui suit un cycle saisonnier classique (cf. Table des corrélations)."
+            ),
+
+            p(style="text-align: justify;",
+              "Concernant la composante 2, il est à remarquer qu’elle n’est pas bien
+              corrélée avec les variables de pluviométrie, d’ensoleillement et de
+              piézométrie. L’ajout de nouvelles variables explicatives pourrait permettre
+              une meilleure caractérisation de cette composante (e.g. ruissellement)."
+            ),
+
+            p(style="text-align: justify;",
+              "Enfin, les corrélations entre la composante 3 et la différence de température
+              de l’eau et de l’air s’accroissent d’amont en aval (cf. Table des corrélations).
+              Par ailleurs, la composante 3 est la composante la plus corrélée avec le niveau
+              piézométrique. Il est à supposer que la composante 3 a un lien avec les eaux souterraines.
+              Cela indiquerait que le phénomène de réchauffement de l’eau en hiver et de refroidissement de l’eau
+              en été serait plus liés à l’influence d’eau souterraine vers la mer que dans les terres. Par ailleurs,
+              ce phénomène pourrait être influencé par différents paramètres d’amont en aval."
+            ),
+
+
+            br(),
+
+            ######
+            # Conclusion
+            ######
+
+            h3(style="text-align: justify;",
+               "Conclusion"),
+
+            p(style="text-align: justify;",
+              "Au cours de cette étude, une recherche des éléments expliquant les variations de
+              la température des cours d’eau de la Touques a été recherchée. Il en ressort notamment
+              un phénomène qui réchauffe l’eau en hiver et la refroidit en été. Celui-ci pourrait
+              être dû à l’influence de la température des eaux souterraines, notamment pour les eaux
+              les plus proches de la mer. "
+            ),
+
+            br(),
+
+            h3("Annexe"),
+            br(),
+            h4("Table des corrélations"),
+            fluidRow(
+                DT::dataTableOutput("touques_corr")
+            )
+
+
+                        )
+            )
+            ),
 
 
 
@@ -2111,183 +2536,12 @@ dashboardPage(
                     h1("ACI et ACP"),
                     tabsetPanel(
                         # ---------------------------------------- #
-                        tabPanel(
-                            "Touques",
-
-                            h1("Influence des eaux souterraines sur la température de la Touques"),
-
-                            p("blabla de l'intro"),
-                            br(),
-                            # ------------------------------ #
-                            h2("La différence entre la température de l'eau et de l'air semble indiquer un
-                                       phénomène qui réchauffe l'eau en hiver et la refroidit en été"),
-                            fluidRow(
-                                column(
-                                    width = 4,
-                                    br(),
-                                    wellPanel(
-                                       # h3("Menu"),
-                                        radioButtons("sondes_touques_desc", "Choix de la sonde",
-                                                     c("Touques T1" = "825",
-                                                       "Touques T3" = "827",
-                                                       "Touques T4" = "828",
-                                                       "Touques T6" = "830"),
-                                                     selected = "825"),
-                                        br(),
-                                        p(strong("Choix des compsantes")),
-                                        checkboxInput(inputId = "Teau_touques", label = "Température de l'eau", value = T),
-                                        checkboxInput(inputId = "Tair_touques", label = "Température de l'air", value = T),
-                                        checkboxInput(inputId = "diff_touques", label = "Différence entre températures (Teau-Tair)", value = T)
-
-                                    )
-                                ),
-
-                                column(
-                                    width = 8,
-
-                                    dygraphOutput("desc_touques")
-                                )
+                        tabPanel("Touques",
                             ),
-                            fluidRow(
-                                br(),
-                                h3(strong("Existence de 2 signaux périodiques et déphasés")),
-                                column(
-                                    width = 4,
-                                    br(),
-
-                                    wellPanel(
-                                        #h3("Menu"),
-                                        radioButtons("sondes_touques_aci", "Choix de la sonde",
-                                                     c("Touques T1" = "825",
-                                                       "Touques T3" = "827",
-                                                       "Touques T4" = "828",
-                                                       "Touques T6" = "830"),
-                                                     selected = "825"),
-                                        br(),
-                                        p(strong("Choix des compsantes")),
-                                        checkboxInput(inputId = "comp1_touques", label = "Composante 1", value = T),
-                                        checkboxInput(inputId = "comp2_touques", label = "Composante 2", value = T)
-                                        #checkboxInput(inputId = "comp3_touques", label = "Composante 3", value = T)
-
-                                    )
-                                ),
-
-                                column(
-                                    width = 8,
-
-                                    dygraphOutput("aci_touques")
-                                )
-                            ),
-                            # Matrice de passage
-                            h3("Matrice de passage"),
-                            fluidRow(
-                                tableOutput("mat_pass_Touques")
-
-                            ),
-
-                            # ACI diff
-                            h2("Analyse en Composantes Indépendantes Diff Teau-Tair (3 composantes)"),
                             # ------------------------------ #
 
-                            fluidRow(
-                                br(),
-                                column(
-                                    width = 4,
-                                    br(),
-                                    wellPanel(
-                                        #h3("Menu"),
-                                        radioButtons("sondes_touques_aci_dif3", "Choix de la sonde",
-                                                     c("Touques T1" = "825",
-                                                       "Touques T3" = "827",
-                                                       "Touques T4" = "828",
-                                                       "Touques T6" = "830"),
-                                                     selected = "825"),
-                                        br(),
-                                        p(strong("Choix des compsantes")),
-                                        checkboxInput(inputId = "comp1_touques_dif", label = "Composante 1", value = T),
-                                        checkboxInput(inputId = "comp2_touques_dif", label = "Composante 2", value = T),
-                                        checkboxInput(inputId = "comp3_touques_dif", label = "Composante 3", value = T)
 
-                                    )
-                                ),
 
-                                column(
-                                    width = 8,
-                                    #h3("ACI"),
-                                    dygraphOutput("aci_touques_dif3")
-                                )
-                            ),
-                            # Matrice de passage
-                            h3("Matrice de passage"),
-                            fluidRow(
-                                tableOutput("mat_pass_Touques_diff")
-
-                            ),
-                            # # ACI diff
-                            # h2("Analyse en Composantes Indépendantes Diff Teau-Tair (2 composantes)"),
-                            # # ------------------------------ #
-                            #
-                            # fluidRow(
-                            #     br(),
-                            #     column(
-                            #         width = 4,
-                            #         br(),
-                            #         wellPanel(
-                            #             h3("Menu"),
-                            #             radioButtons("sondes_touques_aci_dif2", "Choix de la sonde",
-                            #                          c("Touques T1" = "825",
-                            #                            "Touques T3" = "827",
-                            #                            "Touques T4" = "828",
-                            #                            "Touques T6" = "830"),
-                            #                          selected = "825"),
-                            #             br(),
-                            #             p(strong("Choix des compsantes")),
-                            #             checkboxInput(inputId = "comp1_touques_dif2", label = "Composante 1", value = T),
-                            #             checkboxInput(inputId = "comp2_touques_dif2", label = "Composante 2", value = T)
-                            #             #checkboxInput(inputId = "comp3_touques_dif", label = "Composante 3", value = T)
-                            #
-                            #         )
-                            #     ),
-                            #
-                            #     column(
-                            #         width = 8,
-                            #         #h3("ACI"),
-                            #         dygraphOutput("aci_touques_dif2")
-                            #     )
-                            # ),
-
-                            h2("Analyse en Composantes Principales"),
-                            # ------------------------------ #
-                            fluidRow(
-                                column(width = 6,
-                                       h3(strong("Touques T1")),
-                                plotOutput("ACP_825_diff", width = "95%"),
-                                    h3(strong("Touques T4")),
-                                plotOutput("ACP_828_diff", width = "95%")
-                                ),
-                                column(width = 6,
-                                       h3(strong("Touques T3")),
-                                plotOutput("ACP_827_diff", width = "95%"),
-                                       h3(strong("Touques T6")),
-                                plotOutput("ACP_830_diff", width = "95%")
-                                ),
-                                p("* Teau = Température de l'eau ;
-                                  Tair = Température de l'air ;
-                                  Diff = Différence (Teau-Tair) ;
-                                  piez = Piezométrie ;
-                                  qq = Ensoleillement ;
-                                  rr = Pluviométrie ;
-                                  C1 = Composante 1 ;
-                                  C2 = Composante 2 ;
-                                  C3 = Composante 3" )
-                            ),
-
-                            h2("Table des corrélations"),
-                            fluidRow(
-                            DT::dataTableOutput("touques_corr")
-                            )
-
-                        ),
                         # ---------------------------------------- #
                         tabPanel(
                             "Orne",
@@ -2735,27 +2989,35 @@ dashboardPage(
             # Sixième  Menu : Références
             ####################################################
             tabItem(tabName = "Reference",
-                    h2("Hydrologie et hydrobiologie des cours d'eau Normands"),
+                    h1("Hydrologie des cours d'eau Normands"),
                     br(),
-                    h3("Etude réalisée par :"),
-                    br(),
+                    fluidRow(
+                    column(width=6,
+                    h2("Etude réalisée par :"),
                     h3("Conception de l'interface :"),
-                    p("- Sacha Legrand : legrand.sacha14@gmail.com"),
-                    p("- Lucie Letorey : lucieletorey@gmail.com"),
-                    p("- Julien Marie  : julien.marie133@gmail.com"),
-                    br(),
+                    tags$ol(
+                        #1
+                        tags$ul(strong("Sacha Legrand")," : legrand.sacha14@gmail.com"),
+                        tags$ul(strong("Lucie Letorey "),": lucieletorey1995@hotmail.fr"),
+                        tags$ul(strong("Julien Marie ")," : julien.marie133@gmail.com")
+                    ),
                     h3("Encadrement :"),
-                    p("- Bruno Dardaillon : bruno.dardaillon@developpement-durable.gouv.fr"),
-                    p("- Frédéric Gresselin : frederic.gresselin@developpement-durable.gouv.fr"),
-                    p("- Fabrice Parais : fabrice.parais@developpement-durable.gouv.fr"),
+                    tags$ol(
+                        #1
+                        tags$ul(strong("Bruno Dardaillon")," : bruno.dardaillon@developpement-durable.gouv.fr"),
+                        tags$ul(strong("Frédéric Gresselin")," : frederic.gresselin@developpement-durable.gouv.fr"),
+                        tags$ul(strong("Fabrice Parais")," : fabrice.parais@developpement-durable.gouv.fr")
+                    ),
+),
+                    column(width=6,
+                    img(src="Equipe2.png",width="100%"),
+                    p(style="text-align: justify;font-size: 12px;",
+                        em(
+                      "De la gauche vers la droite : Sacha Legrand, Lucie Letorey,
+                      Julien Marie, Fabrice Parais, Frédéric Gresselin, Bruno Dardaillon"))
+        ))
 
-
-                    img(src="Equipe2.png",heigth=500,width=500),
-                    p("De la gauche vers la droite : Sacha Legrand, Lucie Letorey,
-                      Julien Marie, Fabrice Parais, Frédéric Gresselin, Bruno Dardaillon")
-        )
-
-
+)
         ) # End tabItems
         # ------------------------------------------------------------ #
 
