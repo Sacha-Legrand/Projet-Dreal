@@ -482,7 +482,7 @@ shinyServer(function(input,output,session){
                               icon=makeAwesomeIcon(icon='tint', library='glyphicon',
                                                    iconColor = 'white', markerColor = 'orange'),
 
-                              popup =  paste(db_sonde_synthese_Touques$label,
+                              popup =  paste(db_sonde_synthese_Touques$label,"<br>",
                                              "Distance à la source : ",db_sonde_synthese_Touques$distance_source," km" ))%>%
 
             addPolylines(data=coursEau2[coursEau2@data$Name== "Touques",],color="blue")
@@ -1741,7 +1741,7 @@ shinyServer(function(input,output,session){
                               icon=makeAwesomeIcon(icon='tint', library='glyphicon',
                                                    iconColor = 'white', markerColor = 'orange'),
 
-                              popup =  paste(db_sonde_synthese_Orne$label,
+                              popup =  paste(db_sonde_synthese_Orne$label,"<br>",
                                              "Distance à la source : ",db_sonde_synthese_Orne$distance_source," km" ))%>%
 
             addPolylines(data=coursEau2[coursEau2@data$Name== "Orne",],color="blue")
@@ -2755,7 +2755,7 @@ shinyServer(function(input,output,session){
                               icon=makeAwesomeIcon(icon='tint', library='glyphicon',
                                                    iconColor = 'white', markerColor = 'orange'),
 
-                              popup =  paste(db_sonde_synthese_Odon$label,
+                              popup =  paste(db_sonde_synthese_Odon$label,"<br>",
                                              "Distance à la source : ",db_sonde_synthese_Odon$distance_source," km" ))%>%
 
             addPolylines(data=coursEau2[coursEau2@data$Name== "Odon",],color="blue")
@@ -4253,8 +4253,6 @@ shinyServer(function(input,output,session){
     # Sélune
     ##########################################
 
-
-
     ################################
     # Description
     ################################
@@ -4286,7 +4284,7 @@ shinyServer(function(input,output,session){
                               icon=makeAwesomeIcon(icon='tint', library='glyphicon',
                                                    iconColor = 'white', markerColor = 'orange'),
 
-                              popup =  paste(db_sonde_synthese_Selune$label,
+                              popup =  paste(db_sonde_synthese_Selune$label,"<br>",
                                              "Distance à la source : ",db_sonde_synthese_Selune$distance_source," km" ))%>%
 
             addPolylines(data=coursEau2[coursEau2@data$Name== "Selune",],color="blue")
@@ -6144,13 +6142,11 @@ shinyServer(function(input,output,session){
         g = ggplot(data=odris,aes(x=slope,y=intercept,label =Sondes2,color=Sondes))+
             geom_abline(intercept = regOdris$coefficients[1],
                         slope = regOdris$coefficients[2])+
+            xlab("Pente") +
+            ylab("Ordonnées à l'origine")+
             geom_point()+
-            #geom_label(aes(color=Sondes), show.legend = FALSE)+
             geom_text(aes(x=slope-0.009),show.legend = FALSE) +
-
-            #geom_label(aes(color=Sondes), show.legend = FALSE)+
             theme_classic()
-        # geom_text(aes(x=slope-0.009),show.legend = FALSE)
 
         g
     })
@@ -6225,13 +6221,15 @@ shinyServer(function(input,output,session){
                            b_touques[,"date"])
         colnames(db_xts_tempo) = c("Composante 1", "Composante 2")[aci_touques_reactive$choix_composantes]
         lab_sonde = db_sonde_synthese[which(db_sonde_synthese$id_sonde == aci_touques_reactive$choix_sonde),]$label
-        dygraph(db_xts_tempo, paste0("Composantes indépendantes de ", lab_sonde)) %>%
+        dygraph(db_xts_tempo) %>%
+            dyAxis("y", label = "Température (en °C)") %>%
+            dyAxis("x", label = "Temps") %>%
             dyOptions(colors = c("blue", "red")[aci_touques_reactive$choix_composantes])
     })
     ###############
     # Touques matrice de passage Données Brutes
     ###############
-    output$mat_pass_Touques= renderTable(mat_touques_3comp,rownames=T)
+    output$mat_pass_Touques= renderTable(mat_touques,rownames=T)
     ###############
     # Touques diff 3 comp
     ###############
@@ -6262,7 +6260,9 @@ shinyServer(function(input,output,session){
                            b_touques_dif3[,"date"])
         colnames(db_xts_tempo) = c("Composante 1", "Composante 2", "Composante 3")[aci_touques_dif3_reactive$choix_composantes]
         lab_sonde = db_sonde_synthese[which(db_sonde_synthese$id_sonde == aci_touques_dif3_reactive$choix_sonde),]$label
-        dygraph(db_xts_tempo, paste0("Composantes indépendantes de ", lab_sonde)) %>%
+        dygraph(db_xts_tempo) %>%
+            dyAxis("y", label = "Température (en °C)") %>%
+            dyAxis("x", label = "Temps") %>%
             dyOptions(colors = c("blue", "red", "black")[aci_touques_dif3_reactive$choix_composantes])
     })
 
@@ -6350,34 +6350,38 @@ shinyServer(function(input,output,session){
                            db_aci_bih_selune[,"t"])
         colnames(db_xts_tempo) = c("Température de l'eau")
         lab_sonde = db_sonde_synthese[which(db_sonde_synthese$id_sonde == desc_selune_reactive2$choix_sonde),]
-        dygraph(db_xts_tempo)
+        dygraph(db_xts_tempo) %>%
+            dyAxis("y", label = "Température (en °C)") %>%
+            dyAxis("x", label = "Temps")
             #dyOptions(colors = c("blue", "red", "black")[desc_selune_reactive2$choix_sonde])
     })
 
 
-    db_sonde_synthese_Selune = db_sonde_synthese[db_sonde_synthese$id_sonde == 824 |
-                                                     db_sonde_synthese$id_sonde == 821 |
+    db_sonde_synthese_Selune2 = db_sonde_synthese[db_sonde_synthese$id_sonde == 824 |
+                                                     db_sonde_synthese$id_sonde == 820 |
+                                                     #db_sonde_synthese$id_sonde == 822 |
+                                                     #db_sonde_synthese$id_sonde == 821 |
                                                      db_sonde_synthese$id_sonde == 823 ,]
 
     output$map_Selune_ACI <- renderLeaflet({
 
         leaflet() %>%
             addTiles() %>%
-            addAwesomeMarkers(data = db_sonde_synthese_Selune,
-                              lng=db_sonde_synthese_Selune$longitude,lat=db_sonde_synthese_Selune$latitude,
+            addAwesomeMarkers(data = db_sonde_synthese_Selune2,
+                              lng=db_sonde_synthese_Selune2$longitude,lat=db_sonde_synthese_Selune2$latitude,
                               icon=makeAwesomeIcon(icon='tint', library='glyphicon',
                                                    iconColor = 'white', markerColor = 'blue'),
 
                               popup =  paste(db_sonde_synthese_Selune$label))%>%
             addAwesomeMarkers(
                               lng=-1.2336,lat=48.5786,
-                              icon=makeAwesomeIcon(icon="exclamation-sign", library='glyphicon',
+                              icon=makeAwesomeIcon(icon="flash", library='glyphicon',
                                                    iconColor = 'white', markerColor = 'red'),
 
                               popup =  "Barrage de Vézins" )%>%
             addAwesomeMarkers(
                 lng= -1.2586,lat=48.6061,
-                icon=makeAwesomeIcon(icon="exclamation-sign", library='glyphicon',
+                icon=makeAwesomeIcon(icon="flash", library='glyphicon',
                                      iconColor = 'white', markerColor = 'red'),
 
                 popup =  "Barrage de La Roche qui Boit")%>%
@@ -6417,7 +6421,9 @@ shinyServer(function(input,output,session){
                            b_selune2[,"t"])
         colnames(db_xts_tempo) = c("Composante 1", "Composante 2")[aci_selune_2comp_reactive$choix_composantes]
         lab_sonde = db_sonde_synthese[which(db_sonde_synthese$id_sonde == aci_selune_2comp_reactive$choix_sonde),]$label
-        dygraph(db_xts_tempo, paste0("Composantes indépendantes de ", lab_sonde)) %>%
+        dygraph(db_xts_tempo) %>%
+            dyAxis("y", label = "Température (en °C)") %>%
+            dyAxis("x", label = "Temps") %>%
             dyOptions(colors = c("blue", "red")[aci_selune_2comp_reactive$choix_composantes])
     })
 
