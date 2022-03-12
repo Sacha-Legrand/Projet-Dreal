@@ -135,8 +135,8 @@ if(!require(factoextra)){
 ############## Working Directory -----
 
 # Path to working directory
-#path = "D:/Users/Desktop/Cours/M2stat/Projet2/Projet-Dreal-main/data_treatment/"
-path = "/Users/julien/Desktop/projetM2/GitHub/data_treatment/"
+path = "D:/Users/Desktop/Cours/M2stat/Projet3/Projet-Dreal-main/data_treatment/"
+#path = "/Users/julien/Desktop/projetM2/GitHub/data_treatment/"
 
 # Setting working Directory
 setwd(path)
@@ -161,7 +161,7 @@ db_teau_tair_diff = db_teau_tair2
 db_teau_tair_diff = db_teau_tair_diff[,-1]
 for (i in 1:(ncol(db_teau_tair_diff)/2)){
   db_teau_tair_diff[[paste0(substr(colnames(db_teau_tair_diff)[i],start=1,stop=3),"diff")]]= db_teau_tair_diff[,i]-db_teau_tair_diff[,i+30]
-  
+
 }
 #db_teau_tair_diff=db_teau_tair_diff[,-c(31:60)]
 db_teau_tair_diff$date=db_teau_tair2$date
@@ -200,15 +200,15 @@ mat_touques <- a_touques$A
 
 lab_comp = c()
 for(i in 1:ncol(aci_data)){
-  
+
   label_i = colnames(aci_data)[i]
-  
+
   b_touques[paste0("comp1_", label_i)]=a_touques$A[1,i]*a_touques$S[,1]
   b_touques[paste0("comp2_", label_i)]=a_touques$A[2,i]*a_touques$S[,2]
   # b_touques[paste0("comp3_", label_i)]=a_touques$A[3,i]*a_touques$S[,3]
-  
+
   lab_comp = c(lab_comp, paste0("comp1_", label_i), paste0("comp2_", label_i))#, paste0("comp3_", label_i))
-  
+
 }
 
 
@@ -251,15 +251,15 @@ mat_touques_dif <- a_touques_dif$A
 
 lab_comp = c()
 for(i in 1:ncol(aci_data)){
-  
+
   label_i = colnames(aci_data)[i]
-  
+
   b_touques_dif3[paste0("comp1_", label_i)]=a_touques_dif$A[1,i]*a_touques_dif$S[,1]
   b_touques_dif3[paste0("comp2_", label_i)]=a_touques_dif$A[2,i]*a_touques_dif$S[,2]
   b_touques_dif3[paste0("comp3_", label_i)]=a_touques_dif$A[3,i]*a_touques_dif$S[,3]
-  
+
   lab_comp = c(lab_comp, paste0("comp1_", label_i), paste0("comp2_", label_i), paste0("comp3_", label_i))
-  
+
 }
 
 mat_touques_dif_3comp = mat_touques_dif
@@ -317,14 +317,14 @@ mat_selune <- a_selune$A
 
 lab_comp = c()
 for(i in 1:ncol(aci_data)){
-  
+
   label_i = colnames(aci_data)[i]
-  
+
   b_selune2[paste0("comp1_", label_i)]=a_selune$A[1,i]*a_selune$S[,1]
   b_selune2[paste0("comp2_", label_i)]=a_selune$A[2,i]*a_selune$S[,2]
-  
+
   lab_comp = c(lab_comp, paste0("comp1_", label_i), paste0("comp2_", label_i))
-  
+
 }
 
 
@@ -340,7 +340,7 @@ rownames(mat_selune_2comp)= c("Composante 1","Composante 2")
 # ACP SUR LES 3 COMPOSANTES DE LA TOUQUES
 # ####################################### #
 
-# preparation de la base pour l'ACP 
+# preparation de la base pour l'ACP
 db_acp_diff_touques = merge(b_touques_dif3[,-c(2:4)],
                             db_teau_tair_diff[,c("825Teau", "827Teau", "828Teau", "830Teau",
                                                  "825Tair", "827Tair", "828Tair", "830Tair",
@@ -617,9 +617,9 @@ correlation_test = correlation_test[-c(4:nrow(correlation_test)),-c(1:3)]
 for (i in 1:nrow(correlation_825)){
   for (j in 1:ncol(correlation_825)){
     correlation_825[i,j] = paste0(correlation_825[i,j]," [",correlation_test[i,j],"]")
-    
+
   }
-  
+
 }
 correlation_825$Composantes = row.names(correlation_825)
 correlation_825$id_sonde = "825"
@@ -680,9 +680,9 @@ correlation_test = correlation_test[-c(4:nrow(correlation_test)),-c(1:3)]
 for (i in 1:nrow(correlation_827)){
   for (j in 1:ncol(correlation_827)){
     correlation_827[i,j] = paste0(correlation_827[i,j]," [",correlation_test[i,j],"]")
-    
+
   }
-  
+
 }
 
 correlation_827$Composantes = row.names(correlation_827)
@@ -741,9 +741,9 @@ correlation_test = correlation_test[-c(4:nrow(correlation_test)),-c(1:3)]
 for (i in 1:nrow(correlation_828)){
   for (j in 1:ncol(correlation_828)){
     correlation_828[i,j] = paste0(correlation_828[i,j]," [",correlation_test[i,j],"]")
-    
+
   }
-  
+
 }
 correlation_828$Composantes = row.names(correlation_828)
 correlation_828$id_sonde = "828"
@@ -803,9 +803,9 @@ correlation_test$id_sonde = "830"
 for (i in 1:nrow(correlation_830)){
   for (j in 1:ncol(correlation_830)){
     correlation_830[i,j] = paste0(correlation_830[i,j]," [",correlation_test[i,j],"]")
-    
+
   }
-  
+
 }
 correlation_830$Composantes = row.names(correlation_830)
 correlation_830$id_sonde = "830"
@@ -842,7 +842,8 @@ rm(correlation_825,correlation_827,correlation_828,correlation_830,correlation_t
 #                            ##############
 # enregistrement des donnees (RData/db_aci_acp.RData) -----
 save(b_touques, mat_touques, b_touques_dif3, mat_touques_dif_3comp,
-     b_selune2, mat_selune_2comp, 
+     b_selune2, mat_selune_2comp,db_aci_moy_touques,db_aci_bih_selune,
+     teau_tair_diff_touques,
      res_ACP_825_diff_3comp_C1C2C3, res_ACP_827_diff_3comp_C1C2C3,
      res_ACP_828_diff_3comp_C1C2C3, res_ACP_830_diff_3comp_C1C2C3,
      correlation_touques,
