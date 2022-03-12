@@ -124,7 +124,8 @@ if(!require(rsconnect)){
 ############## Working Directory -----
 
 # Path to working directory
-path = "D:/Users/Desktop/Cours/M2stat/Projet2/Projet-Dreal-main/dashboard/"
+#path = "D:/Users/Desktop/Cours/M2stat/Projet2/Projet-Dreal-main/dashboard/"
+path = "/Users/julien/Desktop/projetM2/GitHub/dashboard/"
 
 # Setting working Directory
 setwd(path)
@@ -134,25 +135,21 @@ setwd(path)
 
 
 
-load("db_aci.RData")
+#load("db_aci.RData")
 
 load("RData/db.RData")
 load("RData/KMLs.RData")
 load("RData/db_temp_synthese.RData")
 load("RData/db_nc_files.RData")
 load("RData/db_piezo.RData")
-# load("RData/dbA.RData")
-# load("RData/dbA.RData")
-# load("RData/dbB.RData")
-# load("RData/dbC.RData")
-# load("RData/dbD.RData")
-# load("RData/dbE.RData")
-# load("RData/dbF.RData")
-# load("RData/dbG.RData")
-# load("RData/dbH.RData")
-# load("RData/dbI.RData")
-# load("RData/dbJ.RData")
-# load("RData/dbK.RData")
-load("RData/treated_data.RData")
-load("RData/db_aci_acp.RData")
+
+
 load("RData/Variables.RData")
+
+load("RData/db_aci_acp.RData")
+load("RData/db_comparaison.RData")
+load("RData/db_correlation.RData")
+load("RData/db_cours_eau.RData")
+load("RData/db_odriscoll.RData")
+load("RData/db_stats_cours_eau.RData")
+load("RData/dbG.RData")
