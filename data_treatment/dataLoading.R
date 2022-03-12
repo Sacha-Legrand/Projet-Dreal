@@ -114,7 +114,7 @@ if(!require(ifa)){
 }
 if(!require(readODS)){
   install.packages("readODS")
-  library(readODS)
+  #library(readODS)
 }
 if(!require(stringr)){
   install.packages("stringr")
@@ -124,11 +124,11 @@ if(!require(stringr)){
 
 
 
-
 ############## Working Directory -----
 
 # Path to working directory
-path = "D:/Users/Desktop/Cours/M2stat/Projet2/Projet-Dreal-main/data_treatment/"
+#path = "D:/Users/Desktop/Cours/M2stat/Projet2/Projet-Dreal-main/data_treatment/"
+path = "/Users/julien/Desktop/projetM2/GitHub/data_treatment/"
 
 # Setting working Directory
 setwd(path)
@@ -138,7 +138,7 @@ setwd(path)
 Variables = readODS::read_ods(paste0(path,"/Description_Variables.ods"),sheet=1)
 save(Variables, file = "RData/Variables.RData")
 
-############## Ajouter le code qui permet d'avoir db ? -----
+############## db (regroupement de toutes les donnees) -----
 
 # Chargement et extraction des données des sondes
 
@@ -173,10 +173,10 @@ sonde816 <- read.csv2(paste0(NomF[11]),skip=2,sep=";",col.names = c("X","date","
 sonde816$id_sonde = 816
 sonde817 <- read.csv2(paste0(NomF[12]),skip=2,sep=";",col.names = c("X","date","heure","Teau"))
 sonde817$id_sonde = 817
-############
+# ########## #
 # ATTENTION : 2 BDDs qui sont en rapport avec la sonde 818 : Elles sont semblable donc
 # suppression de l'une entre elle
-############
+# ########## #
 sonde818 <- read.csv2(paste0(NomF[13]),skip=2,sep=";",col.names = c("X","date","heure","Teau"))
 sonde818 <- read.csv2(paste0(NomF[14]),skip=2,sep=";",col.names = c("X","date","heure","Teau"))
 sonde818$id_sonde = 818
@@ -321,34 +321,34 @@ for (i in 1:dim(coursEau2)[1]){
   D=vector()
   longitude2=vector()
   latitude2=vector()
-
+  
   Name = coursEau2$Name[i]
-
+  
   coord = coordinates(coursEau2[coursEau2@data$Name == Name,])
-
+  
   lng <- coord[[1]][[1]][,1]
   longitude = coord[[1]][[1]][,1]
   lat <- coord[[1]][[1]][,2]
   latitude=coord[[1]][[1]][,2]
-
+  
   longitude2 = longitude*(pi/180)
   latitude2 = latitude*(pi/180)
-
+  
   for (j in 1:length(latitude)){
     d= (2 * asin( sqrt(
       (sin((latitude2[j]-latitude2[j+1])/2))^2 + cos(latitude2[j])*cos(latitude2[j+1])* ( sin((longitude2[j]-longitude2[j+1])/2)) ^2
     )
-
+    
     ))*6366
-
+    
     D=append(D,d)
   }
-
+  
   taille= sum(D,na.rm=T)
   #print(taille)
   Taille = append(Taille,taille)
   name = append(name,Name)
-
+  
 }
 #Taille
 
@@ -389,22 +389,22 @@ for (i in 1:nrow(coord_sondes)){
   c_eau = coordinates(c_eau[c_eau@data$Name == as.character(coord_sondes$label[i]),])
   c_eau$d = NA
   c_eau$di = NA
-
-
+  
+  
   longitude = c_eau[[1]][[1]][,1]
   latitude = c_eau[[1]][[1]][,2]
-
+  
   longitude2 = longitude*(pi/180)
   latitude2 = latitude*(pi/180)
-
+  
   for (j in 1:length(latitude)){
-
+    
     c_eau$d[j]= (2 * asin( sqrt(
       (sin((latitude2[j]-latitude2[j+1])/2))^2 + cos(latitude2[j])*cos(latitude2[j+1])* ( sin((longitude2[j]-longitude2[j+1])/2)) ^2
     )
-
+    
     ))*6366
-
+    
     c_eau$di[j] = (2 * asin( sqrt(
       (sin((latitude2[j]-(coord_sondes$latitude[i]*(pi/180)))/2))^2 +
         cos(latitude2[j])*cos((coord_sondes$latitude[i]*(pi/180)))*
@@ -412,12 +412,12 @@ for (i in 1:nrow(coord_sondes)){
     )
     )
     )*6366
-
+    
   }
   dist = c_eau$d[1:which(c_eau$di== min(c_eau$di))]
   coord_sondes$dist[i]=sum(dist)
   #print(sum(dist))
-
+  
 }
 
 
@@ -428,16 +428,16 @@ rm(coursEau3)
 
 
 
-## db_temp
-# db_temp = data.frame(id_sonde = db_sonde_synthese$id_sonde,
-#                      cours_eau = c("Monne", "Vie", "Taute", "Barge", "Grande Vallee",
-#                                    "Souleuvre", "See Rousse", "Egrenne", "Durance", "See",
-#                                    "Berence", "Glanon", "Vieux Ruisseau (Vingt bec)",
-#                                    "Fontaine au Heron", rep("Odon", 4), rep("Orne", 3),
-#                                    rep("Selune", 5), rep("Touques", 4)),
-#                      pos = c(3, 4, 14, 2, 13, 9, 12, 11, 10, 17, 16, 15, 8, 6,
-#                              rep(1, 4), rep(7, 3), rep(18, 5), rep(5, 4)))
-#
+# db_temp
+db_temp = data.frame(id_sonde = db_sonde_synthese$id_sonde,
+                     cours_eau = c("Monne", "Vie", "Taute", "Barge", "Grande Vallee",
+                                   "Souleuvre", "See Rousse", "Egrenne", "Durance", "See",
+                                   "Berence", "Glanon", "Vieux Ruisseau (Vingt bec)",
+                                   "Fontaine au Heron", rep("Odon", 4), rep("Orne", 3),
+                                   rep("Selune", 5), rep("Touques", 4)),
+                     pos = c(3, 4, 14, 2, 13, 9, 12, 11, 10, 17, 16, 15, 8, 6,
+                             rep(1, 4), rep(7, 3), rep(18, 5), rep(5, 4)))
+
 
 #db_sonde_synthese$label
 
@@ -455,7 +455,7 @@ db_sonde_synthese$label = as.factor(db_sonde_synthese$label)
 db_sonde_synthese$label <- factor(db_sonde_synthese$label,
                                   levels = db_sonde_synthese$label,
                                   labels =riv
-                                  )
+)
 db_sonde_synthese$label <- as.character(db_sonde_synthese$label)
 
 
@@ -578,12 +578,12 @@ save(db_Tair_moy, db_pluvio,  db_soleil,
 
 
 
-## Piezométrie
+############## Piezométrie -----
 
 ### PiezoTouques
 piezo_touques = read.table(paste0(path,"piezo/chroniquesTouques.txt"),
                            sep="|",dec=".",header=F,encoding="UTF_8",skip=1
-                           )
+)
 
 piezo_touques=piezo_touques[,c(5,7)]
 colnames(piezo_touques) = c("date","piezo")
@@ -594,7 +594,7 @@ piezo_touques$date = as.Date(piezo_touques$date,format="%d/%m/%Y")
 
 ### PiezoOrne
 piezo_orne = read.table(paste0(path,"piezo/chroniquesOrne.txt"),
-                           sep="|",dec=".",header=F,encoding="UTF_8",skip=1
+                        sep="|",dec=".",header=F,encoding="UTF_8",skip=1
 )
 
 piezo_orne=piezo_orne[,c(5,7)]
