@@ -135,12 +135,15 @@ if(!require(factoextra)){
 ############## Working Directory -----
 
 # Path to working directory
-#path = "D:/Users/Desktop/Cours/M2stat/Projet2/Projet-Dreal-main/data_treatment/"
-path = "/Users/julien/Desktop/projetM2/GitHub/data_treatment/"
+path = "D:/Users/Desktop/Cours/M2stat/Projet3/Projet-Dreal-main/data_treatment/"
+#path = "/Users/julien/Desktop/projetM2/GitHub/data_treatment/"
 
 # Setting working Directory
 setwd(path)
 
+n=nchar(path)
+path2 = str_sub(path,1,(n-nchar("data_treatment/")))
+path2 = paste0(path2,"dashboard/www/")
 
 ############## Chargement des données -----
 
@@ -190,7 +193,7 @@ dbMM = db2 %>%
          TeauMedMM7 = stats::filter(TeauMed,filter=rep(1/7,7)),
          TeauMedMM30 = stats::filter(TeauMed,filter=c(1/(2*30),rep(1/30,29),1/(2*30))),
          TeauMedMM365 = stats::filter(TeauMed,filter=rep(1/365,365))
-         
+
   )
 
 ## db2
@@ -1532,10 +1535,10 @@ save(db3, prefTouques, prefOrne, prefOdon, prefSelune,
      db_Selune_xtsa, db_Selune_xtsb, db_Selune_xtsc,
      file = "RData/db_cours_eau.RData")
 save(db_stats_Touques, db_stats_Orne, db_stats_Odon, db_stats_Selune,
-     db_Touques_stats_MM30_An, #db_Touques_stats_MM30_mois, 
-     db_Orne_stats_MM30_An, #db_Orne_stats_MM30_mois, 
-     db_Odon_stats_MM30_An, #db_Odon_stats_MM30_mois, 
-     db_Selune_stats_MM30_An, #db_Selune_stats_MM30_mois, 
+     db_Touques_stats_MM30_An, #db_Touques_stats_MM30_mois,
+     db_Orne_stats_MM30_An, #db_Orne_stats_MM30_mois,
+     db_Odon_stats_MM30_An, #db_Odon_stats_MM30_mois,
+     db_Selune_stats_MM30_An, #db_Selune_stats_MM30_mois,
      file="RData/db_stats_cours_eau.RData")
 #######################################
 # FIN PARTIE COURS D'EAU
@@ -1554,12 +1557,12 @@ for(id_s in unique(db$id_sonde)){
   #id_s = 813
   db_tempo = db[which(db$id_sonde==id_s),]
   db_tempo = aggregate(Teau~date,data=db_tempo, FUN=mean)
-  
+
   db_tempo[[id_s]] = db_tempo$Teau
-  
-  
+
+
   db_xts_comp_teau_moy = merge(db_xts_comp_teau_moy, db_tempo[,c("date", id_s)], by="date", all=TRUE)
-  
+
 }
 
 
@@ -1589,10 +1592,10 @@ for(id_s in unique(db$id_sonde)){
                               day(db_tempo$t), " ",
                               ifelse(hour(db_tempo$t)%%2==0, hour(db_tempo$t), (hour(db_tempo$t))-1), ":00:00"))
   db_tempo = aggregate(db_tempo[id_s], by=db_tempo['t'], mean)
-  
-  
+
+
   db_xts_comp_teau_bih = merge(db_xts_comp_teau_bih, db_tempo[,c("t", id_s)], by="t", all=TRUE)
-  
+
 }
 #                            ##############
 #                            # SAVE RDATA #
@@ -1637,19 +1640,19 @@ dataRegCoeff = as.data.frame(matrix(
 
 
 for (j in 2:(((ncol(db_teau_tair2)-1)/2)+1)){
-  
-  
+
+
   name=substr(colnames(db_teau_tair2)[j],1,3)
   base_temp = as.data.frame(cbind(db_teau_tair2[,1],
                                   db_teau_tair2[,j],
                                   db_teau_tair2[,j+((ncol(db_teau_tair2)-1)/2)]
   ))
-  
-  
+
+
   base_temp[,1] <- as.Date(base_temp[,1], origin="1970-01-01")
-  
+
   base_temp=base_temp[which(is.na(base_temp[,2])==F)[1]:nrow(base_temp),]
-  
+
   base_temp=base_temp[is.na(base_temp[,2])==F,]
   base_temp=base_temp[is.na(base_temp[,3])==F,]
   reg = lm(base_temp[,2]~base_temp[,3])
@@ -1661,7 +1664,7 @@ for (j in 2:(((ncol(db_teau_tair2)-1)/2)+1)){
   dataRegCoeff[1,j-1]=reg$coefficients[1]
   dataRegCoeff[2,j-1]=reg$coefficients[2]
   dataRegCoeff[3,j-1]=summary(reg)$adj.r.squared
-  
+
   dataReg= merge(dataReg,base_temp,by="date",all.x=T)
   Name=append(Name,name)
 }
@@ -1688,6 +1691,375 @@ db_teau_tair3 <- db_teau_tair3 %>%
 
 db_teau_tair3 = merge(db2[,c(1,2,6)],db_teau_tair3,by=c("date","id_sonde"),all.x=T)
 colnames(db_teau_tair3)=c("date","id_sonde","Température de l'eau","Température de l'air")
+
+
+
+
+#################
+# Régression Touques
+################
+
+
+# Reg Touques 825
+
+png(paste0(path2,"Reg825.png"))
+
+ggplot(data= db_teau_tair3[db_teau_tair3$id_sonde == 825,])+
+  geom_point(aes(x= `Température de l'air`,y= `Température de l'eau`),color="blue",size=0.5)+
+  geom_abline(intercept = dataRegCoeff[1,"825"],
+              slope = dataRegCoeff[2,"825"],color="red")+
+  geom_vline(aes(xintercept =0),color="black")+
+  geom_hline(aes(yintercept =0),color="black")+
+  labs(
+    x="Température de l'air (en °C)",
+    y="Température de l'eau (en °C)")+
+
+  theme_minimal()+
+  theme(legend.title = element_blank())
+
+dev.off()
+
+# Reg Touques 827
+
+
+
+png(paste0(path2,"Reg827.png"))
+
+ggplot(data= db_teau_tair3[db_teau_tair3$id_sonde == 827,])+
+  geom_point(aes(x= `Température de l'air`,y= `Température de l'eau`),color="blue",size=0.5)+
+  geom_abline(intercept = dataRegCoeff[1,"827"],
+              slope = dataRegCoeff[2,"827"],color="red")+
+  geom_vline(aes(xintercept =0),color="black")+
+  geom_hline(aes(yintercept =0),color="black")+
+  labs(
+    x="Température de l'air (en °C)",
+    y="Température de l'eau (en °C)")+
+
+  theme_minimal()+
+  theme(legend.title = element_blank())
+
+
+
+dev.off()
+
+
+# Reg Touques 828
+
+
+
+png(paste0(path2,"Reg828.png"))
+
+ggplot(data=  db_teau_tair3[db_teau_tair3$id_sonde == 828,])+
+  geom_point(aes(x= `Température de l'air`,y= `Température de l'eau`),color="blue",size=0.5)+
+  geom_abline(intercept = dataRegCoeff[1,"828"],
+              slope = dataRegCoeff[2,"828"],color="red")+
+  geom_vline(aes(xintercept =0),color="black")+
+  geom_hline(aes(yintercept =0),color="black")+
+  labs(
+    x="Température de l'air (en °C)",
+    y="Température de l'eau (en °C)")+
+
+  theme_minimal()+
+  theme(legend.title = element_blank())
+
+
+dev.off()
+
+# Reg Touques 830
+
+
+
+png(paste0(path2,"Reg830.png"))
+
+ggplot(data= db_teau_tair3[db_teau_tair3$id_sonde == 830,])+
+  geom_point(aes(x= `Température de l'air`,y= `Température de l'eau`),color="blue",size=0.5)+
+  geom_abline(intercept = dataRegCoeff[1,"830"],
+              slope = dataRegCoeff[2,"830"],color="red")+
+  geom_vline(aes(xintercept =0),color="black")+
+  geom_hline(aes(yintercept =0),color="black")+
+  labs(
+    x="Température de l'air (en °C)",
+    y="Température de l'eau (en °C)")+
+
+  theme_minimal()+
+  theme(legend.title = element_blank())
+
+
+
+dev.off()
+
+
+
+#################
+# Régression Orne
+#################
+# Reg Orne 817
+
+png(paste0(path2,"Reg817.png"))
+
+ggplot(data= db_teau_tair3[db_teau_tair3$id_sonde == 817,])+
+  geom_point(aes(x= `Température de l'air`,y= `Température de l'eau`),color="blue",size=0.5)+
+  geom_abline(intercept = dataRegCoeff[1,"817"],
+              slope = dataRegCoeff[2,"817"],color="red")+
+  geom_vline(aes(xintercept =0),color="black")+
+  geom_hline(aes(yintercept =0),color="black")+
+  labs(
+    x="Température de l'air (en °C)",
+    y="Température de l'eau (en °C)")+
+
+  theme_minimal()+
+  theme(legend.title = element_blank())
+
+dev.off()
+
+
+# Reg Orne 819
+
+
+
+png(paste0(path2,"Reg819.png"))
+
+
+ggplot(data= db_teau_tair3[db_teau_tair3$id_sonde == 819,])+
+  geom_point(aes(x= `Température de l'air`,y= `Température de l'eau`),color="blue",size=0.5)+
+  geom_abline(intercept = dataRegCoeff[1,"819"],
+              slope = dataRegCoeff[2,"819"],color="red")+
+  geom_vline(aes(xintercept =0),color="black")+
+  geom_hline(aes(yintercept =0),color="black")+
+  labs(
+    x="Température de l'air (en °C)",
+    y="Température de l'eau (en °C)")+
+
+  theme_minimal()+
+  theme(legend.title = element_blank())
+
+dev.off()
+
+
+# Reg Orne 818
+
+
+png(paste0(path2,"Reg818.png"))
+
+ggplot(data= db_teau_tair3[db_teau_tair3$id_sonde == 818,])+
+  geom_point(aes(x= `Température de l'air`,y= `Température de l'eau`),color="blue",size=0.5)+
+  geom_abline(intercept = dataRegCoeff[1,"818"],
+              slope = dataRegCoeff[2,"818"],color="red")+
+  geom_vline(aes(xintercept =0),color="black")+
+  geom_hline(aes(yintercept =0),color="black")+
+  labs(
+    x="Température de l'air (en °C)",
+    y="Température de l'eau (en °C)")+
+
+  theme_minimal()+
+  theme(legend.title = element_blank())
+
+dev.off()
+
+
+
+#################
+# Régression Odon
+#################
+# Reg Odon 812
+
+png(paste0(path2,"Reg812.png"))
+
+ggplot(data= db_teau_tair3[db_teau_tair3$id_sonde == 812,])+
+  geom_point(aes(x= `Température de l'air`,y= `Température de l'eau`),color="blue",size=0.5)+
+  geom_abline(intercept = dataRegCoeff[1,"812"],
+              slope = dataRegCoeff[2,"812"],color="red")+
+  geom_vline(aes(xintercept =0),color="black")+
+  geom_hline(aes(yintercept =0),color="black")+
+  labs(
+    x="Température de l'air (en °C)",
+    y="Température de l'eau (en °C)")+
+
+  theme_minimal()+
+  theme(legend.title = element_blank())
+
+dev.off()
+
+
+# Reg Odon 813
+
+
+png(paste0(path2,"Reg813.png"))
+
+
+ggplot(data= db_teau_tair3[db_teau_tair3$id_sonde == 813,])+
+  geom_point(aes(x= `Température de l'air`,y= `Température de l'eau`),color="blue",size=0.5)+
+  geom_abline(intercept = dataRegCoeff[1,"813"],
+              slope = dataRegCoeff[2,"813"],color="red")+
+  geom_vline(aes(xintercept =0),color="black")+
+  geom_hline(aes(yintercept =0),color="black")+
+  labs(
+    x="Température de l'air (en °C)",
+    y="Température de l'eau (en °C)")+
+
+  theme_minimal()+
+  theme(legend.title = element_blank())
+
+dev.off()
+
+
+
+# Reg Odon 815
+
+png(paste0(path2,"Reg815.png"))
+
+
+ggplot(data= db_teau_tair3[db_teau_tair3$id_sonde == 815,])+
+  geom_point(aes(x= `Température de l'air`,y= `Température de l'eau`),color="blue",size=0.5)+
+  geom_abline(intercept = dataRegCoeff[1,"815"],
+              slope = dataRegCoeff[2,"815"],color="red")+
+  geom_vline(aes(xintercept =0),color="black")+
+  geom_hline(aes(yintercept =0),color="black")+
+  labs(
+    x="Température de l'air (en °C)",
+    y="Température de l'eau (en °C)")+
+
+  theme_minimal()+
+  theme(legend.title = element_blank())
+
+dev.off()
+
+
+
+# Reg Odon 816
+
+png(paste0(path2,"Reg816.png"))
+
+
+ggplot(data= db_teau_tair3[db_teau_tair3$id_sonde == 816,])+
+  geom_point(aes(x= `Température de l'air`,y= `Température de l'eau`),color="blue",size=0.5)+
+  geom_abline(intercept = dataRegCoeff[1,"816"],
+              slope = dataRegCoeff[2,"816"],color="red")+
+  geom_vline(aes(xintercept =0),color="black")+
+  geom_hline(aes(yintercept =0),color="black")+
+  labs(
+    x="Température de l'air (en °C)",
+    y="Température de l'eau (en °C)")+
+
+  theme_minimal()+
+  theme(legend.title = element_blank())
+
+dev.off()
+
+
+#################
+# Régression Selune
+#################
+# Reg Selune 824
+
+png(paste0(path2,"Reg824.png"))
+
+ggplot(data= db_teau_tair3[db_teau_tair3$id_sonde == 824,])+
+  geom_point(aes(x= `Température de l'air`,y= `Température de l'eau`),color="blue",size=0.5)+
+  geom_abline(intercept = dataRegCoeff[1,"824"],
+              slope = dataRegCoeff[2,"824"],color="red")+
+  geom_vline(aes(xintercept =0),color="black")+
+  geom_hline(aes(yintercept =0),color="black")+
+  labs(
+    x="Température de l'air (en °C)",
+    y="Température de l'eau (en °C)")+
+
+  theme_minimal()+
+  theme(legend.title = element_blank())
+
+dev.off()
+
+# Reg Selune 821
+
+png(paste0(path2,"Reg821.png"))
+
+ggplot(data= db_teau_tair3[db_teau_tair3$id_sonde == 821,])+
+  geom_point(aes(x= `Température de l'air`,y= `Température de l'eau`),color="blue",size=0.5)+
+  geom_abline(intercept = dataRegCoeff[1,"821"],
+              slope = dataRegCoeff[2,"821"],color="red")+
+  geom_vline(aes(xintercept =0),color="black")+
+  geom_hline(aes(yintercept =0),color="black")+
+  labs(
+    x="Température de l'air (en °C)",
+    y="Température de l'eau (en °C)")+
+
+  theme_minimal()+
+  theme(legend.title = element_blank())
+
+dev.off()
+
+
+# Reg Selune 822
+
+png(paste0(path2,"Reg822.png"))
+
+ggplot(data= db_teau_tair3[db_teau_tair3$id_sonde == 822,])+
+  geom_point(aes(x= `Température de l'air`,y= `Température de l'eau`),color="blue",size=0.5)+
+  geom_abline(intercept = dataRegCoeff[1,"822"],
+              slope = dataRegCoeff[2,"822"],color="red")+
+  geom_vline(aes(xintercept =0),color="black")+
+  geom_hline(aes(yintercept =0),color="black")+
+  labs(
+    x="Température de l'air (en °C)",
+    y="Température de l'eau (en °C)")+
+
+  theme_minimal()+
+  theme(legend.title = element_blank())
+
+dev.off()
+
+
+# Reg Selune 820
+
+png(paste0(path2,"Reg820.png"))
+
+ggplot(data= db_teau_tair3[db_teau_tair3$id_sonde == 820,])+
+  geom_point(aes(x= `Température de l'air`,y= `Température de l'eau`),color="blue",size=0.5)+
+  geom_abline(intercept = dataRegCoeff[1,"820"],
+              slope = dataRegCoeff[2,"820"],color="red")+
+  geom_vline(aes(xintercept =0),color="black")+
+  geom_hline(aes(yintercept =0),color="black")+
+  labs(
+    x="Température de l'air (en °C)",
+    y="Température de l'eau (en °C)")+
+
+  theme_minimal()+
+  theme(legend.title = element_blank())
+
+dev.off()
+
+
+
+# Reg Selune 823
+
+
+png(paste0(path2,"Reg823.png"))
+
+ggplot(data= db_teau_tair3[db_teau_tair3$id_sonde == 823,])+
+  geom_point(aes(x= `Température de l'air`,y= `Température de l'eau`),color="blue",size=0.5)+
+  geom_abline(intercept = dataRegCoeff[1,"823"],
+              slope = dataRegCoeff[2,"823"],color="red")+
+  geom_vline(aes(xintercept =0),color="black")+
+  geom_hline(aes(yintercept =0),color="black")+
+  labs(
+    x="Température de l'air (en °C)",
+    y="Température de l'eau (en °C)")+
+
+  theme_minimal()+
+  theme(legend.title = element_blank())
+
+dev.off()
+
+
+
+
+
+
+
+
+
+
+
 
 #                            ##############
 #                            # SAVE RDATA #
