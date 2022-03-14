@@ -238,7 +238,7 @@ dashboardPage(
                           p(style="text-align: justify;",
                             "En Normandie, la Direction régionale de l'environnement, de l'aménagement et du logement (DREAL), du ministère de la Transition
                           écologique et solidaire, s’est lancée dans l’entreprise d’une meilleure compréhension des effets du changement climatique en milieu aquatique, ainsi que des facteurs
-                          (humain ou environnementaux) influençant la température des cours d’eau. Pour se faire, depuis 2011, une trentaine de sondes de température
+                          (humains ou environnementaux) influençant la température des cours d’eau. Pour se faire, depuis 2011, une trentaine de sondes de température
                             enregistrant la température de l’eau à intervalle de 2 heures, ont été disposées dans différents
                           cours d’eau du territoire normand.")
                         ),
@@ -255,13 +255,13 @@ dashboardPage(
                     h2("Objectifs"),
 
                     p(style="text-align: justify;",
-                      "Dans le cadre de ce projet, la demande a été de proposer un outil de data-visualisation pour valoriser les données recueillies par la DREAL.
+                      "Dans le cadre de ce projet, un outil de data-visualisation a été proposé pour pour valoriser les données recueillies par la DREAL.
                      Cette interface permet d’obtenir :"),
                     tags$ol(type = "i",
                             tags$li("une synthèse des résultats du dispositif mis en place depuis plus de 10 ans ;"),
                             tags$li("une analyse de certains facteurs influençant la température des cours d’eau (e.g. eaux souterraines, barrages).")),
 
-                    p("Cet outil a été pensé pour être utile à la fois aux différents corps de métiers gravitant autour l’écologie en milieu aquatique,
+                    p("Cet outil a été pensé pour être utile à la fois aux différents corps de métiers gravitant autour de l’écologie en milieu aquatique,
                       mais aussi pour être accessible à un public plus large s’intéressant à l’environnement.")
 
 
@@ -329,7 +329,7 @@ dashboardPage(
                       "La piézométrie est une mesure de la
                     profondeur de la surface de la nappe d’eau souterraine.
                     Elle est exprimée par rapport à l’altitude zéro du niveau
-                    de la mer en mettre Nivellement Général Français (NGF).[15]"),
+                    de la mer en mètre Nivellement Général Français (NGF) [15]."),
 
 
                     h4(strong("Préférendum thermiques")),
@@ -342,12 +342,12 @@ dashboardPage(
 
                     p(style="text-align: justify;",
                       "Toutefois, hors de cette gamme de températures optimales, les espèces peuvent se
-                      trouver en état de stress thermique, i.e. et des comportements anormaux, et des anomalies
+                      trouver en état de stress thermique, i.e. des comportements anormaux, et des anomalies
                       métaboliques peuvent survenir. "),
 
                     p(style="text-align: justify;",
                       "Enfin, lorsque des valeurs de températures extrêmes sont atteintes (températures létales),
-                      la survie directe de l’espèce est compromise : l’espèce ne peut plus maintenir ses fonctions
+                      la survie directe de l’espèce est compromise : elle ne peut plus maintenir ses fonctions
                       vitales primaires."),
 
                     p(style="text-align: justify;",
@@ -356,7 +356,7 @@ dashboardPage(
                       les espèces [16]."),
 
                     p(style="text-align: justify;",
-                      "Au cours de cette étude, les préférendum thermiques de la truite et du brochet, espèces
+                      "Au cours de cette étude, les préférendums thermiques de la truite et du brochet, espèces
                       couramment retrouvées dans les cours d’eau normands, seront abordés. "),
 
 
@@ -367,15 +367,15 @@ dashboardPage(
                     p(style="text-align: justify;",
                       "L’Analyse en Composantes Principales est une méthode d’analyse des données
                       permettant de transformer des variables liées entre elles en nouvelles variables
-                      décorrélées. Ces variables corrélées forment les composantes principales. Ce type
+                      décorrélées. Ces variables décorrélées forment les composantes principales. Ce type
                       d’analyse permet d’obtenir un nombre de variable réduit, à partir de données
-                      multivariées parfois de grande dimensions [17]. "),
+                      multivariées parfois de grandes dimensions [17]. "),
 
 
                     h4(strong("Analyse en Composantes Indépendantes (ACI)")),
 
                     p(style="text-align: justify;",
-                      "Analyse en Composantes Indépendantes est une méthode d’analyse de
+                      "L'Analyse en Composantes Indépendantes est une méthode d’analyse de
                       données permettant d’obtenir des composantes élémentaires, à partir
                       de l’enregistrement de signaux mixtes (i.e. différentes séries
                       temporelles  ou chroniques), qui seront ici des données de
@@ -385,12 +385,12 @@ dashboardPage(
                       simple des séries temporelles [18], tels qu’un signal nappe phréatique
                       ou encore le signal de l’effet d’un barrage. Par ailleurs, il est possible
                       de réaliser une ACP à la suite d’une ACI pour tenter de comprendre
-                      la nature des signaux obtenue par l’ACI."),
+                      la nature des signaux obtenus par l’ACI."),
 
-                    h4(strong("Moyennes mobiles")),
+                    h4(strong("Moyennes mobiles (MM)")),
 
                     p(style="text-align: justify;",
-                      "La moyenne mobile (MM) est une méthode de lissage des séries
+                      "La moyenne mobile est une méthode de lissage des séries
                       temporelles, permettant d’adoucir des fluctuations transitoires
                       des dites séries, et donc de souligner des tendances à plus ou moins
                       long terme. Ces moyennes sont dites mobiles, car elles sont calculées
@@ -401,12 +401,12 @@ dashboardPage(
                       Ainsi, la MM d’ordre 7 (MM7), consiste à lisser les courbes à l’échelle
                       d’une semaine, et permet de s’abstenir des fluctuations transitoires qui
                       peuvent survenir au cours d’une semaine. La MM d’ordre 30 (MM 30) lisse
-                      quant à elle à l’échelle d’un mois. Enfin, la MM 365 (MM 365) lisse la
-                      chronique à l’échelle de l’année, et désaisonnalise en quelque sorte les
+                      quant à elle à l’échelle d’un mois. Enfin, la MM d'ordre 365 (MM 365) lisse les
+                      chroniques à l’échelle de l’année, et désaisonnalise en quelque sorte les
                       séries temporelles qui ont une saisonnalité annuelle, comme c’est le cas
                       pour la température des cours d’eau."),
 
-                    h4(strong("O’Driscoll et DeWalle")),
+                    h4(strong("La méthode O’Driscoll et DeWalle")),
 
                     p(style="text-align: justify;",
                       "La méthode O’Driscoll et DeWalle permet d’obtenir des informations
@@ -603,14 +603,14 @@ dashboardPage(
 
                     h2("Le dispositif mis en place"),
 
-                    p( p(style="text-align: justify;",
+                    p(style="text-align: justify;",
                          "Depuis 2011, les agents de la DREAL de Normandie
                          ont placé une trentaine de sondes dans des cours
-                         d’eau appartenant au territoire de la Manche,
+                         d’eau appartenant aux territoires de la Manche,
                          du Calvados et de l’Orne. Trente d’entre elles ont
                          pu permettre d’obtenir des chroniques assez longues
-                         et fiables. La localisation de ces 30 sondes sont
-                         observables ci-dessous."),),
+                         et fiables pour être exploitées. La localisation de ces 30 sondes sont
+                         observables ci-dessous."),
 
                     h3("Localisation des sondes thermiques"),
 
@@ -679,7 +679,7 @@ dashboardPage(
                                p(style="text-align: justify;",
                                  "Les sondes thermiques déposées dans les cours d’eau
                          sont des HOBO® water Temp Pro v2 (U22-001) de précision
-                         ±0,2°C. Elles sont constituées d’un capteur de température
+                         ±0,2°C. Elles sont constituées d’un capteur
                          qui enregistre la température du milieu toutes les 2 heures,
                          et d’un système de lecteur optique qui permet de récolter
                          les données enregistrées par la sonde. Les relèves de données
@@ -707,13 +707,12 @@ dashboardPage(
                       plusieurs sondes thermiques. Ce choix a été fait pour
                       pouvoir étudier la dynamique d’évolution des températures
                       de ces cours d’eau d’amont en aval, et permettre de dégager
-                      certains facteurs tels que le rôle de la ripisylve par
-                      exemple."),
+                      certains facteurs."),
 
                     p(style="text-align: justify;",
                       "Pour distinguer l'appellation des sondes d’un
                       même fleuve ou d’une même rivière, le nom du cours d’eau
-                      est suivit d’un gradient d’amont en aval (e.g. Touques T1
+                      est suivi d’un gradient d’amont en aval (e.g. Touques T1
                       représente la sonde qui se trouve la plus dans les terres,
                       et Touques T6 représente la sonde qui est la plus proche
                       de la mer).")
@@ -740,16 +739,19 @@ dashboardPage(
             tabItem(tabName = "sub_menu_touques",
                     # touques
 
-                    h2("Analyse des températures de la Touques"),
+                    h2("Analyse des températures des eaux de la Touques"),
 
                     tabsetPanel(
+
                         tabPanel(strong("Description"),
+
+                                 # Description -----
                                  fluidRow(
+                                        # Descriptions
+                                     column(width = 3,
 
-                                     column(width = 2,
 
-
-                                            img(src="Touques.png")),
+                                            img(src="Touques.png", width="95%")),
 
                                      column( width = 6,
 
@@ -762,16 +764,27 @@ dashboardPage(
                                              p("Prend source à : Gacé"),
                                              p("Se jette en : Mer de la Manche (Deauville,Trouville-sur-Mer)"),
                                              p("Nature principale des couches sédimentaires : crayeuse"),
+                                             br(),
+                                             h4("Périodes d'enregistrement des sondes"),
+                                             p(strong("Touques T1"),paste0(" : du ", min(db2[db2$id_sonde == 825,]$date),
+                                                      " au ", max(db2[db2$id_sonde == 825,]$date))),
+                                             p(strong("Touques T3"),paste0(" : du ", min(db2[db2$id_sonde == 827,]$date),
+                                                                           " au ", max(db2[db2$id_sonde == 827,]$date))),
+                                             p(strong("Touques T4"),paste0(" : du ", min(db2[db2$id_sonde == 828,]$date),
+                                                                           " au ", max(db2[db2$id_sonde == 828,]$date))),
+                                             p(strong("Touques T6"),paste0(" : du ", min(db2[db2$id_sonde == 830,]$date),
+                                                                           " au ", max(db2[db2$id_sonde == 830,]$date))),
+                                             br()
 
                                      ),# EndColumn
 
 
 
-                                     column( width = 4, height=200,
+                                     column( width = 3, height=200,
                                              h4(strong("Localisation")),
-                                             leafletOutput("map_Touques",height = 200)
+                                             leafletOutput("map_Touques",height = 400)
                                      ),
-                                     column( width = 10,
+                                     column( width = 9,
                                              h4("Statistiques Descriptives"),
                                              br(),
                                              DT::dataTableOutput("StatsDescTouques")
@@ -784,9 +797,28 @@ dashboardPage(
                         ), # End tabPanel Description
 
                         tabPanel(strong("Températures"),
+                                 br(),
+                                 p(style="text-align: justify;",
+                                     "Suivre l'évolution des températures d’un cours d’eau
+                                   est un enjeu important dans un contexte de réchauffement climatique.
+                                   En effet, une augmentation ne serait-ce que légère de la température
+                                   d’un cours d’eau peut avoir un impact majeur sur son écosystème.
+                                   Pour caractériser au mieux les effets du réchauffement climatique
+                                   sur la température des cours d’eau, il est nécessaire d’accumuler
+                                   plusieurs années d’observations (10-15 ans minimum)."),
                                  tabsetPanel(
+
+                                     # MM7 -----
                                      tabPanel("Températures moyennes et lissées sur 7 jours",
-                                              fluidRow(
+                                        br(),
+                                              p(style="text-align: justify;",
+                                                  "Les températures d’eau peuvent être suivies d’amont en aval,
+                                                et chaque chronique peut être observée au travers de plusieurs
+                                                indicateurs (e.g. températures minimales, moyennes et maximales
+                                                journalières, MM7, etc.). De plus, les seuils thermiques de la
+                                                truite et du brochet peuvent être visualisés."),
+                                              br(),
+                                        fluidRow(
                                                   box(strong("Données aggrégées à la journée"),
                                                       width = 4,
                                                       checkboxInput(inputId = "Teau_min", label = "Températures minimales", value=F),
@@ -840,7 +872,7 @@ dashboardPage(
                                      ), # End tabPanel
 
 
-
+                                     # MM30 -----
 
                                      tabPanel("Températures lissées sur 30 jours",
 
@@ -885,14 +917,14 @@ dashboardPage(
                                                   br(),br(),
                                                   h4("Moyennes annuelles des moyennes mensuelles des MM30"),
                                                   DT::dataTableOutput("db_Touques_stats_MM30_An"),
-                                                  br(),br(),
-                                                  h4("Moyennes mensuelles des MM30"),
-                                                  DT::dataTableOutput("db_Touques_stats_MM30_mois")
+                                                  # br(),br(),
+                                                  # h4("Moyennes mensuelles des MM30"),
+                                                  # DT::dataTableOutput("db_Touques_stats_MM30_mois")
 
                                               )# end fluid
                                      ),# end tabPanel
                                      tabPanel("Températures lissées sur 365 jours",
-
+                                     # MM365 -----
                                               fluidRow(
 
                                                   box(strong("Données lissées sur 365 jours"),
@@ -936,11 +968,57 @@ dashboardPage(
 
                                  )), # End tabPanelset
 
-
+                                     # Fréquences -----
                         tabPanel(strong("Fréquences"),
-                                 fluidRow(
 
-                                     h3("Graphique des fréquences et seuils thermiques"),
+                                    br(),
+                                 p(style="text-align: justify;",
+                                     "L’information de chaque chronique est synthétisée à travers la fréquence des
+                                   températures. Il est notamment possible d’observer le nombre de fois qu’un seuil
+                                   thermique critique pour une espèce (truite et brochet) est dépassé sur une période
+                                   minimum d’un an jusqu’à l’entièreté de la série."),
+
+                                     h3("La Touques : un lieu de vie plus adapté pour la
+                                        Truite que pour le Brochet."),
+
+                                     p(style="text-align: justify;",
+                                       "Les eaux de la Touques, en termes de températures,
+                                       semblent être un écosystème bien adapté à la vie des truites.
+                                       Les températures d’eau (en moyenne journalières) semblent rester la plupart
+                                       du temps dans l’intervalle des préférendums thermiques.
+                                       Toutefois, un gradient d’amont en aval semble être observé.
+                                       En effet, les températures d’eau étant plus élevées en aval qu’en amont,
+                                       les seuils de préférendums thermiques sont plus souvent dépassés auprès de
+                                       la mer.
+                                       En T6, ",
+                                       paste0(db_truite_touques_proportion[4,4]),#13.308,
+                                       " % des fréquences de températures sont en dehors du préférendum thermique (et ",
+                                       paste0(db_truite_touques_proportion[3,4]),#10.133
+                                       " % pour T4), contre",
+                                       paste0(db_truite_touques_proportion[1,4]),#3.512
+                                       " % en T1 (et ",
+                                       paste0(db_truite_touques_proportion[2,4]),#4.223
+                                       " %  en T2)."),
+
+
+
+
+                                 p(style="text-align: justify;",
+                                   "Toutefois, les températures des eaux de la Touques semblent moins
+                                   favorables au développement des brochets juvéniles, du moins en période hivernale.
+                                   En deçà de 9.5 degrés, leur métabolisme et leur croissance peuvent en être impactés,
+                                   et en dessous de 5.5 degrés celsius, leur survie est compromise.
+                                   Les brochets préférant des températures douces, un gradient de fréquence de
+                                   dépassement des préférendums thermiques inverse à celui de la truite est observé. En T1, ",
+                                   paste0(db_brochet_touques_proportion[1,4]),#13.308,
+                                   " %  des fréquences de températures sont en dehors du préférendum thermique, contre ",
+                                   paste0(db_brochet_touques_proportion[4,4]),#10.133
+                                   " % en T6."
+                                   ),
+
+                                br(),
+                                fluidRow(
+
                                      box(
                                          width = 7,
                                          selectInput(inputId = 'EspeceT', label = 'Choisir une espèce',
@@ -954,7 +1032,14 @@ dashboardPage(
                                          sliderInput("AnHistT",  min=min(db2$An), max = max(db2$An),label="Choisir une période",
                                                      value= c(min(db2$An),max(db2$An)))
 
-                                     ),
+                                     )),
+
+
+                                h3(style="text-align: justify;",
+                                   "Une bimodalité des fréquences de températures d'eau
+                                        de la Touques"),
+                                fluidRow(
+
                                      box(width=6,
                                          h3(strong("Touques T1")),
                                          plotlyOutput("hist825")),
@@ -967,13 +1052,71 @@ dashboardPage(
                                      box(width=6,
                                          h3(strong("Touques T6")),
                                          plotlyOutput("hist830"))
-
-                                 ),
-                                 h3("Tableau récapitulatif des seuils thermiques"),
-                                 DT::dataTableOutput("TableTouquesFreq")
                         ),
+
+                        h3("Tableau récapitulatif des seuils thermiques"),
+
+                        fluidRow(
+
+                                 DT::dataTableOutput("TableTouquesFreq")
+                        )),
+                                     # Corrélations -----
                         tabPanel(strong("Corrélations"),
-                                 fluidRow(
+
+                                br(),
+
+                                 p(style="text-align: justify;",
+                                       "Parmi les paramètres influençant la température
+                                   des cours d’eau, celui de la température de l’air n’est
+                                   pas à négliger. En effet, la température de l’air est au
+                                   moins en partie à l’origine des températures de l’eau,
+                                   via les échanges air/eau qui se font constamment.
+                                   Pour évaluer l'impact de la température de l’air sur
+                                   celle des eaux, des régressions de la température de
+                                   l’eau en fonction de la température de l’air peuvent
+                                   être appliquées."),
+
+                                     p(style="text-align: justify;",
+                                       paste0(
+                                       "Les températures de l’air semblent avoir un impact assez faible sur
+                                       les températures de l’eau de la Touques, les pentes des droites de régression étant
+                                       assez éloignées de 1 (qui représenterait une corrélation parfaite
+                                       entre les températures d’air et d’eau).
+                                       Toutefois, elles passent de ",
+                                       round(dataRegCoeff[2,c("825")],3),
+                                       " à ",
+                                       round(dataRegCoeff[2,c("830")],3),
+                                       " de la Touques T1 à T6,
+                                       montrant une évolution nette et régulière de
+                                       l'amont vers l'aval, et traduisant une corrélation
+                                       plus forte entre la température de l'air et de l'eau
+                                       en aval qu'en amont."
+
+                                       )
+                                       ),
+
+                                 p(style="text-align: justify;",
+                                   paste0(
+                                       "La température à l'origine est globalement élevée au niveau des
+                                       quatre sondes. Ces températures à l’origine peuvent traduire l’effet
+                                       des eaux souterraines, qui alimentent en partie le cours d’eau,
+                                       et dont les températures sont constantes. Cet effet diminue
+                                       progressivement entre la sonde T1 et T4 passant de ",
+                                       round(dataRegCoeff[1,c("825")],3),
+                                       " à ",
+                                       round(dataRegCoeff[1,c("828")],3),
+                                       "°C . L'ordonnée à l'origine remonte à ",
+                                       round(dataRegCoeff[1,c("830")],3),
+                                       " °C pour sonde T6, ce qui s’expliquerait plutôt par
+                                       l'influence de la mer, ou par les apports massifs des
+                                       principaux affluents de la Touques."
+
+                                   )
+                                 ),
+
+                                h3("Une faible influence de la température de l'air
+                                        sur la température des eaux de la Touques"),
+                                fluidRow(
                                      box(width=6,
                                          h3(strong("Touques T1")),
 
@@ -1029,9 +1172,9 @@ dashboardPage(
 
                                      )
                                  )
-                        )
-                    )  # End tabsetPanel
 
+                    )  # End tabsetPanel
+                    )
 
             ), # End tabItem 1
             # -------------------------------------------------- #
@@ -1976,20 +2119,8 @@ dashboardPage(
 
                     # En-tête
                     # ---------------------------------------- #
-                    #h2("Analyse des sondes"),
-
-                    # fluidRow(
-                    #   selectInput("choix_sondes",
-                    #               label="Choisir une sonde",choices=list("Monne (s104)"="104", "Vie (s105)"="105", "Taute (s108)"="108", "Barge (s109)"="109", "Grande Vallée (s300)"="300",
-                    #                                                      "Souleuvre (s762)"="762", "See Rousse (s763)"="763", "Egrenne (s764)"="764", "Durance (s765)"="765", "See (s766)"="766",
-                    #                                                      "Berence (s768)"="768", "Glanon (s769)"="769", "Vingt Bec (s771)"="771", "Fontaine au Héron (s811)"="811", "Odon T1 (s812)"="812",
-                    #                                                      "Odon T2 (s813)"="813", "Odon T4 (s815)"="815", "Odon T5 (s816)"="816", "Orne T1 (s817)"="817", "Orne T3 (s818)"="818",
-                    #                                                      "Orne T2 (s819)"="819", "Selune T4 (s820)"="820", "Selune T2 (s821)"="821", "Selune T3 (s822)"="822", "Selune T5 (s823)"="823",
-                    #                                                      "Selune T1 (s824)"="824", "Touques T1 (s825)"="825", "Touques T3 (s827)"="827", "Touques T4 (s828)"="828", "Touques T6 (s830)"="830"),
-                    #               selected="817"),
-                    #   #h2("Sondes n°817 : Orne (T1)")
-                    #   textOutput("id_lab_txt")
-                    # ),
+                    h2("Fiche synthèse des sondes"),
+                    br(),
                     selectInput("choix_sondes",
                                 label="Choisir une sonde",choices=list("Monne (s104)"="104", "Vie (s105)"="105", "Taute (s108)"="108", "Barge (s109)"="109", "Grande Vallée (s300)"="300",
                                                                        "Souleuvre (s762)"="762", "See Rousse (s763)"="763", "Egrenne (s764)"="764", "Durance (s765)"="765", "See (s766)"="766",
@@ -2083,7 +2214,8 @@ dashboardPage(
             tabItem(tabName = "sub_menu_comparaison",
                     # compraison entre les sondes
 
-
+                    h2("Comparaison des températures relevées par plusieurs sondes"),
+                    br(),
                     # ---------------------------------------- #
                     fluidRow(
                         column(width = 6,
@@ -2107,13 +2239,14 @@ dashboardPage(
 
 
                     # ---------------------------------------- #
+
                     fluidRow(
                         column(width = 6,
-                               h3("Comparaison des températures relevées"),
+                               h3("Températures relevées à pas de temps bi-horaire"),
                                dygraphOutput("comp_bih")
                         ),
                         column(width = 6,
-                               h3("Comparaison des températures moyennes journalières"),
+                               h3("Températures moyennes journalières"),
                                dygraphOutput("comp_Teau")
                         )
                     ),
@@ -2123,11 +2256,11 @@ dashboardPage(
                     # ---------------------------------------- #
                     fluidRow(
                         column(width = 6,
-                               h3("Comparaison des températures moyennes sur 30 jours"),
+                               h3("Températures moyennes lissées sur 30 jours"),
                                dygraphOutput("comp_MM30")
                         ),
                         column(width = 6,
-                               h3("Comparaison des températures moyennes sur 365 jours"),
+                               h3("Températures moyennes lissées sur 365 jours"),
                                dygraphOutput("comp_MM365")
                         )
                     )
@@ -2617,7 +2750,7 @@ dashboardPage(
                                     "selune_choix_sonde", "Choix de la sonde",
                                     c("Selune T1" = "824",
                                       "Selune T2" = "821",
-                                      "Selune T3" = "823"),
+                                      "Selune T5" = "823"),
                                     selected = "824")
                             ),
 
