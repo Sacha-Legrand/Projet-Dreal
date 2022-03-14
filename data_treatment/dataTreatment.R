@@ -349,7 +349,7 @@ db_stats_MM30_An$Minimum = round(db_stats_MM30_An$Minimum,3)
 
 ############## enregistrement des bases générales (RData/dbG.RData) -----
 save(dbMM, db2, riv, file = "RData/dbG.RData")
-# ---------------------------------------------------------------------- # -----
+# ---------------------------------------------------------------------- #  -----
 #######################################
 # PARTIE COURS D'EAU
 #######################################
@@ -498,6 +498,52 @@ colnames(prefSelune) = c("Sonde","Espèce","Seuils thermiques","Années","Nombre
 
 
 
+#######################################
+# Partie proportions préférendum (db_truite_touques_proportion,db_brochet_touques_proportion)
+#######################################
+
+# Touques -----
+
+# Truite
+db_truite_touques_proportion = db2[db2$Espece == "limiteTruite" ,]
+db_truite_touques_proportion = db_truite_touques_proportion[db_truite_touques_proportion$id_sonde == 825 |
+                                                              db_truite_touques_proportion$id_sonde == 827 |
+                                                              db_truite_touques_proportion$id_sonde == 828 |
+                                                              db_truite_touques_proportion$id_sonde == 830,]
+
+db_truite_touques_proportion$Pref2 = ifelse(db_truite_touques_proportion$Pref != "Préférendum thermique",
+                                            db_truite_touques_proportion$Pref2 <- "Hors préférendum thermique",
+                                            db_truite_touques_proportion$Pref2 <- "Préférendum thermique" )
+db_truite_touques_proportion = db_truite_touques_proportion[,c("id_sonde","Pref2")]
+
+db_truite_touques_proportion=table(db_truite_touques_proportion)
+#t=as.data.frame(t)
+db_truite_touques_proportion=as.data.frame.matrix(db_truite_touques_proportion)
+db_truite_touques_proportion$nobs = db_truite_touques_proportion[,1] + db_truite_touques_proportion[,2]
+db_truite_touques_proportion$prop = round((db_truite_touques_proportion[,1] /
+                                             ( db_truite_touques_proportion[,1] + db_truite_touques_proportion[,2]))*100,3)
+
+
+# brochet
+db_brochet_touques_proportion = db2[db2$Espece == "limiteBrochet" ,]
+db_brochet_touques_proportion = db_brochet_touques_proportion[db_brochet_touques_proportion$id_sonde == 825 |
+                                                                db_brochet_touques_proportion$id_sonde == 827 |
+                                                                db_brochet_touques_proportion$id_sonde == 828 |
+                                                                db_brochet_touques_proportion$id_sonde == 830,]
+
+db_brochet_touques_proportion$Pref2 = ifelse(db_brochet_touques_proportion$Pref != "Préférendum thermique",
+                                             db_brochet_touques_proportion$Pref2 <- "Hors préférendum thermique",
+                                             db_brochet_touques_proportion$Pref2 <- "Préférendum thermique" )
+db_brochet_touques_proportion = db_brochet_touques_proportion[,c("id_sonde","Pref2")]
+
+db_brochet_touques_proportion=table(db_brochet_touques_proportion)
+#t=as.data.frame(t)
+db_brochet_touques_proportion=as.data.frame.matrix(db_brochet_touques_proportion)
+db_brochet_touques_proportion$nobs = db_brochet_touques_proportion[,1] + db_brochet_touques_proportion[,2]
+db_brochet_touques_proportion$prop = round((db_brochet_touques_proportion[,1] /
+                                              ( db_brochet_touques_proportion[,1] + db_brochet_touques_proportion[,2]))*100,3)
+
+
 
 
 
@@ -505,7 +551,7 @@ colnames(prefSelune) = c("Sonde","Espèce","Seuils thermiques","Années","Nombre
 # bases sondes Touques (db_Touques_xtsa, db_Touques_xtsb, db_Touques_xtsc) -----
 
 # ################## #
-# SONDES TOUQUES
+# SONDES TOUQUES ----
 # ################## #
 
 
@@ -743,7 +789,7 @@ colnames(db_Touques_xtsc) = nameColc
 
 
 # ################## #
-# SONDES ORNE
+# SONDES ORNE ----
 # ################## #
 
 
@@ -914,7 +960,7 @@ colnames(db_Orne_xtsc) = nameColc
 
 
 # ################## #
-# SONDES ODON
+# SONDES ODON -----
 # ################## #
 
 
@@ -1129,7 +1175,7 @@ colnames(db_Odon_xtsc) = nameColc
 
 
 # ################## #
-# SONDES SELUNE
+# SONDES SELUNE ----
 # ################## #
 
 
@@ -1397,7 +1443,7 @@ colnames(db_Selune_xtsc) = nameColc
 # tableaux stats MM30 Touques (#db_Touques_stats_MM30_mois, db_Touques_stats_MM30_An) -----
 
 # ################## #
-# TOUQUES
+# TOUQUES -----
 # ################## #
 db_Touques_stats_MM30_mois=db_stats_MM30_mois[db_stats_MM30_mois$Sondes == 825 |
                                                 db_stats_MM30_mois$Sondes == 827 |
@@ -1429,7 +1475,7 @@ db_Touques_stats_MM30_An$Sondes <- factor(db_Touques_stats_MM30_An$Sondes,
 # tableaux stats MM30 Orne (#db_Orne_stats_MM30_mois, db_Orne_stats_MM30_An) -----
 
 # ################## #
-# ORNE
+# ORNE -----
 # ################## #
 db_Orne_stats_MM30_mois=db_stats_MM30_mois[db_stats_MM30_mois$Sondes == 817 |
                                              db_stats_MM30_mois$Sondes == 818 |
@@ -1461,7 +1507,7 @@ db_Orne_stats_MM30_An$Sondes <- factor(db_Orne_stats_MM30_An$Sondes,
 # tableaux stats MM30 Odon (#db_Odon_stats_MM30_mois, db_Odon_stats_MM30_An) -----
 
 # ################## #
-# ODON
+# ODON -----
 # ################## #
 db_Odon_stats_MM30_mois=db_stats_MM30_mois[db_stats_MM30_mois$Sondes == 812 |
                                              db_stats_MM30_mois$Sondes == 813 |
@@ -1494,7 +1540,7 @@ db_Odon_stats_MM30_An$Sondes <- factor(db_Odon_stats_MM30_An$Sondes,
 # tableaux stats MM30 Selune (#db_Selune_stats_MM30_mois, db_Selune_stats_MM30_An) -----
 
 # ################## #
-# SELUNE
+# SELUNE -----
 # ################## #
 db_Selune_stats_MM30_mois=db_stats_MM30_mois[db_stats_MM30_mois$Sondes == 820 |
                                                db_stats_MM30_mois$Sondes == 821 |
@@ -1539,6 +1585,7 @@ save(db_stats_Touques, db_stats_Orne, db_stats_Odon, db_stats_Selune,
      db_Orne_stats_MM30_An, #db_Orne_stats_MM30_mois,
      db_Odon_stats_MM30_An, #db_Odon_stats_MM30_mois,
      db_Selune_stats_MM30_An, #db_Selune_stats_MM30_mois,
+     db_truite_touques_proportion,db_brochet_touques_proportion,
      file="RData/db_stats_cours_eau.RData")
 #######################################
 # FIN PARTIE COURS D'EAU
@@ -2072,6 +2119,8 @@ save(db_teau_tair, db_teau_tair2,
 # FIN PARTIE CORRELATION
 #######################################
 # ---------------------------------------------------------------------- # -----
+
+
 #######################################
 # PARTIE O'DRISCOLL
 #######################################
