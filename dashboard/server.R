@@ -5795,7 +5795,7 @@ shinyServer(function(input,output,session){
         freq = 0 ,
         nb_jour = 0,
         periodicite = 0,
-        #sonde_debit = "0",
+        sonde_debit = "0",
         sonde_dist_source = "137",
         sonde_alt = "33"
     )
@@ -5833,8 +5833,11 @@ shinyServer(function(input,output,session){
         pos = db_temp[which(db_temp$id_sonde == sonde_synthese_reactive$id_sonde_num),]$pos
         leaflet() %>%
             addTiles() %>%
-            addMarkers(lng = as.numeric(sonde_synthese_reactive$sonde_lng),
-                       lat = as.numeric(sonde_synthese_reactive$sonde_lat), group = "sondes_synthese") %>%
+            addAwesomeMarkers(lng = as.numeric(sonde_synthese_reactive$sonde_lng),
+                              lat = as.numeric(sonde_synthese_reactive$sonde_lat),
+                              group="sondes_synthese",
+                              icon=makeAwesomeIcon(icon='tint', library='glyphicon',
+                                                   iconColor = 'white', markerColor = 'blue')) %>%
             addPolylines(data = coursEau2@lines[[pos]]@Lines[[1]]@coords, weight = 2, opacity = 0.9, color = "blue")
     })
 
@@ -5901,7 +5904,7 @@ shinyServer(function(input,output,session){
     # })
 
     output$dist_source_txt <- renderText({
-        paste0("Distance à la source : ", sonde_synthese_reactive$sonde_dist_source, " km")
+        paste0("Distance à la source : ", sonde_synthese_reactive$sonde_dist_source, " km.")
     })
 
     output$long_lat_txt <- renderText({
@@ -6098,14 +6101,14 @@ shinyServer(function(input,output,session){
         if(length(sonde_comp_reactive$choix_sondes)==1){
             dygraph(df_xts_comp_bih(), group="comparison")%>%
                 dyAxis("y", label = "Température (°C)") %>%
-                dyAxis("x", label = "Temps (relevé bi-horaire)") %>%
+                dyAxis("x", label = "Temps") %>%
                 dyRangeSelector() %>%
                 dySeries("V1", label=db_sonde_synthese[which(db_sonde_synthese$id_sonde==as.numeric(sonde_comp_reactive$choix_sondes)),]$label)
         }
         else{
             dygraph(df_xts_comp_bih(), group="comparison")%>%
                 dyAxis("y", label = "Température (°C)") %>%
-                dyAxis("x", label = "Temps (relevé bi-horaire)") %>%
+                dyAxis("x", label = "Temps") %>%
                 dyRangeSelector()
         }
     })
@@ -6358,9 +6361,9 @@ shinyServer(function(input,output,session){
 
 
     db_sonde_synthese_Selune2 = db_sonde_synthese[db_sonde_synthese$id_sonde == 824 |
-                                                     db_sonde_synthese$id_sonde == 820 |
+                                                     #db_sonde_synthese$id_sonde == 820 |
                                                      #db_sonde_synthese$id_sonde == 822 |
-                                                     #db_sonde_synthese$id_sonde == 821 |
+                                                     db_sonde_synthese$id_sonde == 821 |
                                                      db_sonde_synthese$id_sonde == 823 ,]
 
     output$map_Selune_ACI <- renderLeaflet({
@@ -6372,7 +6375,7 @@ shinyServer(function(input,output,session){
                               icon=makeAwesomeIcon(icon='tint', library='glyphicon',
                                                    iconColor = 'white', markerColor = 'blue'),
 
-                              popup =  paste(db_sonde_synthese_Selune$label))%>%
+                              popup =  paste(db_sonde_synthese_Selune2$label))%>%
             addAwesomeMarkers(
                               lng=-1.2336,lat=48.5786,
                               icon=makeAwesomeIcon(icon="flash", library='glyphicon',
