@@ -1,0 +1,1001 @@
+---
+title: "AFI des cours d'eau"
+author: "Julien Marie"
+date: "2/24/2022"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+
+
+```{r include=FALSE}
+if(!require(dplyr)){
+  install.packages("dplyr")
+  library(dplyr)
+}
+if(!require(zoo)){
+  install.packages("zoo")
+  library(zoo)
+}
+if(!require(lubridate)){
+  install.packages("lubridate")
+  library(lubridate)
+}
+if(!require(dygraphs)){
+  install.packages("dygraphs")
+  library(dygraphs)
+}
+if(!require(xts)){
+  install.packages("xts")
+  library(xts)
+}
+if(!require(fastICA)){
+  install.packages("fastICA")
+  library(fastICA)
+}
+if(!require(ifa)){
+  install.packages("ifa")
+  library(ifa)
+}
+
+load("bases_aci.RData")
+```
+
+
+
+
+
+
+
+
+## Odon
+
+ACI sur les sondes de l'Odon :
+  - T1 (s812)
+  - T2 (s813)
+  - T4 (s815)
+  - T5 (s816)
+
+#### bi-horaire
+1) Utilisation des données bi-horaire
+
+```{r include=FALSE}
+aci_t = db_aci_bih_odon %>%
+  dplyr::select(c("t"))
+
+aci_data = db_aci_bih_odon %>%
+  dplyr::select(!c("t"))
+```
+
+```{r include = F}
+set.seed(1)
+
+init.values<-ifa.init.random(aci_data,2)
+fit<-ifa.em(aci_data,c(2,2),it=50,eps=0.0001,init.values)
+pred = as.data.frame(ifa.predict(scale(aci_data),fit))
+
+B <- cbind(aci_t, pred)
+
+
+xts_B = xts(B[, c("V1", "V2")], order.by = B[,"t"])
+
+#xts_B = xts(B[, c("V1", "V2", "V3")], order.by = B[,"t"])
+```
+
+
+Les trois signaux identifiés pour l'Odon : 
+
+```{r}
+dygraph(xts_B, main = "Signaux estimés de l'Odon (bi-horaire)") %>%
+  dyOptions(colors = c("blue", "red", "black"))
+```
+
+
+
+Les trois composantes pour chaque sonde de l'Odon
+```{r include=FALSE}
+lab_comp = c()
+for(i in 1:ncol(aci_data)){
+  
+  label_i = colnames(aci_data)[i]
+  
+  B[paste0("comp1_", label_i)]=fit$H[i,1]*pred[,1]
+  B[paste0("comp2_", label_i)]=fit$H[i,2]*pred[,2]
+  #B[paste0("comp3_", label_i)]=fit$H[i,3]*pred[,3]
+  
+  lab_comp = c(lab_comp, paste0("comp1_", label_i), paste0("comp2_", label_i))#, paste0("comp3_", label_i))
+  
+  #xts_B_comp = xts(B[, c("comp1", "comp2", "comp3")], order.by = B[,"t"])
+}
+xts_B_comp = xts(B[, lab_comp], order.by = B[,"t"])
+```
+
+- T1 (s812)
+
+```{r}
+dygraph(xts_B_comp[, c("comp1_812", "comp2_812")], 
+        main = "Composantes pour la sonde : T1 (s812)") %>%
+  dyOptions(colors = c("blue", "red", "black"))
+```
+
+
+
+- T2 (s813)
+
+```{r}
+dygraph(xts_B_comp[, c("comp1_813", "comp2_813", "comp3_813")], 
+        main = "Composantes pour la sonde : T2 (s813)") %>%
+  dyOptions(colors = c("blue", "red", "black"))
+```
+
+
+- T4 (s815)
+
+```{r}
+dygraph(xts_B_comp[, c("comp1_815", "comp2_815", "comp3_815")], 
+        main = "Composantes pour la sonde : T4 (s815)") %>%
+  dyOptions(colors = c("blue", "red", "black"))
+```
+
+
+
+- T5 (s816)
+
+```{r}
+dygraph(xts_B_comp[, c("comp1_816", "comp2_816", "comp3_816")], 
+        main = "Composantes pour la sonde : T5 (s816)") %>%
+  dyOptions(colors = c("blue", "red", "black"))
+```
+
+
+- La composante 3 est saisonnière (températures chaudes en été et froide en hiver)
+- La composante 1 est journalière (variation élevée en été et faible en hiver)
+- La composante 2 ???
+
+
+
+Test dygraph composante par composante :
+
+```{r}
+dygraph(xts_B_comp[, c("comp1_812", "comp1_813", "comp1_815", "comp1_816")], 
+        main = "Composantes 1") %>%
+  dyOptions(colors = c("blue", "red", "cyan", "green"))
+```
+
+
+```{r}
+dygraph(xts_B_comp[, c("comp2_812", "comp2_813", "comp2_815", "comp2_816")], 
+        main = "Composantes 2") %>%
+  dyOptions(colors = c("blue", "red", "cyan", "green"))
+```
+
+
+```{r}
+dygraph(xts_B_comp[, c("comp3_812", "comp3_813", "comp3_815", "comp3_816")], 
+        main = "Composantes 3") %>%
+  dyOptions(colors = c("blue", "red", "cyan", "green"))
+```
+
+#### moyennes journalières
+2) Utilisation des données moyennes journalières
+
+```{r include=FALSE}
+aci_t = db_aci_moy_odon %>%
+  dplyr::select(c("date"))
+
+aci_data = db_aci_moy_odon %>%
+  dplyr::select(!c("date"))
+```
+
+```{r include = F}
+set.seed(1)
+a <- fastICA(aci_data, 3, alg.typ = "parallel", fun = "logcosh", alpha = 1,
+             method = "R", row.norm = FALSE, maxit = 200,
+             tol = 0.0001, verbose = TRUE)
+
+A<-data.frame(a$S)
+B<-cbind(aci_t, A)
+
+xts_B = xts(B[, c("X1", "X2", "X3")], order.by = B[,"date"])
+```
+
+
+Les trois signaux identifiés pour l'Odon : 
+
+```{r}
+dygraph(xts_B, main = "Signaux estimés de l'Odon (moyennes journalières)") %>%
+  dyOptions(colors = c("blue", "red", "black"))
+```
+
+
+
+Les trois composantes pour chaque sonde de l'Odon
+```{r include=FALSE}
+lab_comp = c()
+for(i in 1:ncol(aci_data)){
+  
+  label_i = colnames(aci_data)[i]
+  
+  B[paste0("comp1_", label_i)]=a$A[1,i]*a$S[,1]
+  B[paste0("comp2_", label_i)]=a$A[2,i]*a$S[,2]
+  B[paste0("comp3_", label_i)]=a$A[3,i]*a$S[,3]
+  
+  lab_comp = c(lab_comp, paste0("comp1_", label_i), paste0("comp2_", label_i), paste0("comp3_", label_i))
+}
+xts_B_comp = xts(B[, lab_comp], order.by = B[,"date"])
+```
+
+- T1 (s812)
+
+```{r}
+dygraph(xts_B_comp[, c("comp1_812", "comp2_812", "comp3_812")], 
+        main = "Composantes pour la sonde : T1 (s812)") %>%
+  dyOptions(colors = c("blue", "red", "black"))
+```
+
+
+
+- T2 (s813)
+
+```{r}
+dygraph(xts_B_comp[, c("comp1_813", "comp2_813", "comp3_813")], 
+        main = "Composantes pour la sonde : T2 (s813)") %>%
+  dyOptions(colors = c("blue", "red", "black"))
+```
+
+
+- T4 (s815)
+
+```{r}
+dygraph(xts_B_comp[, c("comp1_815", "comp2_815", "comp3_815")], 
+        main = "Composantes pour la sonde : T4 (s815)") %>%
+  dyOptions(colors = c("blue", "red", "black"))
+```
+
+
+
+- T5 (s816)
+
+```{r}
+dygraph(xts_B_comp[, c("comp1_816", "comp2_816", "comp3_816")], 
+        main = "Composantes pour la sonde : T5 (s816)") %>%
+  dyOptions(colors = c("blue", "red", "black"))
+```
+
+
+- La composante 3 ???
+- La composante 1 est saisonnière (températures chaudes en été et froide en hiver)
+- La composante 2 ???
+
+
+
+Test dygraph composante par composante :
+
+```{r}
+dygraph(xts_B_comp[, c("comp1_812", "comp1_813", "comp1_815", "comp1_816")], 
+        main = "Composantes 1") %>%
+  dyOptions(colors = c("blue", "red", "cyan", "green"))
+```
+
+
+```{r}
+dygraph(xts_B_comp[, c("comp2_812", "comp2_813", "comp2_815", "comp2_816")], 
+        main = "Composantes 2") %>%
+  dyOptions(colors = c("blue", "red", "cyan", "green"))
+```
+
+
+```{r}
+dygraph(xts_B_comp[, c("comp3_812", "comp3_813", "comp3_815", "comp3_816")], 
+        main = "Composantes 3") %>%
+  dyOptions(colors = c("blue", "red", "cyan", "green"))
+```
+
+
+## Orne
+
+ACI sur les sondes de l'Orne :
+  - T1 (s817)
+  - T2 (s819)
+  - T3 (s818)
+
+#### bi-horaire
+1) Utilisation des données bi-horaire
+
+```{r include=FALSE}
+aci_t = db_aci_bih_orne %>%
+  dplyr::select(c("t"))
+
+aci_data = db_aci_bih_orne %>%
+  dplyr::select(!c("t"))
+```
+
+```{r include = F}
+set.seed(1)
+a <- fastICA(aci_data, 3, alg.typ = "parallel", fun = "logcosh", alpha = 1,
+             method = "R", row.norm = FALSE, maxit = 200,
+             tol = 0.0001, verbose = TRUE)
+
+A<-data.frame(a$S)
+B<-cbind(aci_t, A)
+
+xts_B = xts(B[, c("X1", "X2", "X3")], order.by = B[,"t"])
+```
+
+
+Les trois signaux identifiés pour l'Orne : 
+
+```{r}
+dygraph(xts_B, main = "Signaux estimés de l'Orne (bi-horaire)") %>%
+  dyOptions(colors = c("blue", "red", "black"))
+```
+
+
+
+Les trois composantes pour chaque sonde de l'Odon
+```{r include=FALSE}
+lab_comp = c()
+for(i in 1:ncol(aci_data)){
+  
+  label_i = colnames(aci_data)[i]
+  
+  B[paste0("comp1_", label_i)]=a$A[1,i]*a$S[,1]
+  B[paste0("comp2_", label_i)]=a$A[2,i]*a$S[,2]
+  B[paste0("comp3_", label_i)]=a$A[3,i]*a$S[,3]
+  
+  lab_comp = c(lab_comp, paste0("comp1_", label_i), paste0("comp2_", label_i), paste0("comp3_", label_i))
+  
+  #xts_B_comp = xts(B[, c("comp1", "comp2", "comp3")], order.by = B[,"t"])
+}
+xts_B_comp = xts(B[, lab_comp], order.by = B[,"t"])
+```
+
+- T1 (s817)
+
+```{r}
+dygraph(xts_B_comp[, c("comp1_817", "comp2_817", "comp3_817")], 
+        main = "Composantes pour la sonde : T1 (s817)") %>%
+  dyOptions(colors = c("blue", "red", "black"))
+```
+
+
+
+- T2 (s818)
+
+```{r}
+dygraph(xts_B_comp[, c("comp1_819", "comp2_819", "comp3_819")], 
+        main = "Composantes pour la sonde : T2 (s819)") %>%
+  dyOptions(colors = c("blue", "red", "black"))
+```
+
+
+- T3 (s818)
+
+```{r}
+dygraph(xts_B_comp[, c("comp1_818", "comp2_818", "comp3_818")], 
+        main = "Composantes pour la sonde : T3 (s818)") %>%
+  dyOptions(colors = c("blue", "red", "black"))
+```
+
+
+- La composante 1 est ...
+- La composante 2 est ...
+- La composante 3 est ...
+
+
+
+Test dygraph composante par composante :
+
+```{r}
+dygraph(xts_B_comp[, c("comp1_817", "comp1_819", "comp1_818")], 
+        main = "Composantes 1") %>%
+  dyOptions(colors = c("blue", "red", "cyan", "green"))
+```
+
+
+```{r}
+dygraph(xts_B_comp[, c("comp2_817", "comp2_819", "comp2_818")], 
+        main = "Composantes 2") %>%
+  dyOptions(colors = c("blue", "red", "cyan", "green"))
+```
+
+
+```{r}
+dygraph(xts_B_comp[, c("comp3_817", "comp3_819", "comp3_818")], 
+        main = "Composantes 3") %>%
+  dyOptions(colors = c("blue", "red", "cyan", "green"))
+```
+
+#### moyennes journalières
+2) Utilisation des données moyennes journalières
+
+```{r include=FALSE}
+aci_t = db_aci_moy_orne %>%
+  dplyr::select(c("date"))
+
+aci_data = db_aci_moy_orne %>%
+  dplyr::select(!c("date"))
+```
+
+```{r include = F}
+set.seed(1)
+a <- fastICA(aci_data, 3, alg.typ = "parallel", fun = "logcosh", alpha = 1,
+             method = "R", row.norm = FALSE, maxit = 200,
+             tol = 0.0001, verbose = TRUE)
+
+A<-data.frame(a$S)
+B<-cbind(aci_t, A)
+
+xts_B = xts(B[, c("X1", "X2", "X3")], order.by = B[,"date"])
+```
+
+
+Les trois signaux identifiés pour l'Orne : 
+
+```{r}
+dygraph(xts_B, main = "Signaux estimés de l'Orne (moyennes journalières)") %>%
+  dyOptions(colors = c("blue", "red", "black"))
+```
+
+
+
+Les trois composantes pour chaque sonde de l'Orne
+```{r include=FALSE}
+lab_comp = c()
+for(i in 1:ncol(aci_data)){
+  
+  label_i = colnames(aci_data)[i]
+  
+  B[paste0("comp1_", label_i)]=a$A[1,i]*a$S[,1]
+  B[paste0("comp2_", label_i)]=a$A[2,i]*a$S[,2]
+  B[paste0("comp3_", label_i)]=a$A[3,i]*a$S[,3]
+  
+  lab_comp = c(lab_comp, paste0("comp1_", label_i), paste0("comp2_", label_i), paste0("comp3_", label_i))
+}
+xts_B_comp = xts(B[, lab_comp], order.by = B[,"date"])
+```
+
+- T1 (s817)
+
+```{r}
+dygraph(xts_B_comp[, c("comp1_817", "comp2_817", "comp3_817")], 
+        main = "Composantes pour la sonde : T1 (s817)") %>%
+  dyOptions(colors = c("blue", "red", "black"))
+```
+
+
+
+- T2 (s819)
+
+```{r}
+dygraph(xts_B_comp[, c("comp1_819", "comp2_819", "comp3_819")], 
+        main = "Composantes pour la sonde : T2 (s819)") %>%
+  dyOptions(colors = c("blue", "red", "black"))
+```
+
+
+- T3 (s818)
+
+```{r}
+dygraph(xts_B_comp[, c("comp1_818", "comp2_818", "comp3_818")], 
+        main = "Composantes pour la sonde : T3 (s818)") %>%
+  dyOptions(colors = c("blue", "red", "black"))
+```
+
+
+
+
+- La composante 3 est ...
+- La composante 1 est ...
+- La composante 2 est ...
+
+
+
+Test dygraph composante par composante :
+
+```{r}
+dygraph(xts_B_comp[, c("comp1_817", "comp1_819", "comp1_818")], 
+        main = "Composantes 1") %>%
+  dyOptions(colors = c("blue", "red", "cyan", "green"))
+```
+
+
+```{r}
+dygraph(xts_B_comp[, c("comp2_817", "comp2_819", "comp2_818")], 
+        main = "Composantes 2") %>%
+  dyOptions(colors = c("blue", "red", "cyan", "green"))
+```
+
+
+```{r}
+dygraph(xts_B_comp[, c("comp3_817", "comp3_819", "comp3_818")], 
+        main = "Composantes 3") %>%
+  dyOptions(colors = c("blue", "red", "cyan", "green"))
+```
+
+
+## Selune
+
+ACI sur les sondes de la Selune :
+  - T1 (s824)
+  - T2 (s821)
+  - T3 (s822) NON INCLUE DANS L'ACI CAR TROP PEU DE DONNÉES
+  - T4 (s820)
+  - T5 (s823)
+
+#### bi-horaire
+1) Utilisation des données bi-horaire
+
+```{r include=FALSE}
+aci_t = db_aci_bih_selune %>%
+  dplyr::select(c("t"))
+
+aci_data = db_aci_bih_selune %>%
+  dplyr::select(!c("t"))
+```
+
+```{r include = F}
+set.seed(1)
+a <- fastICA(aci_data, 3, alg.typ = "parallel", fun = "logcosh", alpha = 1,
+             method = "R", row.norm = FALSE, maxit = 200,
+             tol = 0.0001, verbose = TRUE)
+
+A<-data.frame(a$S)
+B<-cbind(aci_t, A)
+
+xts_B = xts(B[, c("X1", "X2", "X3")], order.by = B[,"t"])
+```
+
+
+Les trois signaux identifiés pour la Sélune : 
+
+```{r}
+dygraph(xts_B, main = "Signaux estimés de la Sélune (bi-horaire)") %>%
+  dyOptions(colors = c("blue", "red", "black"))
+```
+
+
+
+Les trois composantes pour chaque sonde de l'Odon
+```{r include=FALSE}
+lab_comp = c()
+for(i in 1:ncol(aci_data)){
+  
+  label_i = colnames(aci_data)[i]
+  
+  B[paste0("comp1_", label_i)]=a$A[1,i]*a$S[,1]
+  B[paste0("comp2_", label_i)]=a$A[2,i]*a$S[,2]
+  B[paste0("comp3_", label_i)]=a$A[3,i]*a$S[,3]
+  
+  lab_comp = c(lab_comp, paste0("comp1_", label_i), paste0("comp2_", label_i), paste0("comp3_", label_i))
+  
+  #xts_B_comp = xts(B[, c("comp1", "comp2", "comp3")], order.by = B[,"t"])
+}
+xts_B_comp = xts(B[, lab_comp], order.by = B[,"t"])
+```
+
+- T1 (s824)
+
+```{r}
+dygraph(xts_B_comp[, c("comp1_824", "comp2_824", "comp3_824")], 
+        main = "Composantes pour la sonde : T1 (s824)") %>%
+  dyOptions(colors = c("blue", "red", "black"))
+```
+
+
+
+- T2 (s821)
+
+```{r}
+dygraph(xts_B_comp[, c("comp1_821", "comp2_821", "comp3_821")], 
+        main = "Composantes pour la sonde : T2 (s821)") %>%
+  dyOptions(colors = c("blue", "red", "black"))
+```
+
+
+- T4 (s820)
+
+```{r}
+dygraph(xts_B_comp[, c("comp1_820", "comp2_820", "comp3_820")], 
+        main = "Composantes pour la sonde : T4 (s820)") %>%
+  dyOptions(colors = c("blue", "red", "black"))
+```
+
+
+
+- T5 (s823)
+
+```{r}
+dygraph(xts_B_comp[, c("comp1_823", "comp2_823", "comp3_823")], 
+        main = "Composantes pour la sonde : T5 (s823)") %>%
+  dyOptions(colors = c("blue", "red", "black"))
+```
+
+
+- La composante 3 est ...
+- La composante 1 est ... (barrage ?)
+- La composante 2 est ...
+
+
+
+Test dygraph composante par composante :
+
+```{r}
+dygraph(xts_B_comp[, c("comp1_820", "comp1_821", "comp1_823", "comp1_824")], 
+        main = "Composantes 1") %>%
+  dyOptions(colors = c("blue", "red", "cyan", "green"))
+```
+
+
+```{r}
+dygraph(xts_B_comp[, c("comp2_820", "comp2_821", "comp2_823", "comp2_824")], 
+        main = "Composantes 2") %>%
+  dyOptions(colors = c("blue", "red", "cyan", "green"))
+```
+
+
+```{r}
+dygraph(xts_B_comp[, c("comp3_820", "comp3_821", "comp3_823", "comp3_824")], 
+        main = "Composantes 3") %>%
+  dyOptions(colors = c("blue", "red", "cyan", "green"))
+```
+
+#### moyennes journalières
+2) Utilisation des données moyennes journalières
+
+```{r include=FALSE}
+aci_t = db_aci_moy_selune %>%
+  dplyr::select(c("date"))
+
+aci_data = db_aci_moy_selune %>%
+  dplyr::select(!c("date"))
+```
+
+```{r include = F}
+set.seed(1)
+a <- fastICA(aci_data, 3, alg.typ = "parallel", fun = "logcosh", alpha = 1,
+             method = "R", row.norm = FALSE, maxit = 200,
+             tol = 0.0001, verbose = TRUE)
+
+A<-data.frame(a$S)
+B<-cbind(aci_t, A)
+
+xts_B = xts(B[, c("X1", "X2", "X3")], order.by = B[,"date"])
+```
+
+
+Les trois signaux identifiés pour la Sélune : 
+
+```{r}
+dygraph(xts_B, main = "Signaux estimés de la Sélune (moyennes journalières)") %>%
+  dyOptions(colors = c("blue", "red", "black"))
+```
+
+
+
+Les trois composantes pour chaque sonde de la Sélune
+```{r include=FALSE}
+lab_comp = c()
+for(i in 1:ncol(aci_data)){
+  
+  label_i = colnames(aci_data)[i]
+  
+  B[paste0("comp1_", label_i)]=a$A[1,i]*a$S[,1]
+  B[paste0("comp2_", label_i)]=a$A[2,i]*a$S[,2]
+  B[paste0("comp3_", label_i)]=a$A[3,i]*a$S[,3]
+  
+  lab_comp = c(lab_comp, paste0("comp1_", label_i), paste0("comp2_", label_i), paste0("comp3_", label_i))
+}
+xts_B_comp = xts(B[, lab_comp], order.by = B[,"date"])
+```
+
+- T1 (s824)
+
+```{r}
+dygraph(xts_B_comp[, c("comp1_824", "comp2_824", "comp3_824")], 
+        main = "Composantes pour la sonde : T1 (s824)") %>%
+  dyOptions(colors = c("blue", "red", "black"))
+```
+
+
+
+- T2 (s821)
+
+```{r}
+dygraph(xts_B_comp[, c("comp1_821", "comp2_821", "comp3_821")], 
+        main = "Composantes pour la sonde : T2 (s821)") %>%
+  dyOptions(colors = c("blue", "red", "black"))
+```
+
+
+- T4 (s820)
+
+```{r}
+dygraph(xts_B_comp[, c("comp1_820", "comp2_820", "comp3_820")], 
+        main = "Composantes pour la sonde : T4 (s820)") %>%
+  dyOptions(colors = c("blue", "red", "black"))
+```
+
+
+
+- T5 (s823)
+
+```{r}
+dygraph(xts_B_comp[, c("comp1_823", "comp2_823", "comp3_823")], 
+        main = "Composantes pour la sonde : T5 (s823)") %>%
+  dyOptions(colors = c("blue", "red", "black"))
+```
+
+
+- La composante 3 est ...
+- La composante 1 est ...
+- La composante 2 est ...
+
+
+
+Test dygraph composante par composante :
+
+```{r}
+dygraph(xts_B_comp[, c("comp1_820", "comp1_821", "comp1_823", "comp1_823")], 
+        main = "Composantes 1") %>%
+  dyOptions(colors = c("blue", "red", "cyan", "green"))
+```
+
+
+```{r}
+dygraph(xts_B_comp[, c("comp2_820", "comp2_821", "comp2_823", "comp2_824")], 
+        main = "Composantes 2") %>%
+  dyOptions(colors = c("blue", "red", "cyan", "green"))
+```
+
+
+```{r}
+dygraph(xts_B_comp[, c("comp3_820", "comp3_821", "comp3_823", "comp3_824")], 
+        main = "Composantes 3") %>%
+  dyOptions(colors = c("blue", "red", "cyan", "green"))
+```
+
+
+## Touques
+
+ACI sur les sondes de la Touques :
+  - T1 (s825)
+  - T2 (NA)
+  - T3 (s827)
+  - T4 (s828)
+  - T5 (NA)
+  - T6 (s830)
+
+#### bi-horaire
+1) Utilisation des données bi-horaire
+
+```{r include=FALSE}
+aci_t = db_aci_bih_touques %>%
+  dplyr::select(c("t"))
+
+aci_data = db_aci_bih_touques %>%
+  dplyr::select(!c("t"))
+```
+
+```{r include = F}
+set.seed(1)
+a <- fastICA(aci_data, 3, alg.typ = "parallel", fun = "logcosh", alpha = 1,
+             method = "R", row.norm = FALSE, maxit = 200,
+             tol = 0.0001, verbose = TRUE)
+
+A<-data.frame(a$S)
+B<-cbind(aci_t, A)
+
+xts_B = xts(B[, c("X1", "X2", "X3")], order.by = B[,"t"])
+```
+
+
+Les trois signaux identifiés pour la Touques : 
+
+```{r}
+dygraph(xts_B, main = "Signaux estimés de la Touques (bi-horaire)") %>%
+  dyOptions(colors = c("blue", "red", "black"))
+```
+
+
+
+Les trois composantes pour chaque sonde de la Touques
+```{r include=FALSE}
+lab_comp = c()
+for(i in 1:ncol(aci_data)){
+  
+  label_i = colnames(aci_data)[i]
+  
+  B[paste0("comp1_", label_i)]=a$A[1,i]*a$S[,1]
+  B[paste0("comp2_", label_i)]=a$A[2,i]*a$S[,2]
+  B[paste0("comp3_", label_i)]=a$A[3,i]*a$S[,3]
+  
+  lab_comp = c(lab_comp, paste0("comp1_", label_i), paste0("comp2_", label_i), paste0("comp3_", label_i))
+  
+  #xts_B_comp = xts(B[, c("comp1", "comp2", "comp3")], order.by = B[,"t"])
+}
+xts_B_comp = xts(B[, lab_comp], order.by = B[,"t"])
+```
+
+- T1 (s825)
+
+```{r}
+dygraph(xts_B_comp[, c("comp1_825", "comp2_825", "comp3_825")], 
+        main = "Composantes pour la sonde : T1 (s825)") %>%
+  dyOptions(colors = c("blue", "red", "black"))
+```
+
+
+
+- T3 (s827)
+
+```{r}
+dygraph(xts_B_comp[, c("comp1_827", "comp2_827", "comp3_827")], 
+        main = "Composantes pour la sonde : T3 (s827)") %>%
+  dyOptions(colors = c("blue", "red", "black"))
+```
+
+
+- T4 (s828)
+
+```{r}
+dygraph(xts_B_comp[, c("comp1_828", "comp2_828", "comp3_828")], 
+        main = "Composantes pour la sonde : T4 (s828)") %>%
+  dyOptions(colors = c("blue", "red", "black"))
+```
+
+
+
+- T6 (s830)
+
+```{r}
+dygraph(xts_B_comp[, c("comp1_830", "comp2_830", "comp3_830")], 
+        main = "Composantes pour la sonde : T6 (s830)") %>%
+  dyOptions(colors = c("blue", "red", "black"))
+```
+
+
+- La composante 3 est ...
+- La composante 1 est ...
+- La composante 2 est ...
+
+
+
+Test dygraph composante par composante :
+
+```{r}
+dygraph(xts_B_comp[, c("comp1_825", "comp1_827", "comp1_828", "comp1_830")], 
+        main = "Composantes 1") %>%
+  dyOptions(colors = c("blue", "red", "cyan", "green"))
+```
+
+
+```{r}
+dygraph(xts_B_comp[, c("comp2_825", "comp2_827", "comp2_828", "comp2_830")], 
+        main = "Composantes 2") %>%
+  dyOptions(colors = c("blue", "red", "cyan", "green"))
+```
+
+
+```{r}
+dygraph(xts_B_comp[, c("comp3_825", "comp3_827", "comp3_828", "comp3_830")], 
+        main = "Composantes 3") %>%
+  dyOptions(colors = c("blue", "red", "cyan", "green"))
+```
+
+#### moyennes journalières
+2) Utilisation des données moyennes journalières
+
+```{r include=FALSE}
+aci_t = db_aci_moy_touques %>%
+  dplyr::select(c("date"))
+
+aci_data = db_aci_moy_touques %>%
+  dplyr::select(!c("date"))
+```
+
+```{r include = F}
+set.seed(1)
+a <- fastICA(aci_data, 3, alg.typ = "parallel", fun = "logcosh", alpha = 1,
+             method = "R", row.norm = FALSE, maxit = 200,
+             tol = 0.0001, verbose = TRUE)
+
+A<-data.frame(a$S)
+B<-cbind(aci_t, A)
+
+xts_B = xts(B[, c("X1", "X2", "X3")], order.by = B[,"date"])
+```
+
+
+Les trois signaux identifiés pour la Touques : 
+
+```{r}
+dygraph(xts_B, main = "Signaux estimés de la Touques (moyennes journalières)") %>%
+  dyOptions(colors = c("blue", "red", "black"))
+```
+
+
+
+Les trois composantes pour chaque sonde de la Touques
+```{r include=FALSE}
+lab_comp = c()
+for(i in 1:ncol(aci_data)){
+  
+  label_i = colnames(aci_data)[i]
+  
+  B[paste0("comp1_", label_i)]=a$A[1,i]*a$S[,1]
+  B[paste0("comp2_", label_i)]=a$A[2,i]*a$S[,2]
+  B[paste0("comp3_", label_i)]=a$A[3,i]*a$S[,3]
+  
+  lab_comp = c(lab_comp, paste0("comp1_", label_i), paste0("comp2_", label_i), paste0("comp3_", label_i))
+}
+xts_B_comp = xts(B[, lab_comp], order.by = B[,"date"])
+```
+
+- T1 (s825)
+
+```{r}
+dygraph(xts_B_comp[, c("comp1_825", "comp2_825", "comp3_825")], 
+        main = "Composantes pour la sonde : T1 (s825)") %>%
+  dyOptions(colors = c("blue", "red", "black"))
+```
+
+
+
+- T3 (s827)
+
+```{r}
+dygraph(xts_B_comp[, c("comp1_827", "comp2_827", "comp3_827")], 
+        main = "Composantes pour la sonde : T3 (s827)") %>%
+  dyOptions(colors = c("blue", "red", "black"))
+```
+
+
+- T4 (s828)
+
+```{r}
+dygraph(xts_B_comp[, c("comp1_828", "comp2_828", "comp3_828")], 
+        main = "Composantes pour la sonde : T4 (s828)") %>%
+  dyOptions(colors = c("blue", "red", "black"))
+```
+
+
+
+- T6 (s830)
+
+```{r}
+dygraph(xts_B_comp[, c("comp1_830", "comp2_830", "comp3_830")], 
+        main = "Composantes pour la sonde : T6 (s830)") %>%
+  dyOptions(colors = c("blue", "red", "black"))
+```
+
+
+- La composante 3 est ...
+- La composante 1 est ...
+- La composante 2 est ...
+
+
+
+Test dygraph composante par composante :
+
+```{r}
+dygraph(xts_B_comp[, c("comp1_825", "comp1_827", "comp1_828", "comp1_830")], 
+        main = "Composantes 1") %>%
+  dyOptions(colors = c("blue", "red", "cyan", "green"))
+```
+
+
+```{r}
+dygraph(xts_B_comp[, c("comp2_825", "comp2_827", "comp2_828", "comp2_830")], 
+        main = "Composantes 2") %>%
+  dyOptions(colors = c("blue", "red", "cyan", "green"))
+```
+
+
+```{r}
+dygraph(xts_B_comp[, c("comp3_825", "comp3_827", "comp3_828", "comp3_830")], 
+        main = "Composantes 3") %>%
+  dyOptions(colors = c("blue", "red", "cyan", "green"))
+```
+

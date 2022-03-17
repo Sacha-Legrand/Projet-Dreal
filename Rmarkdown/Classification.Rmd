@@ -1,0 +1,4348 @@
+---
+title: "Classification, ACI et AFI"
+author: "Julien Marie"
+date: "2/18/2022"
+output: html_document
+---
+
+
+
+#-------------------------------------------------------------------------#
+# Chargement des librairies et de la base de données db_classif_moy3 -----
+```{r include=FALSE}
+if(!require(flamingos)){
+  install.packages("flamingos")
+  library(flamingos)
+}
+if(!require(fastICA)){
+  install.packages("fastICA")
+  library(fastICA)
+}
+if(!require(ifa)){
+  install.packages("ifa")
+  library(ifa)
+}
+if(!require(lubridate)){
+  install.packages("lubridate")
+  library(lubridate)
+}
+if(!require(dplyr)){
+  install.packages("dplyr")
+  library(dplyr)
+}
+if(!require(leaflet)){
+  install.packages("leaflet")
+  library(leaflet)
+}
+
+load("classif.RData")
+```
+
+# Première Classification (db_classif_moy3, 3 clusters) -----
+
+Mise en place des paramètres pour la classification 
+3 clusters
+
+```{r include=FALSE}
+
+K <- 3 # Number of clusters
+R <- 8 # Number of regimes (polynomial regression components)
+p <- 1 # Degree of the polynomials
+q <- 1 # Order of the logistic regression (by default 1 for contiguous segmentation)
+variance_type <- "heteroskedastic" # "heteroskedastic" or "homoskedastic" model
+
+n_tries <- 1
+max_iter <- 1000
+threshold <- 1e-5
+verbose <- TRUE
+verbose_IRLS <- FALSE
+init_kmeans <- TRUE
+
+```
+
+
+Classification avec db_classif_moy3
+
+```{r include=TRUE}
+
+set.seed(1)
+
+Y <- t(db_classif_moy3[,2:ncol(db_classif_moy3)])
+x <-as.numeric(1:nrow(db_classif_moy3))
+
+mixrhlp <- emMixRHLP(X = x, Y = Y, K, R, p, q, variance_type, init_kmeans, 
+                     n_tries, max_iter, threshold, verbose, verbose_IRLS)
+
+mixrhlp$plot()
+
+table(mixrhlp$stat$klas)
+
+```
+
+
+Résultat dans une db
+
+```{r include = F}
+res = data.frame(cluster=mixrhlp$stat$klas)
+res$id_sonde = as.numeric(rownames(Y))
+
+for(id_s in unique(res$id_sonde)){
+  res[which(res$id_sonde == id_s),"longitude"] = db_sonde_synthese[which(db_sonde_synthese$id_sonde == id_s),]$longitude
+  res[which(res$id_sonde == id_s),"latitude"] = db_sonde_synthese[which(db_sonde_synthese$id_sonde == id_s),]$latitude
+}
+
+res_clust1 = res[which(res$cluster == 1),]
+res_clust2 = res[which(res$cluster == 2),]
+res_clust3 = res[which(res$cluster == 3),]
+
+vec_col_res = c("blue", "red", "green")
+
+```
+
+Affichage sur une carte
+
+```{r}
+leaflet() %>%
+  addTiles() %>%
+  addAwesomeMarkers(data = res_clust1, 
+                    lng=res_clust1$longitude,lat=res_clust1$latitude,
+                    layerId = res_clust1$id_sonde, group=paste0("Cluster",res_clust1$cluster),
+                    icon=makeAwesomeIcon(icon='tint', library='glyphicon',
+                                         iconColor = 'white', markerColor = vec_col_res[1]), 
+                    popup = paste0("sonde : ", res_clust1$id_sonde)) %>%
+  addAwesomeMarkers(data = res_clust2, 
+                    lng=res_clust2$longitude,lat=res_clust2$latitude,
+                    layerId = res_clust2$id_sonde, group=paste0("Cluster",res_clust2$cluster),
+                    icon=makeAwesomeIcon(icon='tint', library='glyphicon',
+                                         iconColor = 'white', markerColor = vec_col_res[2]),
+                    popup = paste0("sonde : ", res_clust2$id_sonde)) %>%
+  addAwesomeMarkers(data = res_clust3, 
+                    lng=res_clust3$longitude,lat=res_clust3$latitude,
+                    layerId = res_clust3$id_sonde, group=paste0("Cluster",res_clust3$cluster),
+                    icon=makeAwesomeIcon(icon='tint', library='glyphicon',
+                                         iconColor = 'white', markerColor = vec_col_res[3]),
+                    popup = paste0("sonde : ", res_clust3$id_sonde))
+```
+
+
+
+# Préparation des données pour l'ACI -----
+
+Préparation des données pour l'ACI par cluster
+
+```{r}
+
+db_classif_clust1 = db_classif_moy3 %>% 
+  dplyr::select(as.character(res[which(res$cluster==1),]$id_sonde))
+
+db_classif_clust2 = db_classif_moy3 %>% 
+  dplyr::select(as.character(res[which(res$cluster==2),]$id_sonde))
+
+db_classif_clust3 = db_classif_moy3 %>% 
+  dplyr::select(as.character(res[which(res$cluster==3),]$id_sonde))
+
+
+```
+
+# ACI sur toutes les sondes (db_classif_moy3, 3 sources) -----
+
+```{r}
+aci_date = db_classif_moy3 %>%
+  dplyr::select(c("date"))
+
+aci_data = db_classif_moy3 %>%
+  dplyr::select(!c("date"))
+
+```
+
+On recherche de 3 signaux/sources indépendants 
+
+```{r include = F}
+set.seed(1)
+a <- fastICA(aci_data, 3, alg.typ = "parallel", fun = "logcosh", alpha = 1,
+             method = "R", row.norm = FALSE, maxit = 200,
+             tol = 0.0001, verbose = TRUE)
+
+
+#a$A
+#a$S #permet d'avoir les sources
+A<-data.frame(a$S) #Création d'une dataframe
+
+B<-cbind(aci_date, A) 
+
+```
+
+
+Sources estimées par l'ACI
+
+
+```{r}
+plot(X3~date, type="l", data=B, col="blue", main="Sources estimées")
+lines(X1~date, type="l", data=B, col="red")
+lines(X2~date, type="l", data=B, col="black")
+```
+
+
+
+
+
+
+```{r}
+pos_sonde_aci = data.frame(pos_sonde = c(1:(ncol(db_classif_moy3)-1)), id_sonde = colnames(db_classif_moy3[,2:ncol(db_classif_moy3)]))
+```
+
+```{r}
+vec_clust1 = colnames(db_classif_clust1)
+vec_clust2 = colnames(db_classif_clust2)
+vec_clust3 = colnames(db_classif_clust3)
+```
+
+
+Composantes pour le cluster 1
+```{r}
+for(sonde in vec_clust1){
+  pos = pos_sonde_aci[which(pos_sonde_aci$id_sonde==sonde),]$pos_sonde
+  B$comp1=a$A[1,pos]*a$S[,1]
+  B$comp2=a$A[2,pos]*a$S[,2]
+  B$comp3=a$A[3,pos]*a$S[,3]
+  
+  plot(comp3~date, type="l", data=B, col="blue", main=paste0("Composantes pour la sonde : ", sonde))
+  lines(comp1~date, type="l", data=B, col="red")
+  lines(comp2~date, type="l", data=B, col="black")
+}
+```
+
+
+Composantes pour le cluster 2
+```{r}
+for(sonde in vec_clust2){
+  pos = pos_sonde_aci[which(pos_sonde_aci$id_sonde==sonde),]$pos_sonde
+  B$comp1=a$A[1,pos]*a$S[,1]
+  B$comp2=a$A[2,pos]*a$S[,2]
+  B$comp3=a$A[3,pos]*a$S[,3]
+  
+  plot(comp3~date, type="l", data=B, col="blue", main=paste0("Composantes pour la sonde : ", sonde))
+  lines(comp1~date, type="l", data=B, col="red")
+  lines(comp2~date, type="l", data=B, col="black")
+}
+```
+
+Composantes pour le cluster 3
+```{r}
+for(sonde in vec_clust3){
+  pos = pos_sonde_aci[which(pos_sonde_aci$id_sonde==sonde),]$pos_sonde
+  B$comp1=a$A[1,pos]*a$S[,1]
+  B$comp2=a$A[2,pos]*a$S[,2]
+  B$comp3=a$A[3,pos]*a$S[,3]
+  
+  plot(comp3~date, type="l", data=B, col="blue", main=paste0("Composantes pour la sonde : ", sonde))
+  lines(comp1~date, type="l", data=B, col="red")
+  lines(comp2~date, type="l", data=B, col="black")
+}
+```
+
+
+
+
+
+
+# ACI sur les sondes du cluster 1 : db_classif_clust1 -----
+
+
+
+```{r}
+aci_data = db_classif_clust1
+```
+
+
+```{r include = F}
+set.seed(1)
+a <- fastICA(aci_data, 3, alg.typ = "parallel", fun = "logcosh", alpha = 1,
+             method = "R", row.norm = FALSE, maxit = 200,
+             tol = 0.0001, verbose = TRUE)
+
+
+#a$A
+#a$S #permet d'avoir les sources
+A<-data.frame(a$S) #Création d'une dataframe
+
+B<-cbind(aci_date, A)
+
+```
+
+
+Signaux identifiées de l'ACI : cluster 1
+
+```{r}
+plot(X1~date, type="l", data=B, col="blue", main="Sources estimées pour le cluster 1")
+lines(X3~date, type="l", data=B, col="red")
+lines(X2~date, type="l", data=B, col="black")
+
+```
+
+
+
+Composantes pour chaque sonde (cluster 1)
+```{r}
+for(i in 1:ncol(aci_data)){
+  B$comp1=a$A[1,i]*a$S[,1]
+  B$comp2=a$A[2,i]*a$S[,2]
+  B$comp3=a$A[3,i]*a$S[,3]
+  
+  label_i = colnames(aci_data)[i]
+  
+  plot(comp1~date, type="l", data=B, col="blue", main=paste0("Composantes pour la sonde : ", label_i))
+  lines(comp3~date, type="l", data=B, col="red")
+  lines(comp2~date, type="l", data=B, col="black")
+}
+```
+
+
+
+
+
+
+
+
+
+
+# ACI sur les sondes du cluster 2 : db_classif_clust2 -----
+
+```{r}
+aci_data = db_classif_clust2
+```
+
+
+```{r include = F}
+set.seed(1)
+a <- fastICA(aci_data, 3, alg.typ = "parallel", fun = "logcosh", alpha = 1,
+             method = "R", row.norm = FALSE, maxit = 200,
+             tol = 0.0001, verbose = TRUE)
+
+
+#a$A
+#a$S #permet d'avoir les sources
+A<-data.frame(a$S) #Création d'une dataframe
+
+B<-cbind(aci_date, A) 
+
+
+```
+
+
+
+
+Sources identifiées par l'ACI : cluster 2
+
+```{r}
+plot(X3~date, type="l", data=B, col="blue")
+lines(X1~date, type="l", data=B, col="red")
+lines(X2~date, type="l", data=B, col="black")
+
+```
+
+
+Composantes pour chaque sonde (cluster 2)
+```{r}
+for(i in 1:ncol(aci_data)){
+  B$comp1=a$A[1,i]*a$S[,1]
+  B$comp2=a$A[2,i]*a$S[,2]
+  B$comp3=a$A[3,i]*a$S[,3]
+  
+  label_i = colnames(aci_data)[i]
+  
+  plot(comp3~date, type="l", data=B, col="blue", main=paste0("Composantes pour la sonde : ", label_i))
+  lines(comp1~date, type="l", data=B, col="red")
+  lines(comp2~date, type="l", data=B, col="black")
+}
+```
+
+
+
+
+
+# ACI sur les sondes du cluster 3 : db_classif_clust3 -----
+
+```{r}
+aci_data = db_classif_clust3
+```
+
+
+```{r include = F}
+set.seed(1)
+a <- fastICA(aci_data, 3, alg.typ = "parallel", fun = "logcosh", alpha = 1,
+             method = "R", row.norm = FALSE, maxit = 200,
+             tol = 0.0001, verbose = TRUE)
+
+
+#a$A
+#a$S #permet d'avoir les sources
+A<-data.frame(a$S) #Création d'une dataframe
+
+B<-cbind(aci_date, A) 
+
+```
+
+
+
+
+Sources identifiées par l'ACI : cluster 3
+
+```{r}
+plot(X1~date, type="l", data=B, col="blue")
+lines(X3~date, type="l", data=B, col="red")
+lines(X2~date, type="l", data=B, col="black")
+
+```
+
+Composantes pour chaque sonde (cluster 3)
+```{r}
+for(i in 1:ncol(aci_data)){
+  B$comp1=a$A[1,i]*a$S[,1]
+  B$comp2=a$A[2,i]*a$S[,2]
+  B$comp3=a$A[3,i]*a$S[,3]
+  
+  label_i = colnames(aci_data)[i]
+  
+  plot(comp1~date, type="l", data=B, col="blue", main=paste0("Composantes pour la sonde : ", label_i))
+  lines(comp3~date, type="l", data=B, col="red")
+  lines(comp2~date, type="l", data=B, col="black")
+}
+```
+
+
+
+
+
+# AFI sur toutes les sondes (db_classif_moy3, 3 sources) -----
+
+```{r}
+aci_date = db_classif_moy3 %>%
+  dplyr::select(c("date"))
+
+aci_data = db_classif_moy3 %>%
+  dplyr::select(!c("date"))
+
+```
+
+
+
+```{r include = F}
+set.seed(1)
+init.values<-ifa.init.random(aci_data,3)
+fit<-ifa.em(aci_data,c(2,2,2),it=50,eps=0.0001,init.values)
+pred = as.data.frame(ifa.predict(scale(aci_data),fit))
+
+B <- cbind(aci_date, pred)
+
+
+```
+
+
+Sources identifiées de l'AFI
+
+
+```{r}
+plot(V1~date, data=B, type='l', col='blue', main="Sources estimées")
+lines(V3~date, data=B, type='l', col='red')
+lines(V2~date, data=B, type='l', col='black')
+```
+
+
+
+
+
+
+```{r}
+pos_sonde_aci = data.frame(pos_sonde = c(1:(ncol(db_classif_moy3)-1)), id_sonde = colnames(db_classif_moy3[,2:ncol(db_classif_moy3)]))
+```
+
+```{r}
+vec_clust1 = colnames(db_classif_clust1)
+vec_clust2 = colnames(db_classif_clust2)
+vec_clust3 = colnames(db_classif_clust3)
+```
+
+
+Composantes pour chaque sonde du cluster 1
+```{r}
+for(sonde in vec_clust1){
+  pos = pos_sonde_aci[which(pos_sonde_aci$id_sonde==sonde),]$pos_sonde
+  
+  
+  B$comp1=fit$H[pos,1]*pred[,1]
+  B$comp2=fit$H[pos,2]*pred[,2]
+  B$comp3=fit$H[pos,3]*pred[,3]
+  
+  
+  
+  plot(comp1~date, type="l", data=B, col="blue", main=paste0("Composantes pour la sonde : ", sonde))
+  lines(comp3~date, type="l", data=B, col="red")
+  lines(comp2~date, type="l", data=B, col="black")
+}
+```
+
+
+
+Composantes pour chaque sonde du cluster 2
+```{r}
+for(sonde in vec_clust2){
+  pos = pos_sonde_aci[which(pos_sonde_aci$id_sonde==sonde),]$pos_sonde
+  
+  
+  B$comp1=fit$H[pos,1]*pred[,1]
+  B$comp2=fit$H[pos,2]*pred[,2]
+  B$comp3=fit$H[pos,3]*pred[,3]
+  
+  
+  
+  plot(comp1~date, type="l", data=B, col="blue", main=paste0("Composantes pour la sonde : ", sonde))
+  lines(comp3~date, type="l", data=B, col="red")
+  lines(comp2~date, type="l", data=B, col="black")
+}
+```
+
+
+
+Composantes pour chaque sonde du cluster 3
+```{r}
+for(sonde in vec_clust3){
+  pos = pos_sonde_aci[which(pos_sonde_aci$id_sonde==sonde),]$pos_sonde
+  
+  
+  B$comp1=fit$H[pos,1]*pred[,1]
+  B$comp2=fit$H[pos,2]*pred[,2]
+  B$comp3=fit$H[pos,3]*pred[,3]
+  
+  plot(comp1~date, type="l", data=B, col="blue", main=paste0("Composantes pour la sonde : ", sonde))
+  lines(comp3~date, type="l", data=B, col="red")
+  lines(comp2~date, type="l", data=B, col="black")
+}
+```
+
+
+
+
+
+
+
+
+# AFI sur les sondes du cluster 1 : db_classif_clust1 -----
+
+
+
+```{r}
+aci_data = db_classif_clust1
+
+```
+
+
+
+```{r include = F}
+set.seed(1)
+init.values<-ifa.init.random(aci_data,3)
+fit<-ifa.em(aci_data,c(2,2,2),it=50,eps=0.0001,init.values)
+pred = as.data.frame(ifa.predict(scale(aci_data),fit))
+
+B <- cbind(aci_date, pred)
+
+```
+
+
+Sources identifiées de l'AFI
+
+
+```{r}
+plot(V3~date, data=B, type='l', col='blue', main="Sources estimées")
+lines(V1~date, data=B, type='l', col='red')
+lines(V2~date, data=B, type='l', col='black')
+```
+
+
+Composantes pour chaque sonde du cluster 1
+```{r}
+for(i in 1:ncol(aci_data)){
+  B$comp1=fit$H[i,1]*pred[,1]
+  B$comp2=fit$H[i,2]*pred[,2]
+  B$comp3=fit$H[i,3]*pred[,3]
+  
+  label_i = colnames(aci_data)[i]
+  
+  plot(comp1~date, type="l", data=B, col="blue", main=paste0("Composantes pour la sonde : ", label_i))
+  lines(comp3~date, type="l", data=B, col="red")
+  lines(comp2~date, type="l", data=B, col="black")
+}
+```
+
+
+
+
+# AFI sur les sondes du cluster 2 : db_classif_clust2 -----
+
+```{r}
+aci_data = db_classif_clust2
+
+```
+
+
+
+```{r include = F}
+set.seed(1)
+init.values<-ifa.init.random(aci_data,3)
+fit<-ifa.em(aci_data,c(2,2,2),it=50,eps=0.0001,init.values)
+pred = as.data.frame(ifa.predict(scale(aci_data),fit))
+
+B <- cbind(aci_date, pred)
+
+```
+
+
+Signaux identifiées de l'AFI
+
+
+```{r}
+plot(V1~date, data=B, type='l', col='blue', main="Signaux estimés")
+lines(V3~date, data=B, type='l', col='red')
+lines(V2~date, data=B, type='l', col='black')
+```
+
+Composantes pour chaque sonde du cluster 2
+```{r}
+for(i in 1:ncol(aci_data)){
+  B$comp1=fit$H[i,1]*pred[,1]
+  B$comp2=fit$H[i,2]*pred[,2]
+  B$comp3=fit$H[i,3]*pred[,3]
+  
+  label_i = colnames(aci_data)[i]
+  
+  plot(comp1~date, type="l", data=B, col="blue", main=paste0("Composantes pour la sonde : ", label_i))
+  lines(comp3~date, type="l", data=B, col="red")
+  lines(comp2~date, type="l", data=B, col="black")
+}
+```
+
+
+
+
+
+
+# AFI sur les sondes du cluster 3 : db_classif_clust3 -----
+
+```{r}
+aci_data = db_classif_clust3
+
+```
+
+
+
+```{r include = F}
+set.seed(1)
+init.values<-ifa.init.random(aci_data,3)
+fit<-ifa.em(aci_data,c(2,2,2),it=50,eps=0.0001,init.values)
+pred = as.data.frame(ifa.predict(scale(aci_data),fit))
+
+B <- cbind(aci_date, pred)
+
+```
+
+
+Signaux identifiées de l'AFI
+
+
+```{r}
+plot(V3~date, data=B, type='l', col='blue')
+lines(V2~date, data=B, type='l', col='red')
+lines(V1~date, data=B, type='l', col='black')
+```
+
+
+Composantes pour chaque sonde du cluster 3
+```{r}
+for(i in 1:ncol(aci_data)){
+  B$comp1=fit$H[i,1]*pred[,1]
+  B$comp2=fit$H[i,2]*pred[,2]
+  B$comp3=fit$H[i,3]*pred[,3]
+  
+  label_i = colnames(aci_data)[i]
+  
+  plot(comp2~date, type="l", data=B, col="blue", main=paste0("Composantes pour la sonde : ", label_i))
+  lines(comp3~date, type="l", data=B, col="red")
+  lines(comp1~date, type="l", data=B, col="black")
+}
+```
+
+
+
+
+
+
+
+
+
+
+
+
+#-------------------------------------------------------------------------#
+# Deuxième Classification (db_classif_moy3_a15, 3 clusters) -----
+
+Préparation des bases de données
+
+```{r include = F}
+db_classif_moy3_a = db_classif_moy3
+db_classif_moy3_a$annee = year(db_classif_moy3_a$date)
+
+# année 2015
+db_classif_moy3_a15 = db_classif_moy3_a[which(db_classif_moy3_a$annee==2015),] %>% 
+  dplyr::select(!c("annee"))
+dim(db_classif_moy3_a15)
+
+# année 2016
+db_classif_moy3_a16 = db_classif_moy3_a[which(db_classif_moy3_a$annee==2016),] %>% 
+  dplyr::select(!c("annee"))
+dim(db_classif_moy3_a16)
+
+# année 2017
+db_classif_moy3_a17 = db_classif_moy3_a[which(db_classif_moy3_a$annee==2017),] %>% 
+  dplyr::select(!c("annee"))
+dim(db_classif_moy3_a17)
+```
+
+
+
+
+
+Mise en place des paramètres pour la classification
+
+```{r include=FALSE}
+
+K <- 3 # Number of clusters
+R <- 3 # Number of regimes (polynomial regression components)
+p <- 1 # Degree of the polynomials
+q <- 1 # Order of the logistic regression (by default 1 for contiguous segmentation)
+variance_type <- "heteroskedastic" # "heteroskedastic" or "homoskedastic" model
+
+n_tries <- 1
+max_iter <- 1000
+threshold <- 1e-5
+verbose <- TRUE
+verbose_IRLS <- FALSE
+init_kmeans <- TRUE
+
+```
+
+
+Classification pour année 2015 : db_classif_moy3_a15
+
+```{r include=TRUE}
+
+set.seed(1)
+
+Y <- t(db_classif_moy3_a15[,2:ncol(db_classif_moy3_a15)])
+x <-as.numeric(1:nrow(db_classif_moy3_a15))
+
+mixrhlp <- emMixRHLP(X = x, Y = Y, K, R, p, q, variance_type, init_kmeans, 
+                     n_tries, max_iter, threshold, verbose, verbose_IRLS)
+
+mixrhlp$plot()
+
+table(mixrhlp$stat$klas)
+
+```
+
+
+Résultat dans une db
+
+```{r include = F}
+res = data.frame(cluster=mixrhlp$stat$klas)
+res$id_sonde = as.numeric(rownames(Y))
+
+for(id_s in unique(res$id_sonde)){
+  res[which(res$id_sonde == id_s),"longitude"] = db_sonde_synthese[which(db_sonde_synthese$id_sonde == id_s),]$longitude
+  res[which(res$id_sonde == id_s),"latitude"] = db_sonde_synthese[which(db_sonde_synthese$id_sonde == id_s),]$latitude
+}
+
+res_clust1 = res[which(res$cluster == 1),]
+res_clust2 = res[which(res$cluster == 2),]
+res_clust3 = res[which(res$cluster == 3),]
+
+vec_col_res = c("blue", "red", "green")
+
+```
+
+Affichage sur une carte
+
+```{r}
+leaflet() %>%
+  addTiles() %>%
+  addAwesomeMarkers(data = res_clust1, 
+                    lng=res_clust1$longitude,lat=res_clust1$latitude,
+                    layerId = res_clust1$id_sonde, group=paste0("Cluster",res_clust1$cluster),
+                    icon=makeAwesomeIcon(icon='tint', library='glyphicon',
+                                         iconColor = 'white', markerColor = vec_col_res[1]), 
+                    popup = paste0("sonde : ", res_clust1$id_sonde)) %>%
+  addAwesomeMarkers(data = res_clust2, 
+                    lng=res_clust2$longitude,lat=res_clust2$latitude,
+                    layerId = res_clust2$id_sonde, group=paste0("Cluster",res_clust2$cluster),
+                    icon=makeAwesomeIcon(icon='tint', library='glyphicon',
+                                         iconColor = 'white', markerColor = vec_col_res[2]),
+                    popup = paste0("sonde : ", res_clust2$id_sonde)) %>%
+  addAwesomeMarkers(data = res_clust3, 
+                    lng=res_clust3$longitude,lat=res_clust3$latitude,
+                    layerId = res_clust3$id_sonde, group=paste0("Cluster",res_clust3$cluster),
+                    icon=makeAwesomeIcon(icon='tint', library='glyphicon',
+                                         iconColor = 'white', markerColor = vec_col_res[3]),
+                    popup = paste0("sonde : ", res_clust3$id_sonde))
+```
+
+
+
+# Préparation des données pour l'ACI par cluster -----
+
+```{r}
+
+db_classif_clust1 = db_classif_moy3_a15 %>% 
+  dplyr::select(as.character(res[which(res$cluster==1),]$id_sonde))
+
+db_classif_clust2 = db_classif_moy3_a15 %>% 
+  dplyr::select(as.character(res[which(res$cluster==2),]$id_sonde))
+
+db_classif_clust3 = db_classif_moy3_a15 %>% 
+  dplyr::select(as.character(res[which(res$cluster==3),]$id_sonde))
+
+
+db_classif_clust1_bis = db_classif_moy3 %>% 
+  dplyr::select(as.character(res[which(res$cluster==1),]$id_sonde))
+
+db_classif_clust2_bis = db_classif_moy3 %>% 
+  dplyr::select(as.character(res[which(res$cluster==2),]$id_sonde))
+
+db_classif_clust3_bis = db_classif_moy3 %>% 
+  dplyr::select(as.character(res[which(res$cluster==3),]$id_sonde))
+
+
+```
+
+
+
+
+
+# ACI sur toutes les sondes (db_classif_moy3, 3 sources) (séries entières) -----
+
+```{r}
+aci_date = db_classif_moy3 %>%
+  dplyr::select(c("date"))
+
+aci_data = db_classif_moy3 %>%
+  dplyr::select(!c("date"))
+
+```
+
+On recherche de 3 signaux/sources indépendants 
+
+```{r include = F}
+set.seed(1)
+a <- fastICA(aci_data, 3, alg.typ = "parallel", fun = "logcosh", alpha = 1,
+             method = "R", row.norm = FALSE, maxit = 200,
+             tol = 0.0001, verbose = TRUE)
+
+
+#a$A
+#a$S #permet d'avoir les sources
+A<-data.frame(a$S) #Création d'une dataframe
+
+B<-cbind(aci_date, A) 
+
+```
+
+
+Sources estimées par l'ACI
+
+
+```{r}
+plot(X3~date, type="l", data=B, col="blue", main="Sources estimées")
+lines(X1~date, type="l", data=B, col="red")
+lines(X2~date, type="l", data=B, col="black")
+```
+
+
+
+
+
+
+```{r}
+pos_sonde_aci = data.frame(pos_sonde = c(1:(ncol(db_classif_moy3)-1)), id_sonde = colnames(db_classif_moy3[,2:ncol(db_classif_moy3)]))
+```
+
+```{r}
+vec_clust1 = colnames(db_classif_clust1)
+vec_clust2 = colnames(db_classif_clust2)
+vec_clust3 = colnames(db_classif_clust3)
+```
+
+
+Composantes pour le cluster 1
+```{r}
+for(sonde in vec_clust1){
+  pos = pos_sonde_aci[which(pos_sonde_aci$id_sonde==sonde),]$pos_sonde
+  B$comp1=a$A[1,pos]*a$S[,1]
+  B$comp2=a$A[2,pos]*a$S[,2]
+  B$comp3=a$A[3,pos]*a$S[,3]
+  
+  plot(comp3~date, type="l", data=B, col="blue", main=paste0("Composantes pour la sonde : ", sonde))
+  lines(comp1~date, type="l", data=B, col="red")
+  lines(comp2~date, type="l", data=B, col="black")
+}
+```
+
+
+Composantes pour le cluster 2
+```{r}
+for(sonde in vec_clust2){
+  pos = pos_sonde_aci[which(pos_sonde_aci$id_sonde==sonde),]$pos_sonde
+  B$comp1=a$A[1,pos]*a$S[,1]
+  B$comp2=a$A[2,pos]*a$S[,2]
+  B$comp3=a$A[3,pos]*a$S[,3]
+  
+  plot(comp3~date, type="l", data=B, col="blue", main=paste0("Composantes pour la sonde : ", sonde))
+  lines(comp1~date, type="l", data=B, col="red")
+  lines(comp2~date, type="l", data=B, col="black")
+}
+```
+
+Composantes pour le cluster 3
+```{r}
+for(sonde in vec_clust3){
+  pos = pos_sonde_aci[which(pos_sonde_aci$id_sonde==sonde),]$pos_sonde
+  B$comp1=a$A[1,pos]*a$S[,1]
+  B$comp2=a$A[2,pos]*a$S[,2]
+  B$comp3=a$A[3,pos]*a$S[,3]
+  
+  plot(comp3~date, type="l", data=B, col="blue", main=paste0("Composantes pour la sonde : ", sonde))
+  lines(comp1~date, type="l", data=B, col="red")
+  lines(comp2~date, type="l", data=B, col="black")
+}
+```
+
+
+
+
+
+
+
+
+
+
+
+# ACI sur toutes les sondes (db_classif_moy3_a15, 3 sources) (2015) -----
+
+```{r}
+aci_date = db_classif_moy3_a15 %>%
+  dplyr::select(c("date"))
+
+aci_date_bis = db_classif_moy3 %>%
+  dplyr::select(c("date"))
+
+aci_data = db_classif_moy3_a15 %>%
+  dplyr::select(!c("date"))
+
+```
+
+
+
+```{r include = F}
+set.seed(1)
+a <- fastICA(aci_data, 3, alg.typ = "parallel", fun = "logcosh", alpha = 1,
+             method = "R", row.norm = FALSE, maxit = 200,
+             tol = 0.0001, verbose = TRUE)
+
+
+#a$A
+#a$S #permet d'avoir les sources
+A<-data.frame(a$S) #Création d'une dataframe
+
+B<-cbind(aci_date, A) 
+
+
+```
+
+
+Sources identifiées de l'ACI
+
+
+```{r}
+plot(X3~date, type="l", data=B, col="blue", main="Sources estimées")
+lines(X1~date, type="l", data=B, col="red")
+lines(X2~date, type="l", data=B, col="black")
+```
+
+
+
+Composantes pour le cluster 1
+```{r}
+for(sonde in vec_clust1){
+  pos = pos_sonde_aci[which(pos_sonde_aci$id_sonde==sonde),]$pos_sonde
+  B$comp1=a$A[1,pos]*a$S[,1]
+  B$comp2=a$A[2,pos]*a$S[,2]
+  B$comp3=a$A[3,pos]*a$S[,3]
+  
+  plot(comp3~date, type="l", data=B, col="blue", main=paste0("Composantes pour la sonde : ", sonde))
+  lines(comp1~date, type="l", data=B, col="red")
+  lines(comp2~date, type="l", data=B, col="black")
+}
+```
+
+
+Composantes pour le cluster 2
+```{r}
+for(sonde in vec_clust2){
+  pos = pos_sonde_aci[which(pos_sonde_aci$id_sonde==sonde),]$pos_sonde
+  B$comp1=a$A[1,pos]*a$S[,1]
+  B$comp2=a$A[2,pos]*a$S[,2]
+  B$comp3=a$A[3,pos]*a$S[,3]
+  
+  plot(comp3~date, type="l", data=B, col="blue", main=paste0("Composantes pour la sonde : ", sonde))
+  lines(comp1~date, type="l", data=B, col="red")
+  lines(comp2~date, type="l", data=B, col="black")
+}
+```
+
+
+Composantes pour le cluster 3
+```{r}
+for(sonde in vec_clust3){
+  pos = pos_sonde_aci[which(pos_sonde_aci$id_sonde==sonde),]$pos_sonde
+  B$comp1=a$A[1,pos]*a$S[,1]
+  B$comp2=a$A[2,pos]*a$S[,2]
+  B$comp3=a$A[3,pos]*a$S[,3]
+  
+  plot(comp3~date, type="l", data=B, col="blue", main=paste0("Composantes pour la sonde : ", sonde))
+  lines(comp1~date, type="l", data=B, col="red")
+  lines(comp2~date, type="l", data=B, col="black")
+}
+```
+
+
+
+
+
+
+
+
+
+# ACI sur les sondes du cluster 1 : db_classif_clust1 (2015) -----
+
+```{r}
+aci_data = db_classif_clust1
+```
+
+
+```{r include = F}
+set.seed(1)
+a <- fastICA(aci_data, 3, alg.typ = "parallel", fun = "logcosh", alpha = 1,
+             method = "R", row.norm = FALSE, maxit = 200,
+             tol = 0.0001, verbose = TRUE)
+
+
+#a$A
+#a$S #permet d'avoir les sources
+A<-data.frame(a$S) #Création d'une dataframe
+
+B<-cbind(aci_date, A) 
+
+
+```
+
+
+Signaux identifiées de l'ACI : cluster 1
+
+```{r}
+plot(X1~date, type="l", data=B, col="blue", main="Signaux estimés")
+lines(X2~date, type="l", data=B, col="red")
+lines(X3~date, type="l", data=B, col="black")
+
+```
+
+Composantes pour chaque sonde du cluster 1
+```{r}
+for(i in 1:ncol(aci_data)){
+  B$comp1=a$A[1,i]*a$S[,1]
+  B$comp2=a$A[2,i]*a$S[,2]
+  B$comp3=a$A[3,i]*a$S[,3]
+  
+  label_i = colnames(aci_data)[i]
+  
+  plot(comp1~date, type="l", data=B, col="blue", main=paste0("Composantes pour la sonde : ", label_i))
+  lines(comp2~date, type="l", data=B, col="red")
+  lines(comp3~date, type="l", data=B, col="black")
+}
+```
+
+
+
+# ACI sur les sondes du cluster 1 : db_classif_clust1 (séries entières) -----
+
+```{r}
+aci_data = db_classif_clust1_bis
+```
+
+
+```{r include = F}
+set.seed(1)
+a <- fastICA(aci_data, 3, alg.typ = "parallel", fun = "logcosh", alpha = 1,
+             method = "R", row.norm = FALSE, maxit = 200,
+             tol = 0.0001, verbose = TRUE)
+
+
+#a$A
+#a$S #permet d'avoir les sources
+A<-data.frame(a$S) #Création d'une dataframe
+
+B<-cbind(aci_date_bis, A) 
+
+
+B$comp1=a$A[1,1]*a$S[,1]
+B$comp2=a$A[2,1]*a$S[,2]
+B$comp3=a$A[3,1]*a$S[,3]
+
+```
+
+
+Signaux identifiées de l'ACI : cluster 1
+
+```{r}
+plot(X2~date, type="l", data=B, col="blue", main="Signaux estimés")
+lines(X3~date, type="l", data=B, col="red")
+lines(X1~date, type="l", data=B, col="black")
+
+```
+
+
+
+Composantes pour chaque sonde du cluster 1
+```{r}
+for(i in 1:ncol(aci_data)){
+  B$comp1=a$A[1,i]*a$S[,1]
+  B$comp2=a$A[2,i]*a$S[,2]
+  B$comp3=a$A[3,i]*a$S[,3]
+  
+  label_i = colnames(aci_data)[i]
+  
+  plot(comp2~date, type="l", data=B, col="blue", main=paste0("Composantes pour la sonde : ", label_i))
+  lines(comp3~date, type="l", data=B, col="red")
+  lines(comp1~date, type="l", data=B, col="black")
+}
+```
+
+
+
+# ACI sur les sondes du cluster 2 : db_classif_clust2 (2015) -----
+
+```{r}
+aci_data = db_classif_clust2
+```
+
+
+```{r include = F}
+set.seed(1)
+a <- fastICA(aci_data, 3, alg.typ = "parallel", fun = "logcosh", alpha = 1,
+             method = "R", row.norm = FALSE, maxit = 200,
+             tol = 0.0001, verbose = TRUE)
+
+
+#a$A
+#a$S #permet d'avoir les sources
+A<-data.frame(a$S) #Création d'une dataframe
+
+B<-cbind(aci_date, A) 
+
+
+```
+
+
+Signaux identifiées de l'ACI : cluster 2
+
+```{r}
+plot(X2~date, type="l", data=B, col="blue", main="Signaux estimés")
+lines(X3~date, type="l", data=B, col="red")
+lines(X1~date, type="l", data=B, col="black")
+
+```
+
+Composantes pour chaque sonde du cluster 2
+```{r}
+for(i in 1:ncol(aci_data)){
+  B$comp1=a$A[1,i]*a$S[,1]
+  B$comp2=a$A[2,i]*a$S[,2]
+  B$comp3=a$A[3,i]*a$S[,3]
+  
+  label_i = colnames(aci_data)[i]
+  
+  plot(comp2~date, type="l", data=B, col="blue", main=paste0("Composantes pour la sonde : ", label_i))
+  lines(comp3~date, type="l", data=B, col="red")
+  lines(comp1~date, type="l", data=B, col="black")
+}
+```
+
+
+
+# ACI sur les sondes du cluster 2 : db_classif_clust2 (séries entières) -----
+
+```{r}
+aci_data = db_classif_clust2_bis
+```
+
+
+```{r include = F}
+set.seed(1)
+a <- fastICA(aci_data, 3, alg.typ = "parallel", fun = "logcosh", alpha = 1,
+             method = "R", row.norm = FALSE, maxit = 200,
+             tol = 0.0001, verbose = TRUE)
+
+
+#a$A
+#a$S #permet d'avoir les sources
+A<-data.frame(a$S) #Création d'une dataframe
+
+B<-cbind(aci_date_bis, A) 
+
+
+```
+
+
+Signaux identifiées de l'ACI : cluster 2
+
+```{r}
+plot(X1~date, type="l", data=B, col="blue", main="Signaux estimés")
+lines(X3~date, type="l", data=B, col="red")
+lines(X2~date, type="l", data=B, col="black")
+
+```
+
+
+
+Composantes pour chaque sonde du cluster 2
+```{r}
+for(i in 1:ncol(aci_data)){
+  B$comp1=a$A[1,i]*a$S[,1]
+  B$comp2=a$A[2,i]*a$S[,2]
+  B$comp3=a$A[3,i]*a$S[,3]
+  
+  label_i = colnames(aci_data)[i]
+  
+  plot(comp1~date, type="l", data=B, col="blue", main=paste0("Composantes pour la sonde : ", label_i))
+  lines(comp3~date, type="l", data=B, col="red")
+  lines(comp2~date, type="l", data=B, col="black")
+}
+```
+
+
+
+# ACI sur les sondes du cluster 3 : db_classif_clust3 (2015) -----
+
+```{r}
+aci_data = db_classif_clust3
+```
+
+
+```{r include = F}
+set.seed(1)
+a <- fastICA(aci_data, 3, alg.typ = "parallel", fun = "logcosh", alpha = 1,
+             method = "R", row.norm = FALSE, maxit = 200,
+             tol = 0.0001, verbose = TRUE)
+
+
+#a$A
+#a$S #permet d'avoir les sources
+A<-data.frame(a$S) #Création d'une dataframe
+
+B<-cbind(aci_date, A) 
+
+
+```
+
+
+Signaux identifiées de l'ACI : cluster 3
+
+```{r}
+plot(X1~date, type="l", data=B, col="blue", main="Signaux estimés")
+lines(X2~date, type="l", data=B, col="red")
+lines(X3~date, type="l", data=B, col="black")
+
+```
+
+Composantes pour chaque sonde du cluster 3
+```{r}
+for(i in 1:ncol(aci_data)){
+  B$comp1=a$A[1,i]*a$S[,1]
+  B$comp2=a$A[2,i]*a$S[,2]
+  B$comp3=a$A[3,i]*a$S[,3]
+  
+  label_i = colnames(aci_data)[i]
+  
+  plot(comp1~date, type="l", data=B, col="blue", main=paste0("Composantes pour la sonde : ", label_i))
+  lines(comp2~date, type="l", data=B, col="red")
+  lines(comp3~date, type="l", data=B, col="black")
+}
+```
+
+
+
+# ACI sur les sondes du cluster 3 : db_classif_clust3 (séries entières) -----
+
+```{r}
+aci_data = db_classif_clust3_bis
+```
+
+
+```{r include = F}
+set.seed(1)
+a <- fastICA(aci_data, 3, alg.typ = "parallel", fun = "logcosh", alpha = 1,
+             method = "R", row.norm = FALSE, maxit = 200,
+             tol = 0.0001, verbose = TRUE)
+
+
+#a$A
+#a$S #permet d'avoir les sources
+A<-data.frame(a$S) #Création d'une dataframe
+
+B<-cbind(aci_date_bis, A) 
+
+
+B$comp1=a$A[1,1]*a$S[,1]
+B$comp2=a$A[2,1]*a$S[,2]
+B$comp3=a$A[3,1]*a$S[,3]
+
+```
+
+
+Signaux identifiées de l'ACI : cluster 3
+
+```{r}
+plot(X1~date, type="l", data=B, col="blue", main="Signaux estimés")
+lines(X2~date, type="l", data=B, col="red")
+lines(X3~date, type="l", data=B, col="black")
+
+```
+
+
+
+Composantes pour chaque sonde du cluster 3
+```{r}
+for(i in 1:ncol(aci_data)){
+  B$comp1=a$A[1,i]*a$S[,1]
+  B$comp2=a$A[2,i]*a$S[,2]
+  B$comp3=a$A[3,i]*a$S[,3]
+  
+  label_i = colnames(aci_data)[i]
+  
+  plot(comp1~date, type="l", data=B, col="blue", main=paste0("Composantes pour la sonde : ", label_i))
+  lines(comp2~date, type="l", data=B, col="red")
+  lines(comp3~date, type="l", data=B, col="black")
+}
+```
+
+
+
+
+
+
+
+
+
+# AFI sur toutes les sondes (db_classif_moy3, 3 sources) (séries entières) -----
+
+```{r}
+aci_date = db_classif_moy3 %>%
+  dplyr::select(c("date"))
+
+aci_data = db_classif_moy3 %>%
+  dplyr::select(!c("date"))
+
+```
+
+
+
+```{r include = F}
+set.seed(1)
+init.values<-ifa.init.random(aci_data,3)
+fit<-ifa.em(aci_data,c(2,2,2),it=50,eps=0.0001,init.values)
+pred = as.data.frame(ifa.predict(scale(aci_data),fit))
+
+B <- cbind(aci_date, pred)
+
+
+```
+
+
+Sources identifiées de l'AFI
+
+
+```{r}
+plot(V1~date, data=B, type='l', col='blue', main="Sources estimées")
+lines(V3~date, data=B, type='l', col='red')
+lines(V2~date, data=B, type='l', col='black')
+```
+
+
+
+
+
+
+```{r}
+pos_sonde_aci = data.frame(pos_sonde = c(1:(ncol(db_classif_moy3)-1)), id_sonde = colnames(db_classif_moy3[,2:ncol(db_classif_moy3)]))
+```
+
+```{r}
+vec_clust1 = colnames(db_classif_clust1)
+vec_clust2 = colnames(db_classif_clust2)
+vec_clust3 = colnames(db_classif_clust3)
+```
+
+
+Composantes pour chaque sonde du cluster 1
+```{r}
+for(sonde in vec_clust1){
+  pos = pos_sonde_aci[which(pos_sonde_aci$id_sonde==sonde),]$pos_sonde
+  
+  
+  B$comp1=fit$H[pos,1]*pred[,1]
+  B$comp2=fit$H[pos,2]*pred[,2]
+  B$comp3=fit$H[pos,3]*pred[,3]
+  
+  
+  plot(comp1~date, type="l", data=B, col="blue", main=paste0("Composantes pour la sonde : ", sonde))
+  lines(comp3~date, type="l", data=B, col="red")
+  lines(comp2~date, type="l", data=B, col="black")
+}
+```
+
+
+
+Composantes pour chaque sonde du cluster 2
+```{r}
+for(sonde in vec_clust2){
+  pos = pos_sonde_aci[which(pos_sonde_aci$id_sonde==sonde),]$pos_sonde
+  
+  
+  B$comp1=fit$H[pos,1]*pred[,1]
+  B$comp2=fit$H[pos,2]*pred[,2]
+  B$comp3=fit$H[pos,3]*pred[,3]
+  
+  
+  plot(comp1~date, type="l", data=B, col="blue", main=paste0("Composantes pour la sonde : ", sonde))
+  lines(comp3~date, type="l", data=B, col="red")
+  lines(comp2~date, type="l", data=B, col="black")
+}
+```
+
+
+
+Composantes pour chaque sonde du cluster 3
+```{r}
+for(sonde in vec_clust3){
+  pos = pos_sonde_aci[which(pos_sonde_aci$id_sonde==sonde),]$pos_sonde
+  
+  
+  B$comp1=fit$H[pos,1]*pred[,1]
+  B$comp2=fit$H[pos,2]*pred[,2]
+  B$comp3=fit$H[pos,3]*pred[,3]
+  
+  
+  plot(comp1~date, type="l", data=B, col="blue", main=paste0("Composantes pour la sonde : ", sonde))
+  lines(comp3~date, type="l", data=B, col="red")
+  lines(comp2~date, type="l", data=B, col="black")
+}
+```
+
+
+
+
+
+
+
+
+# AFI sur toutes les sondes (db_classif_moy3_a15, 3 sources) (2015) -----
+
+```{r}
+aci_date = db_classif_moy3_a15 %>%
+  dplyr::select(c("date"))
+
+aci_data = db_classif_moy3_a15 %>%
+  dplyr::select(!c("date"))
+
+```
+
+
+
+```{r include = F}
+set.seed(1)
+init.values<-ifa.init.random(aci_data,3)
+fit<-ifa.em(aci_data,c(2,2,2),it=50,eps=0.0001,init.values)
+pred = as.data.frame(ifa.predict(scale(aci_data),fit))
+
+B <- cbind(aci_date, pred)
+
+
+```
+
+
+Sources identifiées de l'AFI
+
+
+```{r}
+plot(V1~date, data=B, type='l', col='blue', main="Sources estimées")
+lines(V3~date, data=B, type='l', col='red')
+lines(V2~date, data=B, type='l', col='black')
+```
+
+
+
+
+
+
+```{r}
+pos_sonde_aci = data.frame(pos_sonde = c(1:(ncol(db_classif_moy3)-1)), id_sonde = colnames(db_classif_moy3[,2:ncol(db_classif_moy3)]))
+```
+
+```{r}
+vec_clust1 = colnames(db_classif_clust1)
+vec_clust2 = colnames(db_classif_clust2)
+vec_clust3 = colnames(db_classif_clust3)
+```
+
+
+Composantes pour chaque sonde du cluster 1
+```{r}
+for(sonde in vec_clust1){
+  pos = pos_sonde_aci[which(pos_sonde_aci$id_sonde==sonde),]$pos_sonde
+  
+  
+  B$comp1=fit$H[pos,1]*pred[,1]
+  B$comp2=fit$H[pos,2]*pred[,2]
+  B$comp3=fit$H[pos,3]*pred[,3]
+  
+  
+  plot(comp1~date, type="l", data=B, col="blue", main=paste0("Composantes pour la sonde : ", sonde))
+  lines(comp3~date, type="l", data=B, col="red")
+  lines(comp2~date, type="l", data=B, col="black")
+}
+```
+
+
+
+Composantes pour chaque sonde du cluster 2
+```{r}
+for(sonde in vec_clust2){
+  pos = pos_sonde_aci[which(pos_sonde_aci$id_sonde==sonde),]$pos_sonde
+  
+  
+  B$comp1=fit$H[pos,1]*pred[,1]
+  B$comp2=fit$H[pos,2]*pred[,2]
+  B$comp3=fit$H[pos,3]*pred[,3]
+  
+  
+  plot(comp1~date, type="l", data=B, col="blue", main=paste0("Composantes pour la sonde : ", sonde))
+  lines(comp3~date, type="l", data=B, col="red")
+  lines(comp2~date, type="l", data=B, col="black")
+}
+```
+
+
+
+Composantes pour chaque sonde du cluster 3
+```{r}
+for(sonde in vec_clust3){
+  pos = pos_sonde_aci[which(pos_sonde_aci$id_sonde==sonde),]$pos_sonde
+  
+  
+  B$comp1=fit$H[pos,1]*pred[,1]
+  B$comp2=fit$H[pos,2]*pred[,2]
+  B$comp3=fit$H[pos,3]*pred[,3]
+  
+  plot(comp1~date, type="l", data=B, col="blue", main=paste0("Composantes pour la sonde : ", sonde))
+  lines(comp3~date, type="l", data=B, col="red")
+  lines(comp2~date, type="l", data=B, col="black")
+}
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# AFI sur les sondes du cluster 1 : db_classif_clust1 (2015) -----
+
+
+
+```{r}
+aci_data = db_classif_clust1
+
+```
+
+
+
+```{r include = F}
+set.seed(1)
+init.values<-ifa.init.random(aci_data,3)
+fit<-ifa.em(aci_data,c(2,2,2),it=50,eps=0.0001,init.values)
+pred = as.data.frame(ifa.predict(scale(aci_data),fit))
+
+B <- cbind(aci_date, pred)
+
+```
+
+
+Sources identifiées de l'AFI
+
+
+```{r}
+plot(V2~date, data=B, type='l', col='blue')
+lines(V3~date, data=B, type='l', col='red')
+lines(V1~date, data=B, type='l', col='black')
+```
+
+
+
+Composantes pour chaque sonde du cluster 1
+```{r}
+for(i in 1:ncol(aci_data)){
+  
+  B$comp1=fit$H[i,1]*pred[,1]
+  B$comp2=fit$H[i,2]*pred[,2]
+  B$comp3=fit$H[i,3]*pred[,3]
+  
+  label_i = colnames(aci_data)[i]
+  
+  plot(comp2~date, type="l", data=B, col="blue", main=paste0("Composantes pour la sonde : ", label_i))
+  lines(comp3~date, type="l", data=B, col="red")
+  lines(comp1~date, type="l", data=B, col="black")
+}
+```
+
+
+
+
+
+
+# AFI sur les sondes du cluster 1 : db_classif_clust1_bis (séries entières) -----
+
+```{r}
+aci_data = db_classif_clust1_bis
+
+```
+
+
+
+```{r include = F}
+set.seed(1)
+init.values<-ifa.init.random(aci_data,3)
+fit<-ifa.em(aci_data,c(2,2,2),it=50,eps=0.0001,init.values)
+pred = as.data.frame(ifa.predict(scale(aci_data),fit))
+
+B <- cbind(aci_date_bis, pred)
+
+```
+
+
+Composantes identifiées de l'AFI
+
+
+```{r}
+plot(V2~date, data=B, type='l', col='blue')
+lines(V3~date, data=B, type='l', col='red')
+lines(V1~date, data=B, type='l', col='black')
+```
+
+
+Composantes pour chaque sonde du cluster 1
+```{r}
+for(i in 1:ncol(aci_data)){
+  
+  B$comp1=fit$H[i,1]*pred[,1]
+  B$comp2=fit$H[i,2]*pred[,2]
+  B$comp3=fit$H[i,3]*pred[,3]
+  
+  label_i = colnames(aci_data)[i]
+  
+  plot(comp2~date, type="l", data=B, col="blue", main=paste0("Composantes pour la sonde : ", label_i))
+  lines(comp3~date, type="l", data=B, col="red")
+  lines(comp1~date, type="l", data=B, col="black")
+}
+```
+
+
+
+
+
+# AFI sur les sondes du cluster 2 : db_classif_clust2 (2015) -----
+
+
+
+```{r}
+aci_data = db_classif_clust2
+
+```
+
+
+
+```{r include = F}
+set.seed(1)
+init.values<-ifa.init.random(aci_data,3)
+fit<-ifa.em(aci_data,c(2,2,2),it=50,eps=0.0001,init.values)
+pred = as.data.frame(ifa.predict(scale(aci_data),fit))
+
+B <- cbind(aci_date, pred)
+
+```
+
+
+Sources identifiées de l'AFI
+
+
+```{r}
+plot(V3~date, data=B, type='l', col='blue')
+lines(V2~date, data=B, type='l', col='red')
+lines(V1~date, data=B, type='l', col='black')
+```
+
+
+
+Composantes pour chaque sonde du cluster 1
+```{r}
+for(i in 1:ncol(aci_data)){
+  
+  B$comp1=fit$H[i,1]*pred[,1]
+  B$comp2=fit$H[i,2]*pred[,2]
+  B$comp3=fit$H[i,3]*pred[,3]
+  
+  label_i = colnames(aci_data)[i]
+  
+  plot(comp3~date, type="l", data=B, col="blue", main=paste0("Composantes pour la sonde : ", label_i))
+  lines(comp2~date, type="l", data=B, col="red")
+  lines(comp1~date, type="l", data=B, col="black")
+}
+```
+
+
+
+
+
+
+# AFI sur les sondes du cluster 2 : db_classif_clust2_bis (séries entières) -----
+
+```{r}
+aci_data = db_classif_clust2_bis
+
+```
+
+
+
+```{r include = F}
+set.seed(1)
+init.values<-ifa.init.random(aci_data,3)
+fit<-ifa.em(aci_data,c(2,2,2),it=50,eps=0.0001,init.values)
+pred = as.data.frame(ifa.predict(scale(aci_data),fit))
+
+B <- cbind(aci_date_bis, pred)
+
+```
+
+
+Composantes identifiées de l'AFI
+
+
+```{r}
+plot(V2~date, data=B, type='l', col='blue')
+lines(V3~date, data=B, type='l', col='red')
+lines(V1~date, data=B, type='l', col='black')
+```
+
+
+Composantes pour chaque sonde du cluster 1
+```{r}
+for(i in 1:ncol(aci_data)){
+  
+  B$comp1=fit$H[i,1]*pred[,1]
+  B$comp2=fit$H[i,2]*pred[,2]
+  B$comp3=fit$H[i,3]*pred[,3]
+  
+  label_i = colnames(aci_data)[i]
+  
+  plot(comp2~date, type="l", data=B, col="blue", main=paste0("Composantes pour la sonde : ", label_i))
+  lines(comp3~date, type="l", data=B, col="red")
+  lines(comp1~date, type="l", data=B, col="black")
+}
+```
+
+
+
+
+
+
+
+
+
+
+# AFI sur les sondes du cluster 3 : db_classif_clust3 (2015) -----
+
+
+
+```{r}
+aci_data = db_classif_clust3
+
+```
+
+
+
+```{r include = F}
+set.seed(1)
+init.values<-ifa.init.random(aci_data,3)
+fit<-ifa.em(aci_data,c(2,2,2),it=50,eps=0.0001,init.values)
+pred = as.data.frame(ifa.predict(scale(aci_data),fit))
+
+B <- cbind(aci_date, pred)
+
+```
+
+
+Sources identifiées de l'AFI
+
+
+```{r}
+plot(V2~date, data=B, type='l', col='blue')
+lines(V3~date, data=B, type='l', col='red')
+lines(V1~date, data=B, type='l', col='black')
+```
+
+
+
+Composantes pour chaque sonde du cluster 1
+```{r}
+for(i in 1:ncol(aci_data)){
+  
+  B$comp1=fit$H[i,1]*pred[,1]
+  B$comp2=fit$H[i,2]*pred[,2]
+  B$comp3=fit$H[i,3]*pred[,3]
+  
+  label_i = colnames(aci_data)[i]
+  
+  plot(comp2~date, type="l", data=B, col="blue", main=paste0("Composantes pour la sonde : ", label_i))
+  lines(comp3~date, type="l", data=B, col="red")
+  lines(comp1~date, type="l", data=B, col="black")
+}
+```
+
+
+
+
+
+
+# AFI sur les sondes du cluster 3 : db_classif_clust3_bis (séries entières) -----
+
+```{r}
+aci_data = db_classif_clust3_bis
+
+```
+
+
+
+```{r include = F}
+set.seed(1)
+init.values<-ifa.init.random(aci_data,3)
+fit<-ifa.em(aci_data,c(2,2,2),it=50,eps=0.0001,init.values)
+pred = as.data.frame(ifa.predict(scale(aci_data),fit))
+
+B <- cbind(aci_date_bis, pred)
+
+```
+
+
+Composantes identifiées de l'AFI
+
+
+```{r}
+plot(V2~date, data=B, type='l', col='blue')
+lines(V3~date, data=B, type='l', col='red')
+lines(V1~date, data=B, type='l', col='black')
+```
+
+
+Composantes pour chaque sonde du cluster 1
+```{r}
+for(i in 1:ncol(aci_data)){
+  
+  B$comp1=fit$H[i,1]*pred[,1]
+  B$comp2=fit$H[i,2]*pred[,2]
+  B$comp3=fit$H[i,3]*pred[,3]
+  
+  label_i = colnames(aci_data)[i]
+  
+  plot(comp2~date, type="l", data=B, col="blue", main=paste0("Composantes pour la sonde : ", label_i))
+  lines(comp3~date, type="l", data=B, col="red")
+  lines(comp1~date, type="l", data=B, col="black")
+}
+```
+
+
+
+
+
+
+
+
+
+
+#-------------------------------------------------------------------------#
+# Troisième Classification (db_classif_moy3_a16, 3 clusters) -----
+
+Préparation des bases de données
+
+```{r include = F}
+db_classif_moy3_a = db_classif_moy3
+db_classif_moy3_a$annee = year(db_classif_moy3_a$date)
+
+# année 2015
+db_classif_moy3_a15 = db_classif_moy3_a[which(db_classif_moy3_a$annee==2015),] %>% 
+  dplyr::select(!c("annee"))
+dim(db_classif_moy3_a15)
+
+# année 2016
+db_classif_moy3_a16 = db_classif_moy3_a[which(db_classif_moy3_a$annee==2016),] %>% 
+  dplyr::select(!c("annee"))
+dim(db_classif_moy3_a16)
+
+# année 2017
+db_classif_moy3_a17 = db_classif_moy3_a[which(db_classif_moy3_a$annee==2017),] %>% 
+  dplyr::select(!c("annee"))
+dim(db_classif_moy3_a17)
+```
+
+
+
+
+
+Mise en place des paramètres pour la classification
+
+```{r include=FALSE}
+
+K <- 3 # Number of clusters
+R <- 3 # Number of regimes (polynomial regression components)
+p <- 1 # Degree of the polynomials
+q <- 1 # Order of the logistic regression (by default 1 for contiguous segmentation)
+variance_type <- "heteroskedastic" # "heteroskedastic" or "homoskedastic" model
+
+n_tries <- 1
+max_iter <- 1000
+threshold <- 1e-5
+verbose <- TRUE
+verbose_IRLS <- FALSE
+init_kmeans <- TRUE
+
+```
+
+
+Classification pour année 2016 : db_classif_moy3_a16
+
+```{r include=TRUE}
+
+set.seed(1)
+
+Y <- t(db_classif_moy3_a16[,2:ncol(db_classif_moy3_a16)])
+x <-as.numeric(1:nrow(db_classif_moy3_a16))
+
+mixrhlp <- emMixRHLP(X = x, Y = Y, K, R, p, q, variance_type, init_kmeans, 
+                     n_tries, max_iter, threshold, verbose, verbose_IRLS)
+
+mixrhlp$plot()
+
+table(mixrhlp$stat$klas)
+
+```
+
+
+Résultat dans une db
+
+```{r include = F}
+res = data.frame(cluster=mixrhlp$stat$klas)
+res$id_sonde = as.numeric(rownames(Y))
+
+for(id_s in unique(res$id_sonde)){
+  res[which(res$id_sonde == id_s),"longitude"] = db_sonde_synthese[which(db_sonde_synthese$id_sonde == id_s),]$longitude
+  res[which(res$id_sonde == id_s),"latitude"] = db_sonde_synthese[which(db_sonde_synthese$id_sonde == id_s),]$latitude
+}
+
+res_clust1 = res[which(res$cluster == 1),]
+res_clust2 = res[which(res$cluster == 2),]
+res_clust3 = res[which(res$cluster == 3),]
+
+vec_col_res = c("blue", "red", "green")
+
+```
+
+Affichage sur une carte
+
+```{r}
+leaflet() %>%
+  addTiles() %>%
+  addAwesomeMarkers(data = res_clust1, 
+                    lng=res_clust1$longitude,lat=res_clust1$latitude,
+                    layerId = res_clust1$id_sonde, group=paste0("Cluster",res_clust1$cluster),
+                    icon=makeAwesomeIcon(icon='tint', library='glyphicon',
+                                         iconColor = 'white', markerColor = vec_col_res[1]), 
+                    popup = paste0("sonde : ", res_clust1$id_sonde)) %>%
+  addAwesomeMarkers(data = res_clust2, 
+                    lng=res_clust2$longitude,lat=res_clust2$latitude,
+                    layerId = res_clust2$id_sonde, group=paste0("Cluster",res_clust2$cluster),
+                    icon=makeAwesomeIcon(icon='tint', library='glyphicon',
+                                         iconColor = 'white', markerColor = vec_col_res[2]),
+                    popup = paste0("sonde : ", res_clust2$id_sonde)) %>%
+  addAwesomeMarkers(data = res_clust3, 
+                    lng=res_clust3$longitude,lat=res_clust3$latitude,
+                    layerId = res_clust3$id_sonde, group=paste0("Cluster",res_clust3$cluster),
+                    icon=makeAwesomeIcon(icon='tint', library='glyphicon',
+                                         iconColor = 'white', markerColor = vec_col_res[3]),
+                    popup = paste0("sonde : ", res_clust3$id_sonde))
+```
+
+
+
+# Préparation des données pour l'ACI par cluster -----
+
+```{r}
+
+db_classif_clust1 = db_classif_moy3_a16 %>% 
+  dplyr::select(as.character(res[which(res$cluster==1),]$id_sonde))
+
+db_classif_clust2 = db_classif_moy3_a16 %>% 
+  dplyr::select(as.character(res[which(res$cluster==2),]$id_sonde))
+
+db_classif_clust3 = db_classif_moy3_a16 %>% 
+  dplyr::select(as.character(res[which(res$cluster==3),]$id_sonde))
+
+
+db_classif_clust1_bis = db_classif_moy3 %>% 
+  dplyr::select(as.character(res[which(res$cluster==1),]$id_sonde))
+
+db_classif_clust2_bis = db_classif_moy3 %>% 
+  dplyr::select(as.character(res[which(res$cluster==2),]$id_sonde))
+
+db_classif_clust3_bis = db_classif_moy3 %>% 
+  dplyr::select(as.character(res[which(res$cluster==3),]$id_sonde))
+
+
+```
+
+
+
+
+
+# ACI sur toutes les sondes (db_classif_moy3, 3 sources) (séries entières) -----
+
+```{r}
+aci_date = db_classif_moy3 %>%
+  dplyr::select(c("date"))
+
+aci_data = db_classif_moy3 %>%
+  dplyr::select(!c("date"))
+
+```
+
+On recherche de 3 signaux/sources indépendants 
+
+```{r include = F}
+set.seed(1)
+a <- fastICA(aci_data, 3, alg.typ = "parallel", fun = "logcosh", alpha = 1,
+             method = "R", row.norm = FALSE, maxit = 200,
+             tol = 0.0001, verbose = TRUE)
+
+
+#a$A
+#a$S #permet d'avoir les sources
+A<-data.frame(a$S) #Création d'une dataframe
+
+B<-cbind(aci_date, A) 
+
+```
+
+
+Sources estimées par l'ACI
+
+
+```{r}
+plot(X3~date, type="l", data=B, col="blue", main="Sources estimées")
+lines(X1~date, type="l", data=B, col="red")
+lines(X2~date, type="l", data=B, col="black")
+```
+
+
+
+
+
+
+```{r}
+pos_sonde_aci = data.frame(pos_sonde = c(1:(ncol(db_classif_moy3)-1)), id_sonde = colnames(db_classif_moy3[,2:ncol(db_classif_moy3)]))
+```
+
+```{r}
+vec_clust1 = colnames(db_classif_clust1)
+vec_clust2 = colnames(db_classif_clust2)
+vec_clust3 = colnames(db_classif_clust3)
+```
+
+
+Composantes pour le cluster 1
+```{r}
+for(sonde in vec_clust1){
+  pos = pos_sonde_aci[which(pos_sonde_aci$id_sonde==sonde),]$pos_sonde
+  B$comp1=a$A[1,pos]*a$S[,1]
+  B$comp2=a$A[2,pos]*a$S[,2]
+  B$comp3=a$A[3,pos]*a$S[,3]
+  
+  plot(comp3~date, type="l", data=B, col="blue", main=paste0("Composantes pour la sonde : ", sonde))
+  lines(comp1~date, type="l", data=B, col="red")
+  lines(comp2~date, type="l", data=B, col="black")
+}
+```
+
+
+Composantes pour le cluster 2
+```{r}
+for(sonde in vec_clust2){
+  pos = pos_sonde_aci[which(pos_sonde_aci$id_sonde==sonde),]$pos_sonde
+  B$comp1=a$A[1,pos]*a$S[,1]
+  B$comp2=a$A[2,pos]*a$S[,2]
+  B$comp3=a$A[3,pos]*a$S[,3]
+  
+  plot(comp3~date, type="l", data=B, col="blue", main=paste0("Composantes pour la sonde : ", sonde))
+  lines(comp1~date, type="l", data=B, col="red")
+  lines(comp2~date, type="l", data=B, col="black")
+}
+```
+
+Composantes pour le cluster 3
+```{r}
+for(sonde in vec_clust3){
+  pos = pos_sonde_aci[which(pos_sonde_aci$id_sonde==sonde),]$pos_sonde
+  B$comp1=a$A[1,pos]*a$S[,1]
+  B$comp2=a$A[2,pos]*a$S[,2]
+  B$comp3=a$A[3,pos]*a$S[,3]
+  
+  plot(comp3~date, type="l", data=B, col="blue", main=paste0("Composantes pour la sonde : ", sonde))
+  lines(comp1~date, type="l", data=B, col="red")
+  lines(comp2~date, type="l", data=B, col="black")
+}
+```
+
+
+
+
+
+
+
+
+
+
+
+# ACI sur toutes les sondes (db_classif_moy3_a16, 3 sources) (2016) -----
+
+```{r}
+aci_date = db_classif_moy3_a16 %>%
+  dplyr::select(c("date"))
+
+aci_date_bis = db_classif_moy3 %>%
+  dplyr::select(c("date"))
+
+aci_data = db_classif_moy3_a16 %>%
+  dplyr::select(!c("date"))
+
+```
+
+
+
+```{r include = F}
+set.seed(1)
+a <- fastICA(aci_data, 3, alg.typ = "parallel", fun = "logcosh", alpha = 1,
+             method = "R", row.norm = FALSE, maxit = 200,
+             tol = 0.0001, verbose = TRUE)
+
+
+#a$A
+#a$S #permet d'avoir les sources
+A<-data.frame(a$S) #Création d'une dataframe
+
+B<-cbind(aci_date, A) 
+
+
+```
+
+
+Sources identifiées de l'ACI
+
+
+```{r}
+plot(X3~date, type="l", data=B, col="blue", main="Sources estimées")
+lines(X1~date, type="l", data=B, col="red")
+lines(X2~date, type="l", data=B, col="black")
+```
+
+
+
+Composantes pour le cluster 1
+```{r}
+for(sonde in vec_clust1){
+  pos = pos_sonde_aci[which(pos_sonde_aci$id_sonde==sonde),]$pos_sonde
+  B$comp1=a$A[1,pos]*a$S[,1]
+  B$comp2=a$A[2,pos]*a$S[,2]
+  B$comp3=a$A[3,pos]*a$S[,3]
+  
+  plot(comp3~date, type="l", data=B, col="blue", main=paste0("Composantes pour la sonde : ", sonde))
+  lines(comp1~date, type="l", data=B, col="red")
+  lines(comp2~date, type="l", data=B, col="black")
+}
+```
+
+
+Composantes pour le cluster 2
+```{r}
+for(sonde in vec_clust2){
+  pos = pos_sonde_aci[which(pos_sonde_aci$id_sonde==sonde),]$pos_sonde
+  B$comp1=a$A[1,pos]*a$S[,1]
+  B$comp2=a$A[2,pos]*a$S[,2]
+  B$comp3=a$A[3,pos]*a$S[,3]
+  
+  plot(comp3~date, type="l", data=B, col="blue", main=paste0("Composantes pour la sonde : ", sonde))
+  lines(comp1~date, type="l", data=B, col="red")
+  lines(comp2~date, type="l", data=B, col="black")
+}
+```
+
+
+Composantes pour le cluster 3
+```{r}
+for(sonde in vec_clust3){
+  pos = pos_sonde_aci[which(pos_sonde_aci$id_sonde==sonde),]$pos_sonde
+  B$comp1=a$A[1,pos]*a$S[,1]
+  B$comp2=a$A[2,pos]*a$S[,2]
+  B$comp3=a$A[3,pos]*a$S[,3]
+  
+  plot(comp3~date, type="l", data=B, col="blue", main=paste0("Composantes pour la sonde : ", sonde))
+  lines(comp1~date, type="l", data=B, col="red")
+  lines(comp2~date, type="l", data=B, col="black")
+}
+```
+
+
+
+
+
+
+
+
+
+# ACI sur les sondes du cluster 1 : db_classif_clust1 (2016) -----
+
+```{r}
+aci_data = db_classif_clust1
+```
+
+
+```{r include = F}
+set.seed(1)
+a <- fastICA(aci_data, 3, alg.typ = "parallel", fun = "logcosh", alpha = 1,
+             method = "R", row.norm = FALSE, maxit = 200,
+             tol = 0.0001, verbose = TRUE)
+
+
+#a$A
+#a$S #permet d'avoir les sources
+A<-data.frame(a$S) #Création d'une dataframe
+
+B<-cbind(aci_date, A) 
+
+
+```
+
+
+Signaux identifiées de l'ACI : cluster 1
+
+```{r}
+plot(X2~date, type="l", data=B, col="blue", main="Signaux estimés")
+lines(X1~date, type="l", data=B, col="red")
+lines(X3~date, type="l", data=B, col="black")
+
+```
+
+Composantes pour chaque sonde du cluster 1
+```{r}
+for(i in 1:ncol(aci_data)){
+  B$comp1=a$A[1,i]*a$S[,1]
+  B$comp2=a$A[2,i]*a$S[,2]
+  B$comp3=a$A[3,i]*a$S[,3]
+  
+  label_i = colnames(aci_data)[i]
+  
+  plot(comp2~date, type="l", data=B, col="blue", main=paste0("Composantes pour la sonde : ", label_i))
+  lines(comp1~date, type="l", data=B, col="red")
+  lines(comp3~date, type="l", data=B, col="black")
+}
+```
+
+
+
+# ACI sur les sondes du cluster 1 : db_classif_clust1 (séries entières) -----
+
+```{r}
+aci_data = db_classif_clust1_bis
+```
+
+
+```{r include = F}
+set.seed(1)
+a <- fastICA(aci_data, 3, alg.typ = "parallel", fun = "logcosh", alpha = 1,
+             method = "R", row.norm = FALSE, maxit = 200,
+             tol = 0.0001, verbose = TRUE)
+
+
+#a$A
+#a$S #permet d'avoir les sources
+A<-data.frame(a$S) #Création d'une dataframe
+
+B<-cbind(aci_date_bis, A) 
+
+
+B$comp1=a$A[1,1]*a$S[,1]
+B$comp2=a$A[2,1]*a$S[,2]
+B$comp3=a$A[3,1]*a$S[,3]
+
+```
+
+
+Signaux identifiées de l'ACI : cluster 1
+
+```{r}
+plot(X1~date, type="l", data=B, col="blue", main="Signaux estimés")
+lines(X3~date, type="l", data=B, col="red")
+lines(X2~date, type="l", data=B, col="black")
+
+```
+
+
+
+Composantes pour chaque sonde du cluster 1
+```{r}
+for(i in 1:ncol(aci_data)){
+  B$comp1=a$A[1,i]*a$S[,1]
+  B$comp2=a$A[2,i]*a$S[,2]
+  B$comp3=a$A[3,i]*a$S[,3]
+  
+  label_i = colnames(aci_data)[i]
+  
+  plot(comp1~date, type="l", data=B, col="blue", main=paste0("Composantes pour la sonde : ", label_i))
+  lines(comp3~date, type="l", data=B, col="red")
+  lines(comp2~date, type="l", data=B, col="black")
+}
+```
+
+
+
+# ACI sur les sondes du cluster 2 : db_classif_clust2 (2016) -----
+
+```{r}
+aci_data = db_classif_clust2
+```
+
+
+```{r include = F}
+set.seed(1)
+a <- fastICA(aci_data, 3, alg.typ = "parallel", fun = "logcosh", alpha = 1,
+             method = "R", row.norm = FALSE, maxit = 200,
+             tol = 0.0001, verbose = TRUE)
+
+
+#a$A
+#a$S #permet d'avoir les sources
+A<-data.frame(a$S) #Création d'une dataframe
+
+B<-cbind(aci_date, A) 
+
+
+```
+
+
+Signaux identifiées de l'ACI : cluster 2
+
+```{r}
+plot(X1~date, type="l", data=B, col="blue", main="Signaux estimés")
+lines(X3~date, type="l", data=B, col="red")
+lines(X2~date, type="l", data=B, col="black")
+
+```
+
+Composantes pour chaque sonde du cluster 2
+```{r}
+for(i in 1:ncol(aci_data)){
+  B$comp1=a$A[1,i]*a$S[,1]
+  B$comp2=a$A[2,i]*a$S[,2]
+  B$comp3=a$A[3,i]*a$S[,3]
+  
+  label_i = colnames(aci_data)[i]
+  
+  plot(comp1~date, type="l", data=B, col="blue", main=paste0("Composantes pour la sonde : ", label_i))
+  lines(comp3~date, type="l", data=B, col="red")
+  lines(comp2~date, type="l", data=B, col="black")
+}
+```
+
+
+
+# ACI sur les sondes du cluster 2 : db_classif_clust2 (séries entières) -----
+
+```{r}
+aci_data = db_classif_clust2_bis
+```
+
+
+```{r include = F}
+set.seed(1)
+a <- fastICA(aci_data, 3, alg.typ = "parallel", fun = "logcosh", alpha = 1,
+             method = "R", row.norm = FALSE, maxit = 200,
+             tol = 0.0001, verbose = TRUE)
+
+
+#a$A
+#a$S #permet d'avoir les sources
+A<-data.frame(a$S) #Création d'une dataframe
+
+B<-cbind(aci_date_bis, A) 
+
+
+```
+
+
+Signaux identifiées de l'ACI : cluster 2
+
+```{r}
+plot(X3~date, type="l", data=B, col="blue", main="Signaux estimés")
+lines(X1~date, type="l", data=B, col="red")
+lines(X2~date, type="l", data=B, col="black")
+
+```
+
+
+
+Composantes pour chaque sonde du cluster 2
+```{r}
+for(i in 1:ncol(aci_data)){
+  B$comp1=a$A[1,i]*a$S[,1]
+  B$comp2=a$A[2,i]*a$S[,2]
+  B$comp3=a$A[3,i]*a$S[,3]
+  
+  label_i = colnames(aci_data)[i]
+  
+  plot(comp3~date, type="l", data=B, col="blue", main=paste0("Composantes pour la sonde : ", label_i))
+  lines(comp1~date, type="l", data=B, col="red")
+  lines(comp2~date, type="l", data=B, col="black")
+}
+```
+
+
+
+# ACI sur les sondes du cluster 3 : db_classif_clust3 (2016) -----
+
+```{r}
+aci_data = db_classif_clust3
+```
+
+
+```{r include = F}
+set.seed(1)
+a <- fastICA(aci_data, 3, alg.typ = "parallel", fun = "logcosh", alpha = 1,
+             method = "R", row.norm = FALSE, maxit = 200,
+             tol = 0.0001, verbose = TRUE)
+
+
+#a$A
+#a$S #permet d'avoir les sources
+A<-data.frame(a$S) #Création d'une dataframe
+
+B<-cbind(aci_date, A) 
+
+
+```
+
+
+Signaux identifiées de l'ACI : cluster 3
+
+```{r}
+plot(X1~date, type="l", data=B, col="blue", main="Signaux estimés")
+lines(X2~date, type="l", data=B, col="red")
+lines(X3~date, type="l", data=B, col="black")
+
+```
+
+Composantes pour chaque sonde du cluster 3
+```{r}
+for(i in 1:ncol(aci_data)){
+  B$comp1=a$A[1,i]*a$S[,1]
+  B$comp2=a$A[2,i]*a$S[,2]
+  B$comp3=a$A[3,i]*a$S[,3]
+  
+  label_i = colnames(aci_data)[i]
+  
+  plot(comp1~date, type="l", data=B, col="blue", main=paste0("Composantes pour la sonde : ", label_i))
+  lines(comp2~date, type="l", data=B, col="red")
+  lines(comp3~date, type="l", data=B, col="black")
+}
+```
+
+
+
+# ACI sur les sondes du cluster 3 : db_classif_clust3 (séries entières) -----
+
+```{r}
+aci_data = db_classif_clust3_bis
+```
+
+
+```{r include = F}
+set.seed(1)
+a <- fastICA(aci_data, 3, alg.typ = "parallel", fun = "logcosh", alpha = 1,
+             method = "R", row.norm = FALSE, maxit = 200,
+             tol = 0.0001, verbose = TRUE)
+
+
+#a$A
+#a$S #permet d'avoir les sources
+A<-data.frame(a$S) #Création d'une dataframe
+
+B<-cbind(aci_date_bis, A) 
+
+
+B$comp1=a$A[1,1]*a$S[,1]
+B$comp2=a$A[2,1]*a$S[,2]
+B$comp3=a$A[3,1]*a$S[,3]
+
+```
+
+
+Signaux identifiées de l'ACI : cluster 3
+
+```{r}
+plot(X1~date, type="l", data=B, col="blue", main="Signaux estimés")
+lines(X3~date, type="l", data=B, col="red")
+lines(X2~date, type="l", data=B, col="black")
+
+```
+
+
+
+Composantes pour chaque sonde du cluster 3
+```{r}
+for(i in 1:ncol(aci_data)){
+  B$comp1=a$A[1,i]*a$S[,1]
+  B$comp2=a$A[2,i]*a$S[,2]
+  B$comp3=a$A[3,i]*a$S[,3]
+  
+  label_i = colnames(aci_data)[i]
+  
+  plot(comp1~date, type="l", data=B, col="blue", main=paste0("Composantes pour la sonde : ", label_i))
+  lines(comp3~date, type="l", data=B, col="red")
+  lines(comp2~date, type="l", data=B, col="black")
+}
+```
+
+
+
+
+
+
+
+
+
+# AFI sur toutes les sondes (db_classif_moy3, 3 sources) (séries entières) -----
+
+```{r}
+aci_date = db_classif_moy3 %>%
+  dplyr::select(c("date"))
+
+aci_data = db_classif_moy3 %>%
+  dplyr::select(!c("date"))
+
+```
+
+
+
+```{r include = F}
+set.seed(1)
+init.values<-ifa.init.random(aci_data,3)
+fit<-ifa.em(aci_data,c(2,2,2),it=50,eps=0.0001,init.values)
+pred = as.data.frame(ifa.predict(scale(aci_data),fit))
+
+B <- cbind(aci_date, pred)
+
+
+```
+
+
+Sources identifiées de l'AFI
+
+
+```{r}
+plot(V1~date, data=B, type='l', col='blue', main="Sources estimées")
+lines(V3~date, data=B, type='l', col='red')
+lines(V2~date, data=B, type='l', col='black')
+```
+
+
+
+
+
+
+```{r}
+pos_sonde_aci = data.frame(pos_sonde = c(1:(ncol(db_classif_moy3)-1)), id_sonde = colnames(db_classif_moy3[,2:ncol(db_classif_moy3)]))
+```
+
+```{r}
+vec_clust1 = colnames(db_classif_clust1)
+vec_clust2 = colnames(db_classif_clust2)
+vec_clust3 = colnames(db_classif_clust3)
+```
+
+
+Composantes pour chaque sonde du cluster 1
+```{r}
+for(sonde in vec_clust1){
+  pos = pos_sonde_aci[which(pos_sonde_aci$id_sonde==sonde),]$pos_sonde
+  
+  
+  B$comp1=fit$H[pos,1]*pred[,1]
+  B$comp2=fit$H[pos,2]*pred[,2]
+  B$comp3=fit$H[pos,3]*pred[,3]
+  
+  
+  plot(comp1~date, type="l", data=B, col="blue", main=paste0("Composantes pour la sonde : ", sonde))
+  lines(comp3~date, type="l", data=B, col="red")
+  lines(comp2~date, type="l", data=B, col="black")
+}
+```
+
+
+
+Composantes pour chaque sonde du cluster 2
+```{r}
+for(sonde in vec_clust2){
+  pos = pos_sonde_aci[which(pos_sonde_aci$id_sonde==sonde),]$pos_sonde
+  
+  
+  B$comp1=fit$H[pos,1]*pred[,1]
+  B$comp2=fit$H[pos,2]*pred[,2]
+  B$comp3=fit$H[pos,3]*pred[,3]
+  
+  
+  plot(comp1~date, type="l", data=B, col="blue", main=paste0("Composantes pour la sonde : ", sonde))
+  lines(comp3~date, type="l", data=B, col="red")
+  lines(comp2~date, type="l", data=B, col="black")
+}
+```
+
+
+
+Composantes pour chaque sonde du cluster 3
+```{r}
+for(sonde in vec_clust3){
+  pos = pos_sonde_aci[which(pos_sonde_aci$id_sonde==sonde),]$pos_sonde
+  
+  
+  B$comp1=fit$H[pos,1]*pred[,1]
+  B$comp2=fit$H[pos,2]*pred[,2]
+  B$comp3=fit$H[pos,3]*pred[,3]
+  
+  
+  plot(comp1~date, type="l", data=B, col="blue", main=paste0("Composantes pour la sonde : ", sonde))
+  lines(comp3~date, type="l", data=B, col="red")
+  lines(comp2~date, type="l", data=B, col="black")
+}
+```
+
+
+
+
+
+
+
+
+# AFI sur toutes les sondes (db_classif_moy3_a16, 3 sources) (2016) -----
+
+```{r}
+aci_date = db_classif_moy3_a16 %>%
+  dplyr::select(c("date"))
+
+aci_data = db_classif_moy3_a16 %>%
+  dplyr::select(!c("date"))
+
+```
+
+
+
+```{r include = F}
+set.seed(1)
+init.values<-ifa.init.random(aci_data,3)
+fit<-ifa.em(aci_data,c(2,2,2),it=50,eps=0.0001,init.values)
+pred = as.data.frame(ifa.predict(scale(aci_data),fit))
+
+B <- cbind(aci_date, pred)
+
+
+```
+
+
+Sources identifiées de l'AFI
+
+
+```{r}
+plot(V1~date, data=B, type='l', col='blue', main="Sources estimées")
+lines(V3~date, data=B, type='l', col='red')
+lines(V2~date, data=B, type='l', col='black')
+```
+
+
+
+
+
+
+```{r}
+pos_sonde_aci = data.frame(pos_sonde = c(1:(ncol(db_classif_moy3)-1)), id_sonde = colnames(db_classif_moy3[,2:ncol(db_classif_moy3)]))
+```
+
+```{r}
+vec_clust1 = colnames(db_classif_clust1)
+vec_clust2 = colnames(db_classif_clust2)
+vec_clust3 = colnames(db_classif_clust3)
+```
+
+
+Composantes pour chaque sonde du cluster 1
+```{r}
+for(sonde in vec_clust1){
+  pos = pos_sonde_aci[which(pos_sonde_aci$id_sonde==sonde),]$pos_sonde
+  
+  
+  B$comp1=fit$H[pos,1]*pred[,1]
+  B$comp2=fit$H[pos,2]*pred[,2]
+  B$comp3=fit$H[pos,3]*pred[,3]
+  
+  
+  plot(comp1~date, type="l", data=B, col="blue", main=paste0("Composantes pour la sonde : ", sonde))
+  lines(comp3~date, type="l", data=B, col="red")
+  lines(comp2~date, type="l", data=B, col="black")
+}
+```
+
+
+
+Composantes pour chaque sonde du cluster 2
+```{r}
+for(sonde in vec_clust2){
+  pos = pos_sonde_aci[which(pos_sonde_aci$id_sonde==sonde),]$pos_sonde
+  
+  
+  B$comp1=fit$H[pos,1]*pred[,1]
+  B$comp2=fit$H[pos,2]*pred[,2]
+  B$comp3=fit$H[pos,3]*pred[,3]
+  
+  
+  plot(comp1~date, type="l", data=B, col="blue", main=paste0("Composantes pour la sonde : ", sonde))
+  lines(comp3~date, type="l", data=B, col="red")
+  lines(comp2~date, type="l", data=B, col="black")
+}
+```
+
+
+
+Composantes pour chaque sonde du cluster 3
+```{r}
+for(sonde in vec_clust3){
+  pos = pos_sonde_aci[which(pos_sonde_aci$id_sonde==sonde),]$pos_sonde
+  
+  
+  B$comp1=fit$H[pos,1]*pred[,1]
+  B$comp2=fit$H[pos,2]*pred[,2]
+  B$comp3=fit$H[pos,3]*pred[,3]
+  
+  plot(comp1~date, type="l", data=B, col="blue", main=paste0("Composantes pour la sonde : ", sonde))
+  lines(comp3~date, type="l", data=B, col="red")
+  lines(comp2~date, type="l", data=B, col="black")
+}
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# AFI sur les sondes du cluster 1 : db_classif_clust1 (2016) -----
+
+
+
+```{r}
+aci_data = db_classif_clust1
+
+```
+
+
+
+```{r include = F}
+set.seed(1)
+init.values<-ifa.init.random(aci_data,3)
+fit<-ifa.em(aci_data,c(2,2,2),it=50,eps=0.0001,init.values)
+pred = as.data.frame(ifa.predict(scale(aci_data),fit))
+
+B <- cbind(aci_date, pred)
+
+```
+
+
+Sources identifiées de l'AFI
+
+
+```{r}
+plot(V1~date, data=B, type='l', col='blue')
+lines(V3~date, data=B, type='l', col='red')
+lines(V2~date, data=B, type='l', col='black')
+```
+
+
+
+Composantes pour chaque sonde du cluster 1
+```{r}
+for(i in 1:ncol(aci_data)){
+  
+  B$comp1=fit$H[i,1]*pred[,1]
+  B$comp2=fit$H[i,2]*pred[,2]
+  B$comp3=fit$H[i,3]*pred[,3]
+  
+  label_i = colnames(aci_data)[i]
+  
+  plot(comp1~date, type="l", data=B, col="blue", main=paste0("Composantes pour la sonde : ", label_i))
+  lines(comp3~date, type="l", data=B, col="red")
+  lines(comp2~date, type="l", data=B, col="black")
+}
+```
+
+
+
+
+
+
+# AFI sur les sondes du cluster 1 : db_classif_clust1_bis (séries entières) -----
+
+```{r}
+aci_data = db_classif_clust1_bis
+
+```
+
+
+
+```{r include = F}
+set.seed(1)
+init.values<-ifa.init.random(aci_data,3)
+fit<-ifa.em(aci_data,c(2,2,2),it=50,eps=0.0001,init.values)
+pred = as.data.frame(ifa.predict(scale(aci_data),fit))
+
+B <- cbind(aci_date_bis, pred)
+
+```
+
+
+Composantes identifiées de l'AFI
+
+
+```{r}
+plot(V1~date, data=B, type='l', col='blue')
+lines(V3~date, data=B, type='l', col='red')
+lines(V2~date, data=B, type='l', col='black')
+```
+
+
+Composantes pour chaque sonde du cluster 1
+```{r}
+for(i in 1:ncol(aci_data)){
+  
+  B$comp1=fit$H[i,1]*pred[,1]
+  B$comp2=fit$H[i,2]*pred[,2]
+  B$comp3=fit$H[i,3]*pred[,3]
+  
+  label_i = colnames(aci_data)[i]
+  
+  plot(comp1~date, type="l", data=B, col="blue", main=paste0("Composantes pour la sonde : ", label_i))
+  lines(comp3~date, type="l", data=B, col="red")
+  lines(comp2~date, type="l", data=B, col="black")
+}
+```
+
+
+
+
+
+# AFI sur les sondes du cluster 2 : db_classif_clust2 (2016) -----
+
+
+
+```{r}
+aci_data = db_classif_clust2
+
+```
+
+
+
+```{r include = F}
+set.seed(1)
+init.values<-ifa.init.random(aci_data,3)
+fit<-ifa.em(aci_data,c(2,2,2),it=50,eps=0.0001,init.values)
+pred = as.data.frame(ifa.predict(scale(aci_data),fit))
+
+B <- cbind(aci_date, pred)
+
+```
+
+
+Sources identifiées de l'AFI
+
+
+```{r}
+plot(V1~date, data=B, type='l', col='blue')
+lines(V3~date, data=B, type='l', col='red')
+lines(V2~date, data=B, type='l', col='black')
+```
+
+
+
+Composantes pour chaque sonde du cluster 1
+```{r}
+for(i in 1:ncol(aci_data)){
+  
+  B$comp1=fit$H[i,1]*pred[,1]
+  B$comp2=fit$H[i,2]*pred[,2]
+  B$comp3=fit$H[i,3]*pred[,3]
+  
+  label_i = colnames(aci_data)[i]
+  
+  plot(comp1~date, type="l", data=B, col="blue", main=paste0("Composantes pour la sonde : ", label_i))
+  lines(comp3~date, type="l", data=B, col="red")
+  lines(comp2~date, type="l", data=B, col="black")
+}
+```
+
+
+
+
+
+
+# AFI sur les sondes du cluster 2 : db_classif_clust2_bis (séries entières) -----
+
+```{r}
+aci_data = db_classif_clust2_bis
+
+```
+
+
+
+```{r include = F}
+set.seed(1)
+init.values<-ifa.init.random(aci_data,3)
+fit<-ifa.em(aci_data,c(2,2,2),it=50,eps=0.0001,init.values)
+pred = as.data.frame(ifa.predict(scale(aci_data),fit))
+
+B <- cbind(aci_date_bis, pred)
+
+```
+
+
+Composantes identifiées de l'AFI
+
+
+```{r}
+plot(V1~date, data=B, type='l', col='blue')
+lines(V3~date, data=B, type='l', col='red')
+lines(V2~date, data=B, type='l', col='black')
+```
+
+
+Composantes pour chaque sonde du cluster 1
+```{r}
+for(i in 1:ncol(aci_data)){
+  
+  B$comp1=fit$H[i,1]*pred[,1]
+  B$comp2=fit$H[i,2]*pred[,2]
+  B$comp3=fit$H[i,3]*pred[,3]
+  
+  label_i = colnames(aci_data)[i]
+  
+  plot(comp1~date, type="l", data=B, col="blue", main=paste0("Composantes pour la sonde : ", label_i))
+  lines(comp3~date, type="l", data=B, col="red")
+  lines(comp2~date, type="l", data=B, col="black")
+}
+```
+
+
+
+
+
+
+
+
+
+
+# AFI sur les sondes du cluster 3 : db_classif_clust3 (2016) -----
+
+
+
+```{r}
+aci_data = db_classif_clust3
+
+```
+
+
+
+```{r include = F}
+set.seed(1)
+init.values<-ifa.init.random(aci_data,3)
+fit<-ifa.em(aci_data,c(2,2,2),it=50,eps=0.0001,init.values)
+pred = as.data.frame(ifa.predict(scale(aci_data),fit))
+
+B <- cbind(aci_date, pred)
+
+```
+
+
+Sources identifiées de l'AFI
+
+
+```{r}
+plot(V3~date, data=B, type='l', col='blue')
+lines(V2~date, data=B, type='l', col='red')
+lines(V1~date, data=B, type='l', col='black')
+```
+
+
+
+Composantes pour chaque sonde du cluster 1
+```{r}
+for(i in 1:ncol(aci_data)){
+  
+  B$comp1=fit$H[i,1]*pred[,1]
+  B$comp2=fit$H[i,2]*pred[,2]
+  B$comp3=fit$H[i,3]*pred[,3]
+  
+  label_i = colnames(aci_data)[i]
+  
+  plot(comp3~date, type="l", data=B, col="blue", main=paste0("Composantes pour la sonde : ", label_i))
+  lines(comp2~date, type="l", data=B, col="red")
+  lines(comp1~date, type="l", data=B, col="black")
+}
+
+
+```
+
+
+
+
+
+
+# AFI sur les sondes du cluster 3 : db_classif_clust3_bis (séries entières) -----
+
+```{r}
+aci_data = db_classif_clust3_bis
+
+```
+
+
+
+```{r include = F}
+set.seed(1)
+init.values<-ifa.init.random(aci_data,3)
+fit<-ifa.em(aci_data,c(2,2,2),it=50,eps=0.0001,init.values)
+pred = as.data.frame(ifa.predict(scale(aci_data),fit))
+
+B <- cbind(aci_date_bis, pred)
+
+```
+
+
+Composantes identifiées de l'AFI
+
+
+```{r}
+plot(V3~date, data=B, type='l', col='blue')
+lines(V1~date, data=B, type='l', col='red')
+lines(V2~date, data=B, type='l', col='black')
+```
+
+
+Composantes pour chaque sonde du cluster 1
+```{r}
+for(i in 1:ncol(aci_data)){
+  
+  B$comp1=fit$H[i,1]*pred[,1]
+  B$comp2=fit$H[i,2]*pred[,2]
+  B$comp3=fit$H[i,3]*pred[,3]
+  
+  label_i = colnames(aci_data)[i]
+  
+  plot(comp3~date, type="l", data=B, col="blue", main=paste0("Composantes pour la sonde : ", label_i))
+  lines(comp1~date, type="l", data=B, col="red")
+  lines(comp2~date, type="l", data=B, col="black")
+}
+```
+
+
+
+
+
+
+
+
+
+
+#-------------------------------------------------------------------------#
+# Quatrième Classification (db_classif_moy3_a17, 3 clusters) -----
+
+Préparation des bases de données
+
+```{r include = F}
+db_classif_moy3_a = db_classif_moy3
+db_classif_moy3_a$annee = year(db_classif_moy3_a$date)
+
+# année 2015
+db_classif_moy3_a15 = db_classif_moy3_a[which(db_classif_moy3_a$annee==2015),] %>% 
+  dplyr::select(!c("annee"))
+dim(db_classif_moy3_a15)
+
+# année 2016
+db_classif_moy3_a16 = db_classif_moy3_a[which(db_classif_moy3_a$annee==2016),] %>% 
+  dplyr::select(!c("annee"))
+dim(db_classif_moy3_a16)
+
+# année 2017
+db_classif_moy3_a17 = db_classif_moy3_a[which(db_classif_moy3_a$annee==2017),] %>% 
+  dplyr::select(!c("annee"))
+dim(db_classif_moy3_a17)
+```
+
+
+
+
+
+Mise en place des paramètres pour la classification
+
+```{r include=FALSE}
+
+K <- 3 # Number of clusters
+R <- 3 # Number of regimes (polynomial regression components)
+p <- 1 # Degree of the polynomials
+q <- 1 # Order of the logistic regression (by default 1 for contiguous segmentation)
+variance_type <- "heteroskedastic" # "heteroskedastic" or "homoskedastic" model
+
+n_tries <- 1
+max_iter <- 1000
+threshold <- 1e-5
+verbose <- TRUE
+verbose_IRLS <- FALSE
+init_kmeans <- TRUE
+
+```
+
+
+Classification pour année 2016 : db_classif_moy3_a17
+
+```{r include=TRUE}
+
+set.seed(1)
+
+Y <- t(db_classif_moy3_a17[,2:ncol(db_classif_moy3_a17)])
+x <-as.numeric(1:nrow(db_classif_moy3_a17))
+
+mixrhlp <- emMixRHLP(X = x, Y = Y, K, R, p, q, variance_type, init_kmeans, 
+                     n_tries, max_iter, threshold, verbose, verbose_IRLS)
+
+mixrhlp$plot()
+
+table(mixrhlp$stat$klas)
+
+```
+
+
+Résultat dans une db
+
+```{r include = F}
+res = data.frame(cluster=mixrhlp$stat$klas)
+res$id_sonde = as.numeric(rownames(Y))
+
+for(id_s in unique(res$id_sonde)){
+  res[which(res$id_sonde == id_s),"longitude"] = db_sonde_synthese[which(db_sonde_synthese$id_sonde == id_s),]$longitude
+  res[which(res$id_sonde == id_s),"latitude"] = db_sonde_synthese[which(db_sonde_synthese$id_sonde == id_s),]$latitude
+}
+
+res_clust1 = res[which(res$cluster == 1),]
+res_clust2 = res[which(res$cluster == 2),]
+res_clust3 = res[which(res$cluster == 3),]
+
+vec_col_res = c("blue", "red", "green")
+
+```
+
+Affichage sur une carte
+
+```{r}
+leaflet() %>%
+  addTiles() %>%
+  addAwesomeMarkers(data = res_clust1, 
+                    lng=res_clust1$longitude,lat=res_clust1$latitude,
+                    layerId = res_clust1$id_sonde, group=paste0("Cluster",res_clust1$cluster),
+                    icon=makeAwesomeIcon(icon='tint', library='glyphicon',
+                                         iconColor = 'white', markerColor = vec_col_res[1]), 
+                    popup = paste0("sonde : ", res_clust1$id_sonde)) %>%
+  addAwesomeMarkers(data = res_clust2, 
+                    lng=res_clust2$longitude,lat=res_clust2$latitude,
+                    layerId = res_clust2$id_sonde, group=paste0("Cluster",res_clust2$cluster),
+                    icon=makeAwesomeIcon(icon='tint', library='glyphicon',
+                                         iconColor = 'white', markerColor = vec_col_res[2]),
+                    popup = paste0("sonde : ", res_clust2$id_sonde)) %>%
+  addAwesomeMarkers(data = res_clust3, 
+                    lng=res_clust3$longitude,lat=res_clust3$latitude,
+                    layerId = res_clust3$id_sonde, group=paste0("Cluster",res_clust3$cluster),
+                    icon=makeAwesomeIcon(icon='tint', library='glyphicon',
+                                         iconColor = 'white', markerColor = vec_col_res[3]),
+                    popup = paste0("sonde : ", res_clust3$id_sonde))
+```
+
+
+
+# Préparation des données pour l'ACI par cluster -----
+
+```{r}
+
+db_classif_clust1 = db_classif_moy3_a17 %>% 
+  dplyr::select(as.character(res[which(res$cluster==1),]$id_sonde))
+
+db_classif_clust2 = db_classif_moy3_a17 %>% 
+  dplyr::select(as.character(res[which(res$cluster==2),]$id_sonde))
+
+db_classif_clust3 = db_classif_moy3_a17 %>% 
+  dplyr::select(as.character(res[which(res$cluster==3),]$id_sonde))
+
+
+db_classif_clust1_bis = db_classif_moy3 %>% 
+  dplyr::select(as.character(res[which(res$cluster==1),]$id_sonde))
+
+db_classif_clust2_bis = db_classif_moy3 %>% 
+  dplyr::select(as.character(res[which(res$cluster==2),]$id_sonde))
+
+db_classif_clust3_bis = db_classif_moy3 %>% 
+  dplyr::select(as.character(res[which(res$cluster==3),]$id_sonde))
+
+
+```
+
+
+
+
+
+# ACI sur toutes les sondes (db_classif_moy3, 3 sources) (séries entières) -----
+
+```{r}
+aci_date = db_classif_moy3 %>%
+  dplyr::select(c("date"))
+
+aci_data = db_classif_moy3 %>%
+  dplyr::select(!c("date"))
+
+```
+
+On recherche de 3 signaux/sources indépendants 
+
+```{r include = F}
+set.seed(1)
+a <- fastICA(aci_data, 3, alg.typ = "parallel", fun = "logcosh", alpha = 1,
+             method = "R", row.norm = FALSE, maxit = 200,
+             tol = 0.0001, verbose = TRUE)
+
+
+#a$A
+#a$S #permet d'avoir les sources
+A<-data.frame(a$S) #Création d'une dataframe
+
+B<-cbind(aci_date, A) 
+
+```
+
+
+Sources estimées par l'ACI
+
+
+```{r}
+plot(X3~date, type="l", data=B, col="blue", main="Sources estimées")
+lines(X1~date, type="l", data=B, col="red")
+lines(X2~date, type="l", data=B, col="black")
+```
+
+
+
+
+
+
+```{r}
+pos_sonde_aci = data.frame(pos_sonde = c(1:(ncol(db_classif_moy3)-1)), id_sonde = colnames(db_classif_moy3[,2:ncol(db_classif_moy3)]))
+```
+
+```{r}
+vec_clust1 = colnames(db_classif_clust1)
+vec_clust2 = colnames(db_classif_clust2)
+vec_clust3 = colnames(db_classif_clust3)
+```
+
+
+Composantes pour le cluster 1
+```{r}
+for(sonde in vec_clust1){
+  pos = pos_sonde_aci[which(pos_sonde_aci$id_sonde==sonde),]$pos_sonde
+  B$comp1=a$A[1,pos]*a$S[,1]
+  B$comp2=a$A[2,pos]*a$S[,2]
+  B$comp3=a$A[3,pos]*a$S[,3]
+  
+  plot(comp3~date, type="l", data=B, col="blue", main=paste0("Composantes pour la sonde : ", sonde))
+  lines(comp1~date, type="l", data=B, col="red")
+  lines(comp2~date, type="l", data=B, col="black")
+}
+```
+
+
+Composantes pour le cluster 2
+```{r}
+for(sonde in vec_clust2){
+  pos = pos_sonde_aci[which(pos_sonde_aci$id_sonde==sonde),]$pos_sonde
+  B$comp1=a$A[1,pos]*a$S[,1]
+  B$comp2=a$A[2,pos]*a$S[,2]
+  B$comp3=a$A[3,pos]*a$S[,3]
+  
+  plot(comp3~date, type="l", data=B, col="blue", main=paste0("Composantes pour la sonde : ", sonde))
+  lines(comp1~date, type="l", data=B, col="red")
+  lines(comp2~date, type="l", data=B, col="black")
+}
+```
+
+Composantes pour le cluster 3
+```{r}
+for(sonde in vec_clust3){
+  pos = pos_sonde_aci[which(pos_sonde_aci$id_sonde==sonde),]$pos_sonde
+  B$comp1=a$A[1,pos]*a$S[,1]
+  B$comp2=a$A[2,pos]*a$S[,2]
+  B$comp3=a$A[3,pos]*a$S[,3]
+  
+  plot(comp3~date, type="l", data=B, col="blue", main=paste0("Composantes pour la sonde : ", sonde))
+  lines(comp1~date, type="l", data=B, col="red")
+  lines(comp2~date, type="l", data=B, col="black")
+}
+```
+
+
+
+
+
+
+
+
+
+
+
+# ACI sur toutes les sondes (db_classif_moy3_a17, 3 sources) (2017) -----
+
+```{r}
+aci_date = db_classif_moy3_a17 %>%
+  dplyr::select(c("date"))
+
+aci_date_bis = db_classif_moy3 %>%
+  dplyr::select(c("date"))
+
+aci_data = db_classif_moy3_a17 %>%
+  dplyr::select(!c("date"))
+
+```
+
+
+
+```{r include = F}
+set.seed(1)
+a <- fastICA(aci_data, 3, alg.typ = "parallel", fun = "logcosh", alpha = 1,
+             method = "R", row.norm = FALSE, maxit = 200,
+             tol = 0.0001, verbose = TRUE)
+
+
+#a$A
+#a$S #permet d'avoir les sources
+A<-data.frame(a$S) #Création d'une dataframe
+
+B<-cbind(aci_date, A) 
+
+
+```
+
+
+Sources identifiées de l'ACI
+
+
+```{r}
+plot(X3~date, type="l", data=B, col="blue", main="Sources estimées")
+lines(X1~date, type="l", data=B, col="red")
+lines(X2~date, type="l", data=B, col="black")
+```
+
+
+
+Composantes pour le cluster 1
+```{r}
+for(sonde in vec_clust1){
+  pos = pos_sonde_aci[which(pos_sonde_aci$id_sonde==sonde),]$pos_sonde
+  B$comp1=a$A[1,pos]*a$S[,1]
+  B$comp2=a$A[2,pos]*a$S[,2]
+  B$comp3=a$A[3,pos]*a$S[,3]
+  
+  plot(comp3~date, type="l", data=B, col="blue", main=paste0("Composantes pour la sonde : ", sonde))
+  lines(comp1~date, type="l", data=B, col="red")
+  lines(comp2~date, type="l", data=B, col="black")
+}
+```
+
+
+Composantes pour le cluster 2
+```{r}
+for(sonde in vec_clust2){
+  pos = pos_sonde_aci[which(pos_sonde_aci$id_sonde==sonde),]$pos_sonde
+  B$comp1=a$A[1,pos]*a$S[,1]
+  B$comp2=a$A[2,pos]*a$S[,2]
+  B$comp3=a$A[3,pos]*a$S[,3]
+  
+  plot(comp3~date, type="l", data=B, col="blue", main=paste0("Composantes pour la sonde : ", sonde))
+  lines(comp1~date, type="l", data=B, col="red")
+  lines(comp2~date, type="l", data=B, col="black")
+}
+```
+
+
+Composantes pour le cluster 3
+```{r}
+for(sonde in vec_clust3){
+  pos = pos_sonde_aci[which(pos_sonde_aci$id_sonde==sonde),]$pos_sonde
+  B$comp1=a$A[1,pos]*a$S[,1]
+  B$comp2=a$A[2,pos]*a$S[,2]
+  B$comp3=a$A[3,pos]*a$S[,3]
+  
+  plot(comp3~date, type="l", data=B, col="blue", main=paste0("Composantes pour la sonde : ", sonde))
+  lines(comp1~date, type="l", data=B, col="red")
+  lines(comp2~date, type="l", data=B, col="black")
+}
+```
+
+
+
+
+
+
+
+
+
+# ACI sur les sondes du cluster 1 : db_classif_clust1 (2017) -----
+
+```{r}
+aci_data = db_classif_clust1
+```
+
+
+```{r include = F}
+set.seed(1)
+a <- fastICA(aci_data, 3, alg.typ = "parallel", fun = "logcosh", alpha = 1,
+             method = "R", row.norm = FALSE, maxit = 200,
+             tol = 0.0001, verbose = TRUE)
+
+
+#a$A
+#a$S #permet d'avoir les sources
+A<-data.frame(a$S) #Création d'une dataframe
+
+B<-cbind(aci_date, A) 
+
+
+```
+
+
+Signaux identifiées de l'ACI : cluster 1
+
+```{r}
+plot(X3~date, type="l", data=B, col="blue", main="Signaux estimés")
+lines(X1~date, type="l", data=B, col="red")
+lines(X2~date, type="l", data=B, col="black")
+
+```
+
+Composantes pour chaque sonde du cluster 1
+```{r}
+for(i in 1:ncol(aci_data)){
+  B$comp1=a$A[1,i]*a$S[,1]
+  B$comp2=a$A[2,i]*a$S[,2]
+  B$comp3=a$A[3,i]*a$S[,3]
+  
+  label_i = colnames(aci_data)[i]
+  
+  plot(comp3~date, type="l", data=B, col="blue", main=paste0("Composantes pour la sonde : ", label_i))
+  lines(comp1~date, type="l", data=B, col="red")
+  lines(comp2~date, type="l", data=B, col="black")
+}
+```
+
+
+
+# ACI sur les sondes du cluster 1 : db_classif_clust1 (séries entières) -----
+
+```{r}
+aci_data = db_classif_clust1_bis
+```
+
+
+```{r include = F}
+set.seed(1)
+a <- fastICA(aci_data, 3, alg.typ = "parallel", fun = "logcosh", alpha = 1,
+             method = "R", row.norm = FALSE, maxit = 200,
+             tol = 0.0001, verbose = TRUE)
+
+
+#a$A
+#a$S #permet d'avoir les sources
+A<-data.frame(a$S) #Création d'une dataframe
+
+B<-cbind(aci_date_bis, A) 
+
+
+B$comp1=a$A[1,1]*a$S[,1]
+B$comp2=a$A[2,1]*a$S[,2]
+B$comp3=a$A[3,1]*a$S[,3]
+
+```
+
+
+Signaux identifiées de l'ACI : cluster 1
+
+```{r}
+plot(X3~date, type="l", data=B, col="blue", main="Signaux estimés")
+lines(X2~date, type="l", data=B, col="red")
+lines(X1~date, type="l", data=B, col="black")
+
+```
+
+
+
+Composantes pour chaque sonde du cluster 1
+```{r}
+for(i in 1:ncol(aci_data)){
+  B$comp1=a$A[1,i]*a$S[,1]
+  B$comp2=a$A[2,i]*a$S[,2]
+  B$comp3=a$A[3,i]*a$S[,3]
+  
+  label_i = colnames(aci_data)[i]
+  
+  plot(comp3~date, type="l", data=B, col="blue", main=paste0("Composantes pour la sonde : ", label_i))
+  lines(comp2~date, type="l", data=B, col="red")
+  lines(comp1~date, type="l", data=B, col="black")
+}
+```
+
+
+
+# ACI sur les sondes du cluster 2 : db_classif_clust2 (2017) -----
+
+```{r}
+aci_data = db_classif_clust2
+```
+
+
+```{r include = F}
+set.seed(1)
+a <- fastICA(aci_data, 3, alg.typ = "parallel", fun = "logcosh", alpha = 1,
+             method = "R", row.norm = FALSE, maxit = 200,
+             tol = 0.0001, verbose = TRUE)
+
+
+#a$A
+#a$S #permet d'avoir les sources
+A<-data.frame(a$S) #Création d'une dataframe
+
+B<-cbind(aci_date, A) 
+
+
+```
+
+
+Signaux identifiées de l'ACI : cluster 2
+
+```{r}
+plot(X1~date, type="l", data=B, col="blue", main="Signaux estimés")
+lines(X3~date, type="l", data=B, col="red")
+lines(X2~date, type="l", data=B, col="black")
+
+```
+
+Composantes pour chaque sonde du cluster 2
+```{r}
+for(i in 1:ncol(aci_data)){
+  B$comp1=a$A[1,i]*a$S[,1]
+  B$comp2=a$A[2,i]*a$S[,2]
+  B$comp3=a$A[3,i]*a$S[,3]
+  
+  label_i = colnames(aci_data)[i]
+  
+  plot(comp1~date, type="l", data=B, col="blue", main=paste0("Composantes pour la sonde : ", label_i))
+  lines(comp3~date, type="l", data=B, col="red")
+  lines(comp2~date, type="l", data=B, col="black")
+}
+```
+
+
+
+# ACI sur les sondes du cluster 2 : db_classif_clust2 (séries entières) -----
+
+```{r}
+aci_data = db_classif_clust2_bis
+```
+
+
+```{r include = F}
+set.seed(1)
+a <- fastICA(aci_data, 3, alg.typ = "parallel", fun = "logcosh", alpha = 1,
+             method = "R", row.norm = FALSE, maxit = 200,
+             tol = 0.0001, verbose = TRUE)
+
+
+#a$A
+#a$S #permet d'avoir les sources
+A<-data.frame(a$S) #Création d'une dataframe
+
+B<-cbind(aci_date_bis, A) 
+
+
+```
+
+
+Signaux identifiées de l'ACI : cluster 2
+
+```{r}
+plot(X3~date, type="l", data=B, col="blue", main="Signaux estimés")
+lines(X2~date, type="l", data=B, col="red")
+lines(X1~date, type="l", data=B, col="black")
+
+```
+
+
+
+Composantes pour chaque sonde du cluster 2
+```{r}
+for(i in 1:ncol(aci_data)){
+  B$comp1=a$A[1,i]*a$S[,1]
+  B$comp2=a$A[2,i]*a$S[,2]
+  B$comp3=a$A[3,i]*a$S[,3]
+  
+  label_i = colnames(aci_data)[i]
+  
+  plot(comp3~date, type="l", data=B, col="blue", main=paste0("Composantes pour la sonde : ", label_i))
+  lines(comp2~date, type="l", data=B, col="red")
+  lines(comp1~date, type="l", data=B, col="black")
+}
+```
+
+
+
+# ACI sur les sondes du cluster 3 : db_classif_clust3 (2017) -----
+
+```{r}
+aci_data = db_classif_clust3
+```
+
+
+```{r include = F}
+set.seed(1)
+a <- fastICA(aci_data, 3, alg.typ = "parallel", fun = "logcosh", alpha = 1,
+             method = "R", row.norm = FALSE, maxit = 200,
+             tol = 0.0001, verbose = TRUE)
+
+
+#a$A
+#a$S #permet d'avoir les sources
+A<-data.frame(a$S) #Création d'une dataframe
+
+B<-cbind(aci_date, A) 
+
+
+```
+
+
+Signaux identifiées de l'ACI : cluster 3
+
+```{r}
+plot(X1~date, type="l", data=B, col="blue", main="Signaux estimés")
+lines(X2~date, type="l", data=B, col="red")
+lines(X3~date, type="l", data=B, col="black")
+
+```
+
+Composantes pour chaque sonde du cluster 3
+```{r}
+for(i in 1:ncol(aci_data)){
+  B$comp1=a$A[1,i]*a$S[,1]
+  B$comp2=a$A[2,i]*a$S[,2]
+  B$comp3=a$A[3,i]*a$S[,3]
+  
+  label_i = colnames(aci_data)[i]
+  
+  plot(comp1~date, type="l", data=B, col="blue", main=paste0("Composantes pour la sonde : ", label_i))
+  lines(comp2~date, type="l", data=B, col="red")
+  lines(comp3~date, type="l", data=B, col="black")
+}
+```
+
+
+
+# ACI sur les sondes du cluster 3 : db_classif_clust3 (séries entières) -----
+
+```{r}
+aci_data = db_classif_clust3_bis
+```
+
+
+```{r include = F}
+set.seed(1)
+a <- fastICA(aci_data, 3, alg.typ = "parallel", fun = "logcosh", alpha = 1,
+             method = "R", row.norm = FALSE, maxit = 200,
+             tol = 0.0001, verbose = TRUE)
+
+
+#a$A
+#a$S #permet d'avoir les sources
+A<-data.frame(a$S) #Création d'une dataframe
+
+B<-cbind(aci_date_bis, A) 
+
+
+B$comp1=a$A[1,1]*a$S[,1]
+B$comp2=a$A[2,1]*a$S[,2]
+B$comp3=a$A[3,1]*a$S[,3]
+
+```
+
+
+Signaux identifiées de l'ACI : cluster 3
+
+```{r}
+plot(X1~date, type="l", data=B, col="blue", main="Signaux estimés")
+lines(X2~date, type="l", data=B, col="red")
+lines(X3~date, type="l", data=B, col="black")
+
+```
+
+
+
+Composantes pour chaque sonde du cluster 3
+```{r}
+for(i in 1:ncol(aci_data)){
+  B$comp1=a$A[1,i]*a$S[,1]
+  B$comp2=a$A[2,i]*a$S[,2]
+  B$comp3=a$A[3,i]*a$S[,3]
+  
+  label_i = colnames(aci_data)[i]
+  
+  plot(comp1~date, type="l", data=B, col="blue", main=paste0("Composantes pour la sonde : ", label_i))
+  lines(comp2~date, type="l", data=B, col="red")
+  lines(comp3~date, type="l", data=B, col="black")
+}
+```
+
+
+
+
+
+
+
+
+
+# AFI sur toutes les sondes (db_classif_moy3, 3 sources) (séries entières) -----
+
+```{r}
+aci_date = db_classif_moy3 %>%
+  dplyr::select(c("date"))
+
+aci_data = db_classif_moy3 %>%
+  dplyr::select(!c("date"))
+
+```
+
+
+
+```{r include = F}
+set.seed(1)
+init.values<-ifa.init.random(aci_data,3)
+fit<-ifa.em(aci_data,c(2,2,2),it=50,eps=0.0001,init.values)
+pred = as.data.frame(ifa.predict(scale(aci_data),fit))
+
+B <- cbind(aci_date, pred)
+
+
+```
+
+
+Sources identifiées de l'AFI
+
+
+```{r}
+plot(V1~date, data=B, type='l', col='blue', main="Sources estimées")
+lines(V3~date, data=B, type='l', col='red')
+lines(V2~date, data=B, type='l', col='black')
+```
+
+
+
+
+
+
+```{r}
+pos_sonde_aci = data.frame(pos_sonde = c(1:(ncol(db_classif_moy3)-1)), id_sonde = colnames(db_classif_moy3[,2:ncol(db_classif_moy3)]))
+```
+
+```{r}
+vec_clust1 = colnames(db_classif_clust1)
+vec_clust2 = colnames(db_classif_clust2)
+vec_clust3 = colnames(db_classif_clust3)
+```
+
+
+Composantes pour chaque sonde du cluster 1
+```{r}
+for(sonde in vec_clust1){
+  pos = pos_sonde_aci[which(pos_sonde_aci$id_sonde==sonde),]$pos_sonde
+  
+  
+  B$comp1=fit$H[pos,1]*pred[,1]
+  B$comp2=fit$H[pos,2]*pred[,2]
+  B$comp3=fit$H[pos,3]*pred[,3]
+  
+  
+  plot(comp1~date, type="l", data=B, col="blue", main=paste0("Composantes pour la sonde : ", sonde))
+  lines(comp3~date, type="l", data=B, col="red")
+  lines(comp2~date, type="l", data=B, col="black")
+}
+```
+
+
+
+Composantes pour chaque sonde du cluster 2
+```{r}
+for(sonde in vec_clust2){
+  pos = pos_sonde_aci[which(pos_sonde_aci$id_sonde==sonde),]$pos_sonde
+  
+  
+  B$comp1=fit$H[pos,1]*pred[,1]
+  B$comp2=fit$H[pos,2]*pred[,2]
+  B$comp3=fit$H[pos,3]*pred[,3]
+  
+  
+  plot(comp1~date, type="l", data=B, col="blue", main=paste0("Composantes pour la sonde : ", sonde))
+  lines(comp3~date, type="l", data=B, col="red")
+  lines(comp2~date, type="l", data=B, col="black")
+}
+```
+
+
+
+Composantes pour chaque sonde du cluster 3
+```{r}
+for(sonde in vec_clust3){
+  pos = pos_sonde_aci[which(pos_sonde_aci$id_sonde==sonde),]$pos_sonde
+  
+  
+  B$comp1=fit$H[pos,1]*pred[,1]
+  B$comp2=fit$H[pos,2]*pred[,2]
+  B$comp3=fit$H[pos,3]*pred[,3]
+  
+  
+  plot(comp1~date, type="l", data=B, col="blue", main=paste0("Composantes pour la sonde : ", sonde))
+  lines(comp3~date, type="l", data=B, col="red")
+  lines(comp2~date, type="l", data=B, col="black")
+}
+```
+
+
+
+
+
+
+
+
+# AFI sur toutes les sondes (db_classif_moy3_a17, 3 sources) (2017) -----
+
+```{r}
+aci_date = db_classif_moy3_a17 %>%
+  dplyr::select(c("date"))
+
+aci_data = db_classif_moy3_a17 %>%
+  dplyr::select(!c("date"))
+
+```
+
+
+
+```{r include = F}
+set.seed(1)
+init.values<-ifa.init.random(aci_data,3)
+fit<-ifa.em(aci_data,c(2,2,2),it=50,eps=0.0001,init.values)
+pred = as.data.frame(ifa.predict(scale(aci_data),fit))
+
+B <- cbind(aci_date, pred)
+
+
+```
+
+
+Sources identifiées de l'AFI
+
+
+```{r}
+plot(V1~date, data=B, type='l', col='blue', main="Sources estimées")
+lines(V3~date, data=B, type='l', col='red')
+lines(V2~date, data=B, type='l', col='black')
+```
+
+
+
+
+
+
+```{r}
+pos_sonde_aci = data.frame(pos_sonde = c(1:(ncol(db_classif_moy3)-1)), id_sonde = colnames(db_classif_moy3[,2:ncol(db_classif_moy3)]))
+```
+
+```{r}
+vec_clust1 = colnames(db_classif_clust1)
+vec_clust2 = colnames(db_classif_clust2)
+vec_clust3 = colnames(db_classif_clust3)
+```
+
+
+Composantes pour chaque sonde du cluster 1
+```{r}
+for(sonde in vec_clust1){
+  pos = pos_sonde_aci[which(pos_sonde_aci$id_sonde==sonde),]$pos_sonde
+  
+  
+  B$comp1=fit$H[pos,1]*pred[,1]
+  B$comp2=fit$H[pos,2]*pred[,2]
+  B$comp3=fit$H[pos,3]*pred[,3]
+  
+  
+  plot(comp1~date, type="l", data=B, col="blue", main=paste0("Composantes pour la sonde : ", sonde))
+  lines(comp3~date, type="l", data=B, col="red")
+  lines(comp2~date, type="l", data=B, col="black")
+}
+```
+
+
+
+Composantes pour chaque sonde du cluster 2
+```{r}
+for(sonde in vec_clust2){
+  pos = pos_sonde_aci[which(pos_sonde_aci$id_sonde==sonde),]$pos_sonde
+  
+  
+  B$comp1=fit$H[pos,1]*pred[,1]
+  B$comp2=fit$H[pos,2]*pred[,2]
+  B$comp3=fit$H[pos,3]*pred[,3]
+  
+  
+  plot(comp1~date, type="l", data=B, col="blue", main=paste0("Composantes pour la sonde : ", sonde))
+  lines(comp3~date, type="l", data=B, col="red")
+  lines(comp2~date, type="l", data=B, col="black")
+}
+```
+
+
+
+Composantes pour chaque sonde du cluster 3
+```{r}
+for(sonde in vec_clust3){
+  pos = pos_sonde_aci[which(pos_sonde_aci$id_sonde==sonde),]$pos_sonde
+  
+  
+  B$comp1=fit$H[pos,1]*pred[,1]
+  B$comp2=fit$H[pos,2]*pred[,2]
+  B$comp3=fit$H[pos,3]*pred[,3]
+  
+  plot(comp1~date, type="l", data=B, col="blue", main=paste0("Composantes pour la sonde : ", sonde))
+  lines(comp3~date, type="l", data=B, col="red")
+  lines(comp2~date, type="l", data=B, col="black")
+}
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# AFI sur les sondes du cluster 1 : db_classif_clust1 (2017) -----
+
+
+
+```{r}
+aci_data = db_classif_clust1
+
+```
+
+
+
+```{r include = F}
+set.seed(1)
+init.values<-ifa.init.random(aci_data,3)
+fit<-ifa.em(aci_data,c(2,2,2),it=50,eps=0.0001,init.values)
+pred = as.data.frame(ifa.predict(scale(aci_data),fit))
+
+B <- cbind(aci_date, pred)
+
+```
+
+
+Sources identifiées de l'AFI
+
+
+```{r}
+plot(V3~date, data=B, type='l', col='blue')
+lines(V2~date, data=B, type='l', col='red')
+lines(V1~date, data=B, type='l', col='black')
+```
+
+
+
+Composantes pour chaque sonde du cluster 1
+```{r}
+for(i in 1:ncol(aci_data)){
+  
+  B$comp1=fit$H[i,1]*pred[,1]
+  B$comp2=fit$H[i,2]*pred[,2]
+  B$comp3=fit$H[i,3]*pred[,3]
+  
+  label_i = colnames(aci_data)[i]
+  
+  plot(comp3~date, type="l", data=B, col="blue", main=paste0("Composantes pour la sonde : ", label_i))
+  lines(comp2~date, type="l", data=B, col="red")
+  lines(comp1~date, type="l", data=B, col="black")
+}
+```
+
+
+
+
+
+
+# AFI sur les sondes du cluster 1 : db_classif_clust1_bis (séries entières) -----
+
+```{r}
+aci_data = db_classif_clust1_bis
+
+```
+
+
+
+```{r include = F}
+set.seed(1)
+init.values<-ifa.init.random(aci_data,3)
+fit<-ifa.em(aci_data,c(2,2,2),it=50,eps=0.0001,init.values)
+pred = as.data.frame(ifa.predict(scale(aci_data),fit))
+
+B <- cbind(aci_date_bis, pred)
+
+```
+
+
+Composantes identifiées de l'AFI
+
+
+```{r}
+plot(V3~date, data=B, type='l', col='blue')
+lines(V2~date, data=B, type='l', col='red')
+lines(V1~date, data=B, type='l', col='black')
+```
+
+
+Composantes pour chaque sonde du cluster 1
+```{r}
+for(i in 1:ncol(aci_data)){
+  
+  B$comp1=fit$H[i,1]*pred[,1]
+  B$comp2=fit$H[i,2]*pred[,2]
+  B$comp3=fit$H[i,3]*pred[,3]
+  
+  label_i = colnames(aci_data)[i]
+  
+  plot(comp3~date, type="l", data=B, col="blue", main=paste0("Composantes pour la sonde : ", label_i))
+  lines(comp2~date, type="l", data=B, col="red")
+  lines(comp1~date, type="l", data=B, col="black")
+}
+```
+
+
+
+
+
+# AFI sur les sondes du cluster 2 : db_classif_clust2 (2017) -----
+
+
+
+```{r}
+aci_data = db_classif_clust2
+
+```
+
+
+
+```{r include = F}
+set.seed(1)
+init.values<-ifa.init.random(aci_data,3)
+fit<-ifa.em(aci_data,c(2,2,2),it=50,eps=0.0001,init.values)
+pred = as.data.frame(ifa.predict(scale(aci_data),fit))
+
+B <- cbind(aci_date, pred)
+
+```
+
+
+Sources identifiées de l'AFI
+
+
+```{r}
+plot(V3~date, data=B, type='l', col='blue')
+lines(V2~date, data=B, type='l', col='red')
+lines(V1~date, data=B, type='l', col='black')
+```
+
+
+
+Composantes pour chaque sonde du cluster 1
+```{r}
+for(i in 1:ncol(aci_data)){
+  
+  B$comp1=fit$H[i,1]*pred[,1]
+  B$comp2=fit$H[i,2]*pred[,2]
+  B$comp3=fit$H[i,3]*pred[,3]
+  
+  label_i = colnames(aci_data)[i]
+  
+  plot(comp3~date, type="l", data=B, col="blue", main=paste0("Composantes pour la sonde : ", label_i))
+  lines(comp2~date, type="l", data=B, col="red")
+  lines(comp1~date, type="l", data=B, col="black")
+}
+```
+
+
+
+
+
+
+# AFI sur les sondes du cluster 2 : db_classif_clust2_bis (séries entières) -----
+
+```{r}
+aci_data = db_classif_clust2_bis
+
+```
+
+
+
+```{r include = F}
+set.seed(1)
+init.values<-ifa.init.random(aci_data,3)
+fit<-ifa.em(aci_data,c(2,2,2),it=50,eps=0.0001,init.values)
+pred = as.data.frame(ifa.predict(scale(aci_data),fit))
+
+B <- cbind(aci_date_bis, pred)
+
+```
+
+
+Composantes identifiées de l'AFI
+
+
+```{r}
+plot(V2~date, data=B, type='l', col='blue')
+lines(V3~date, data=B, type='l', col='red')
+lines(V1~date, data=B, type='l', col='black')
+```
+
+
+Composantes pour chaque sonde du cluster 1
+```{r}
+for(i in 1:ncol(aci_data)){
+  
+  B$comp1=fit$H[i,1]*pred[,1]
+  B$comp2=fit$H[i,2]*pred[,2]
+  B$comp3=fit$H[i,3]*pred[,3]
+  
+  label_i = colnames(aci_data)[i]
+  
+  plot(comp2~date, type="l", data=B, col="blue", main=paste0("Composantes pour la sonde : ", label_i))
+  lines(comp3~date, type="l", data=B, col="red")
+  lines(comp1~date, type="l", data=B, col="black")
+}
+```
+
+
+
+
+
+
+
+
+
+
+# AFI sur les sondes du cluster 3 : db_classif_clust3 (2017) -----
+
+
+
+```{r}
+aci_data = db_classif_clust3
+
+```
+
+
+
+```{r include = F}
+set.seed(1)
+init.values<-ifa.init.random(aci_data,3)
+fit<-ifa.em(aci_data,c(2,2,2),it=50,eps=0.0001,init.values)
+pred = as.data.frame(ifa.predict(scale(aci_data),fit))
+
+B <- cbind(aci_date, pred)
+
+```
+
+
+Sources identifiées de l'AFI
+
+
+```{r}
+plot(V1~date, data=B, type='l', col='blue')
+lines(V3~date, data=B, type='l', col='red')
+lines(V2~date, data=B, type='l', col='black')
+```
+
+
+
+Composantes pour chaque sonde du cluster 1
+```{r}
+for(i in 1:ncol(aci_data)){
+  
+  B$comp1=fit$H[i,1]*pred[,1]
+  B$comp2=fit$H[i,2]*pred[,2]
+  B$comp3=fit$H[i,3]*pred[,3]
+  
+  label_i = colnames(aci_data)[i]
+  
+  plot(comp1~date, type="l", data=B, col="blue", main=paste0("Composantes pour la sonde : ", label_i))
+  lines(comp3~date, type="l", data=B, col="red")
+  lines(comp2~date, type="l", data=B, col="black")
+}
+```
+
+
+
+
+
+
+# AFI sur les sondes du cluster 3 : db_classif_clust3_bis (séries entières) -----
+
+```{r}
+aci_data = db_classif_clust3_bis
+
+```
+
+
+
+```{r include = F}
+set.seed(1)
+init.values<-ifa.init.random(aci_data,3)
+fit<-ifa.em(aci_data,c(2,2,2),it=50,eps=0.0001,init.values)
+pred = as.data.frame(ifa.predict(scale(aci_data),fit))
+
+B <- cbind(aci_date_bis, pred)
+
+```
+
+
+Composantes identifiées de l'AFI
+
+
+```{r}
+plot(V2~date, data=B, type='l', col='blue')
+lines(V1~date, data=B, type='l', col='red')
+lines(V3~date, data=B, type='l', col='black')
+```
+
+
+Composantes pour chaque sonde du cluster 1
+```{r}
+for(i in 1:ncol(aci_data)){
+  
+  B$comp1=fit$H[i,1]*pred[,1]
+  B$comp2=fit$H[i,2]*pred[,2]
+  B$comp3=fit$H[i,3]*pred[,3]
+  
+  label_i = colnames(aci_data)[i]
+  
+  plot(comp2~date, type="l", data=B, col="blue", main=paste0("Composantes pour la sonde : ", label_i))
+  lines(comp1~date, type="l", data=B, col="red")
+  lines(comp3~date, type="l", data=B, col="black")
+}
+```
+
+
+
+
+
+
+
+
+
