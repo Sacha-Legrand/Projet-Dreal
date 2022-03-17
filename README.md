@@ -10,7 +10,8 @@ Ouvrir le fichier “lectureRData.R” et modifier le chemin d’accès par celu
 Lancer le fichier “lectureRData”
 Ouvrir les fichiers ui et server et lancer l’application
 
-—------------------------------------------------------------------------------------
+—--------------------------------------------------------------
+
 Architecture du code et organisation des données
 
 Dossier data_treatment :
