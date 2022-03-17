@@ -135,8 +135,8 @@ if(!require(factoextra)){
 ############## Working Directory -----
 
 # Path to working directory
-#path = "D:/Users/Desktop/Cours/M2stat/Projet3/Projet-Dreal-main/data_treatment/"
-path = "/Users/julien/Desktop/projetM2/GitHub/data_treatment/"
+path = "D:/Users/Desktop/Cours/M2stat/Projet3/Projet-Dreal-main/data_treatment/"
+#path = "/Users/julien/Desktop/projetM2/GitHub/data_treatment/"
 
 # Setting working Directory
 setwd(path)
@@ -193,7 +193,7 @@ dbMM = db2 %>%
          TeauMedMM7 = stats::filter(TeauMed,filter=rep(1/7,7)),
          TeauMedMM30 = stats::filter(TeauMed,filter=c(1/(2*30),rep(1/30,29),1/(2*30))),
          TeauMedMM365 = stats::filter(TeauMed,filter=rep(1/365,365))
-         
+
   )
 
 ## db2
@@ -236,6 +236,22 @@ db2 <- db2 %>%
 db2$An <- year(db2$date)
 colnames(db2)[6] = "Température moyenne"
 
+# tableaux stats générale
+db_stats_generale = db
+db_stats_generale = db_stats_generale %>%
+  group_by(id_sonde) %>%
+  mutate(
+    Min=min(Teau),
+    t25 = quantile(Teau,.25),
+    Mediane = median(Teau),
+    TeauMoy = mean(Teau),
+    sd = sd(Teau),
+    t75 = quantile(Teau,.75),
+    Max=max(Teau)
+  )
+db_stats_generale = db_stats_generale[,-c(1,3,4)]
+db_stats_generale = db_stats_generale[which(duplicated(db_stats_generale)==F),]
+
 
 
 # tableaux stats
@@ -255,6 +271,8 @@ db_stats = db_stats %>%
     Ampl = max(Teau) - min(Teau)
     #Amplitude =  Max - Min
   )
+
+
 
 db_stats = db_stats %>%
   group_by(id_sonde,an) %>%
@@ -498,11 +516,10 @@ colnames(prefSelune) = c("Sonde","Espèce","Seuils thermiques","Années","Nombre
 
 
 
-# -------------------------- #  -----
-#                            ##################################
-#                            # Partie proportions préférendum #
-#                            ##################################
-# Preferendum Touques (db_truite_touques_proportion, db_brochet_touques_proportion) -----
+#######################################
+# Partie proportions préférendum (db_truite_touques_proportion,db_brochet_touques_proportion)
+#######################################
+
 # Touques -----
 
 # Truite
@@ -544,15 +561,22 @@ db_brochet_touques_proportion$nobs = db_brochet_touques_proportion[,1] + db_broc
 db_brochet_touques_proportion$prop = round((db_brochet_touques_proportion[,1] /
                                               ( db_brochet_touques_proportion[,1] + db_brochet_touques_proportion[,2]))*100,3)
 
+db_stats_g_touques = db_stats_generale[db_stats_generale$id_sonde == 825 |
+                                         db_stats_generale$id_sonde == 827 |
+                                         db_stats_generale$id_sonde == 828 |
+                                         db_stats_generale$id_sonde == 830
+                                         ,]
+db_stats_g_touques$id_sonde = as.factor(db_stats_g_touques$id_sonde)
+
+db_stats_g_touques$id_sonde <- factor(db_stats_g_touques$id_sonde ,
+                                  levels =levels(db_stats_g_touques$id_sonde),
+                                  labels =c("Touques T1","Touques T3","Touques T4","Touques T6")
+)
+colnames(db_stats_g_touques)=c("Sondes","Minimum","t25","Médiane","Moyenne","sd","t75","Maximum")
+db_stats_g_touques = as.data.frame(db_stats_g_touques)
 
 
 
-
-
-# -------------------------- #  -----
-#                            ###############################
-#                            # Partie graphiques Cours Eau #
-#                            ###############################
 # bases sondes Touques (db_Touques_xtsa, db_Touques_xtsb, db_Touques_xtsc) -----
 
 # ################## #
@@ -575,7 +599,12 @@ dbsonde825MMReg <- dbsonde825MMReg[is.na(dbsonde825MMReg$TeauMinMM30)==F,]
 dbsonde825MMReg$t = 1:nrow(dbsonde825MMReg)
 dbsonde825MMReg$regMinMM30 = lm(TeauMinMM30~t,data= dbsonde825MMReg)$fitted.values
 dbsonde825MMReg$regMaxMM30 = lm(TeauMaxMM30~t,data= dbsonde825MMReg)$fitted.values
+regMinMM30_coef_825 = lm(TeauMinMM30~t,data= dbsonde825MMReg)$coefficients
+regMaxMM30_coef_825 = lm(TeauMaxMM30~t,data= dbsonde825MMReg)$coefficients
 dbsonde825MMReg = dbsonde825MMReg[,-c(2:4)]
+
+
+
 
 
 dbsonde825MM=merge(dbsonde825MM,dbsonde825MMReg,by="date",all.x=T)
@@ -589,6 +618,8 @@ dbsonde825MMReg <- dbsonde825MMReg[is.na(dbsonde825MMReg$TeauMinMM365)==F,]
 dbsonde825MMReg$t = 1:nrow(dbsonde825MMReg)
 dbsonde825MMReg$regMinMM365 = lm(TeauMinMM365~t,data= dbsonde825MMReg)$fitted.values
 dbsonde825MMReg$regMaxMM365 = lm(TeauMaxMM365~t,data= dbsonde825MMReg)$fitted.values
+regMinMM365_coef_825 = lm(TeauMinMM365~t,data= dbsonde825MMReg)$coefficients
+regMaxMM365_coef_825 = lm(TeauMaxMM365~t,data= dbsonde825MMReg)$coefficients
 dbsonde825MMReg = dbsonde825MMReg[,-c(2:4)]
 dbsonde825MM=merge(dbsonde825MM,dbsonde825MMReg,by="date",all.x=T)
 
@@ -619,6 +650,8 @@ dbsonde827MMReg <- dbsonde827MMReg[is.na(dbsonde827MMReg$TeauMinMM30)==F,]
 dbsonde827MMReg$t = 1:nrow(dbsonde827MMReg)
 dbsonde827MMReg$regMinMM30 = lm(TeauMinMM30~t,data= dbsonde827MMReg)$fitted.values
 dbsonde827MMReg$regMaxMM30 = lm(TeauMaxMM30~t,data= dbsonde827MMReg)$fitted.values
+regMinMM30_coef_827 = lm(TeauMinMM30~t,data= dbsonde827MMReg)$coefficients
+regMaxMM30_coef_827 = lm(TeauMaxMM30~t,data= dbsonde827MMReg)$coefficients
 dbsonde827MMReg = dbsonde827MMReg[,-c(2:4)]
 
 
@@ -633,6 +666,8 @@ dbsonde827MMReg <- dbsonde827MMReg[is.na(dbsonde827MMReg$TeauMinMM365)==F,]
 dbsonde827MMReg$t = 1:nrow(dbsonde827MMReg)
 dbsonde827MMReg$regMinMM365 = lm(TeauMinMM365~t,data= dbsonde827MMReg)$fitted.values
 dbsonde827MMReg$regMaxMM365 = lm(TeauMaxMM365~t,data= dbsonde827MMReg)$fitted.values
+regMinMM365_coef_827 = lm(TeauMinMM365~t,data= dbsonde827MMReg)$coefficients
+regMaxMM365_coef_827 = lm(TeauMaxMM365~t,data= dbsonde827MMReg)$coefficients
 dbsonde827MMReg = dbsonde827MMReg[,-c(2:4)]
 dbsonde827MM=merge(dbsonde827MM,dbsonde827MMReg,by="date",all.x=T)
 
@@ -662,6 +697,8 @@ dbsonde828MMReg <- dbsonde828MMReg[is.na(dbsonde828MMReg$TeauMinMM30)==F,]
 dbsonde828MMReg$t = 1:nrow(dbsonde828MMReg)
 dbsonde828MMReg$regMinMM30 = lm(TeauMinMM30~t,data= dbsonde828MMReg)$fitted.values
 dbsonde828MMReg$regMaxMM30 = lm(TeauMaxMM30~t,data= dbsonde828MMReg)$fitted.values
+regMinMM30_coef_828 = lm(TeauMinMM30~t,data= dbsonde828MMReg)$coefficients
+regMaxMM30_coef_828 = lm(TeauMaxMM30~t,data= dbsonde828MMReg)$coefficients
 dbsonde828MMReg = dbsonde828MMReg[,-c(2:4)]
 
 
@@ -676,6 +713,8 @@ dbsonde828MMReg <- dbsonde828MMReg[is.na(dbsonde828MMReg$TeauMinMM365)==F,]
 dbsonde828MMReg$t = 1:nrow(dbsonde828MMReg)
 dbsonde828MMReg$regMinMM365 = lm(TeauMinMM365~t,data= dbsonde828MMReg)$fitted.values
 dbsonde828MMReg$regMaxMM365 = lm(TeauMaxMM365~t,data= dbsonde828MMReg)$fitted.values
+regMinMM365_coef_828 = lm(TeauMinMM365~t,data= dbsonde828MMReg)$coefficients
+regMaxMM365_coef_828 = lm(TeauMaxMM365~t,data= dbsonde828MMReg)$coefficients
 dbsonde828MMReg = dbsonde828MMReg[,-c(2:4)]
 dbsonde828MM=merge(dbsonde828MM,dbsonde828MMReg,by="date",all.x=T)
 
@@ -706,6 +745,8 @@ dbsonde830MMReg <- dbsonde830MMReg[is.na(dbsonde830MMReg$TeauMinMM30)==F,]
 dbsonde830MMReg$t = 1:nrow(dbsonde830MMReg)
 dbsonde830MMReg$regMinMM30 = lm(TeauMinMM30~t,data= dbsonde830MMReg)$fitted.values
 dbsonde830MMReg$regMaxMM30 = lm(TeauMaxMM30~t,data= dbsonde830MMReg)$fitted.values
+regMinMM30_coef_830 = lm(TeauMinMM30~t,data= dbsonde830MMReg)$coefficients
+regMaxMM30_coef_830 = lm(TeauMaxMM30~t,data= dbsonde830MMReg)$coefficients
 dbsonde830MMReg = dbsonde830MMReg[,-c(2:4)]
 
 
@@ -720,6 +761,8 @@ dbsonde830MMReg <- dbsonde830MMReg[is.na(dbsonde830MMReg$TeauMinMM365)==F,]
 dbsonde830MMReg$t = 1:nrow(dbsonde830MMReg)
 dbsonde830MMReg$regMinMM365 = lm(TeauMinMM365~t,data= dbsonde830MMReg)$fitted.values
 dbsonde830MMReg$regMaxMM365 = lm(TeauMaxMM365~t,data= dbsonde830MMReg)$fitted.values
+regMinMM365_coef_830 = lm(TeauMinMM365~t,data= dbsonde830MMReg)$coefficients
+regMaxMM365_coef_830 = lm(TeauMaxMM365~t,data= dbsonde830MMReg)$coefficients
 dbsonde830MMReg = dbsonde830MMReg[,-c(2:4)]
 dbsonde830MM=merge(dbsonde830MM,dbsonde830MMReg,by="date",all.x=T)
 
@@ -735,8 +778,38 @@ db_xts_sonde830c = db_xts_sonde830c[is.na(db_xts_sonde830c$TeauMinMM365)==F,]
 
 rm(dbsonde830MMReg)
 
+regMinMM30_coef_touques = cbind(as.data.frame(regMinMM30_coef_825),
+                        as.data.frame(regMinMM30_coef_827),
+                        as.data.frame(regMinMM30_coef_828),
+                        as.data.frame(regMinMM30_coef_830))
+regMinMM30_coef_touques = round(regMinMM30_coef_touques,5)
+colnames(regMinMM30_coef_touques)=c("Touques T1","Touques T3","Touques T4","Touques T6")
+rownames(regMinMM30_coef_touques)=c("Origine","Pente")
+
+regMaxMM30_coef_touques = cbind(as.data.frame(regMaxMM30_coef_825),
+                                as.data.frame(regMaxMM30_coef_827),
+                                as.data.frame(regMaxMM30_coef_828),
+                                as.data.frame(regMaxMM30_coef_830))
+regMaxMM30_coef_touques = round(regMaxMM30_coef_touques,5)
+colnames(regMaxMM30_coef_touques)=c("Touques T1","Touques T3","Touques T4","Touques T6")
+rownames(regMaxMM30_coef_touques)=c("Origine","Pente")
 
 
+regMinMM365_coef_touques = cbind(as.data.frame(regMinMM365_coef_825),
+                                as.data.frame(regMinMM365_coef_827),
+                                as.data.frame(regMinMM365_coef_828),
+                                as.data.frame(regMinMM365_coef_830))
+regMinMM365_coef_touques = round(regMinMM365_coef_touques,5)
+colnames(regMinMM365_coef_touques)=c("Touques T1","Touques T3","Touques T4","Touques T6")
+rownames(regMinMM365_coef_touques)=c("Origine","Pente")
+
+regMaxMM365_coef_touques = cbind(as.data.frame(regMaxMM365_coef_825),
+                                as.data.frame(regMaxMM365_coef_827),
+                                as.data.frame(regMaxMM365_coef_828),
+                                as.data.frame(regMaxMM365_coef_830))
+regMaxMM365_coef_touques = round(regMaxMM365_coef_touques,5)
+colnames(regMaxMM365_coef_touques)=c("Touques T1","Touques T3","Touques T4","Touques T6")
+rownames(regMaxMM365_coef_touques)=c("Origine","Pente")
 
 rm(dbsonde825MM,dbsonde827MM,dbsonde828MM,dbsonde830MM,
    db_xts_date825,db_xts_date827,db_xts_date828,db_xts_date830)
@@ -1445,10 +1518,6 @@ colnames(db_Selune_xtsc) = nameColc
 
 
 
-# -------------------------- #  -----
-#                            #############################
-#                            # Partie Tableaux Cours Eau #
-#                            #############################
 # tableaux stats MM30 Touques (#db_Touques_stats_MM30_mois, db_Touques_stats_MM30_An) -----
 
 # ################## #
@@ -1480,6 +1549,62 @@ db_Touques_stats_MM30_An$Sondes <- factor(db_Touques_stats_MM30_An$Sondes,
                                           ),
                                           labels =c("Touques T1","Touques T3","Touques T4","Touques T6")
 )
+
+db_Touques_stats_MM30_An2 =db_Touques_stats_MM30_An
+db_Touques_stats_MM30_An2$`Années` = as.numeric(as.character(db_Touques_stats_MM30_An$`Années`))
+colnames(db_Touques_stats_MM30_An2)[2]="An"
+
+
+db_Touques_stats_MM30_An2= db_Touques_stats_MM30_An2 %>%
+  group_by(Sondes)%>%
+  mutate(Anmin = (min(An)+1),
+         Anmax = (max(An)-1)
+         )
+
+db_Touques_stats_MM30_An2 = db_Touques_stats_MM30_An2 %>%
+  group_by(Sondes)%>%
+  mutate(evolution = ifelse(An <= Anmax &
+                          An >= Anmin,1,0 ))
+
+
+db_Touques_stats_MM30_An2 = db_Touques_stats_MM30_An2[db_Touques_stats_MM30_An2$evolution != 0,]
+
+db_Touques_stats_MM30_An2 = db_Touques_stats_MM30_An2 %>%
+  group_by(Sondes)%>%
+  mutate(evolution = ifelse(An == Anmax |
+                          An ==  Anmin,1,0 ))
+
+
+db_Touques_stats_MM30_An2 = db_Touques_stats_MM30_An2[db_Touques_stats_MM30_An2$evolution != 0,]
+
+db_Touques_stats_MM30_An2$evolution <- NA
+
+for(i in 1:nrow(db_Touques_stats_MM30_An2)){
+  ifelse(db_Touques_stats_MM30_An2$Sondes[i]==db_Touques_stats_MM30_An2$Sondes[i+1],
+         db_Touques_stats_MM30_An2$evolution[i]<-round(((db_Touques_stats_MM30_An2$Maximum[i+1]/
+           db_Touques_stats_MM30_An2$Maximum[i])-1)*100,3),
+         db_Touques_stats_MM30_An2$evolution[i+1]<-NA)}
+
+
+db_Touques_stats_MM30_An2$evolution2 = NA
+for(i in 1:nrow(db_Touques_stats_MM30_An2)){
+  ifelse(db_Touques_stats_MM30_An2$Sondes[i]==db_Touques_stats_MM30_An2$Sondes[i+1],
+         db_Touques_stats_MM30_An2$evolution2[i]<-round(db_Touques_stats_MM30_An2$Maximum[i+1]-
+                                                     db_Touques_stats_MM30_An2$Maximum[i],3),
+         db_Touques_stats_MM30_An2$evolution2[i+1]<-NA)}
+
+db_Touques_stats_MM30_An2 = na.omit(db_Touques_stats_MM30_An2)
+
+db_Touques_stats_MM30_An2 = as.data.frame(db_Touques_stats_MM30_An2)
+db_Touques_stats_MM30_An2$Periode = paste0(db_Touques_stats_MM30_An2$Anmin, " - ",db_Touques_stats_MM30_An2$Anmax)
+
+
+
+db_Touques_stats_MM30_An2$EvolutionTemp = paste0(db_Touques_stats_MM30_An2$evolution2, " °C (",db_Touques_stats_MM30_An2$evolution," %)")
+db_Touques_stats_MM30_An2=db_Touques_stats_MM30_An2[,c(1,9,10)]
+colnames(db_Touques_stats_MM30_An2)=c("Sondes","Période","Evolution de la température (*)")
+
+
 
 # tableaux stats MM30 Orne (#db_Orne_stats_MM30_mois, db_Orne_stats_MM30_An) -----
 
@@ -1579,7 +1704,6 @@ db_Selune_stats_MM30_An$Sondes <- factor(db_Selune_stats_MM30_An$Sondes,
                                          ),
                                          labels =c("Selune T4","Selune T2","Selune T3","Selune T5","Selune T1")
 )
-# -------------------------- #  -----
 #                            ##############
 #                            # SAVE RDATA #
 #                            ##############
@@ -1596,7 +1720,14 @@ save(db_stats_Touques, db_stats_Orne, db_stats_Odon, db_stats_Selune,
      db_Odon_stats_MM30_An, #db_Odon_stats_MM30_mois,
      db_Selune_stats_MM30_An, #db_Selune_stats_MM30_mois,
      db_truite_touques_proportion,db_brochet_touques_proportion,
+     regMaxMM365_coef_touques,regMinMM365_coef_touques,
+     regMaxMM30_coef_touques,regMinMM30_coef_touques,
+     db_Touques_stats_MM30_An2,db_stats_g_touques,
      file="RData/db_stats_cours_eau.RData")
+
+
+
+
 #######################################
 # FIN PARTIE COURS D'EAU
 #######################################
@@ -1614,12 +1745,12 @@ for(id_s in unique(db$id_sonde)){
   #id_s = 813
   db_tempo = db[which(db$id_sonde==id_s),]
   db_tempo = aggregate(Teau~date,data=db_tempo, FUN=mean)
-  
+
   db_tempo[[id_s]] = db_tempo$Teau
-  
-  
+
+
   db_xts_comp_teau_moy = merge(db_xts_comp_teau_moy, db_tempo[,c("date", id_s)], by="date", all=TRUE)
-  
+
 }
 
 
@@ -1649,10 +1780,10 @@ for(id_s in unique(db$id_sonde)){
                               day(db_tempo$t), " ",
                               ifelse(hour(db_tempo$t)%%2==0, hour(db_tempo$t), (hour(db_tempo$t))-1), ":00:00"))
   db_tempo = aggregate(db_tempo[id_s], by=db_tempo['t'], mean)
-  
-  
+
+
   db_xts_comp_teau_bih = merge(db_xts_comp_teau_bih, db_tempo[,c("t", id_s)], by="t", all=TRUE)
-  
+
 }
 #                            ##############
 #                            # SAVE RDATA #
@@ -1697,19 +1828,19 @@ dataRegCoeff = as.data.frame(matrix(
 
 
 for (j in 2:(((ncol(db_teau_tair2)-1)/2)+1)){
-  
-  
+
+
   name=substr(colnames(db_teau_tair2)[j],1,3)
   base_temp = as.data.frame(cbind(db_teau_tair2[,1],
                                   db_teau_tair2[,j],
                                   db_teau_tair2[,j+((ncol(db_teau_tair2)-1)/2)]
   ))
-  
-  
+
+
   base_temp[,1] <- as.Date(base_temp[,1], origin="1970-01-01")
-  
+
   base_temp=base_temp[which(is.na(base_temp[,2])==F)[1]:nrow(base_temp),]
-  
+
   base_temp=base_temp[is.na(base_temp[,2])==F,]
   base_temp=base_temp[is.na(base_temp[,3])==F,]
   reg = lm(base_temp[,2]~base_temp[,3])
@@ -1721,7 +1852,7 @@ for (j in 2:(((ncol(db_teau_tair2)-1)/2)+1)){
   dataRegCoeff[1,j-1]=reg$coefficients[1]
   dataRegCoeff[2,j-1]=reg$coefficients[2]
   dataRegCoeff[3,j-1]=summary(reg)$adj.r.squared
-  
+
   dataReg= merge(dataReg,base_temp,by="date",all.x=T)
   Name=append(Name,name)
 }
@@ -1752,12 +1883,9 @@ colnames(db_teau_tair3)=c("date","id_sonde","Température de l'eau","Températur
 
 
 
-# -------------------------- #  -----
-#                            ###############
-#                            # Regressions #
-#                            ###############
-# Régression Touques -----
-
+#################
+# Régression Touques
+################
 
 
 # Reg Touques 825
@@ -1773,7 +1901,7 @@ ggplot(data= db_teau_tair3[db_teau_tair3$id_sonde == 825,])+
   labs(
     x="Température de l'air (en °C)",
     y="Température de l'eau (en °C)")+
-  
+
   theme_minimal()+
   theme(legend.title = element_blank())
 
@@ -1794,7 +1922,7 @@ ggplot(data= db_teau_tair3[db_teau_tair3$id_sonde == 827,])+
   labs(
     x="Température de l'air (en °C)",
     y="Température de l'eau (en °C)")+
-  
+
   theme_minimal()+
   theme(legend.title = element_blank())
 
@@ -1818,7 +1946,7 @@ ggplot(data=  db_teau_tair3[db_teau_tair3$id_sonde == 828,])+
   labs(
     x="Température de l'air (en °C)",
     y="Température de l'eau (en °C)")+
-  
+
   theme_minimal()+
   theme(legend.title = element_blank())
 
@@ -1840,7 +1968,7 @@ ggplot(data= db_teau_tair3[db_teau_tair3$id_sonde == 830,])+
   labs(
     x="Température de l'air (en °C)",
     y="Température de l'eau (en °C)")+
-  
+
   theme_minimal()+
   theme(legend.title = element_blank())
 
@@ -1850,7 +1978,9 @@ dev.off()
 
 
 
-# Régression Orne -----
+#################
+# Régression Orne
+#################
 # Reg Orne 817
 
 png(paste0(path2,"Reg817.png"))
@@ -1864,7 +1994,7 @@ ggplot(data= db_teau_tair3[db_teau_tair3$id_sonde == 817,])+
   labs(
     x="Température de l'air (en °C)",
     y="Température de l'eau (en °C)")+
-  
+
   theme_minimal()+
   theme(legend.title = element_blank())
 
@@ -1887,7 +2017,7 @@ ggplot(data= db_teau_tair3[db_teau_tair3$id_sonde == 819,])+
   labs(
     x="Température de l'air (en °C)",
     y="Température de l'eau (en °C)")+
-  
+
   theme_minimal()+
   theme(legend.title = element_blank())
 
@@ -1908,7 +2038,7 @@ ggplot(data= db_teau_tair3[db_teau_tair3$id_sonde == 818,])+
   labs(
     x="Température de l'air (en °C)",
     y="Température de l'eau (en °C)")+
-  
+
   theme_minimal()+
   theme(legend.title = element_blank())
 
@@ -1916,7 +2046,9 @@ dev.off()
 
 
 
-# Régression Odon -----
+#################
+# Régression Odon
+#################
 # Reg Odon 812
 
 png(paste0(path2,"Reg812.png"))
@@ -1930,7 +2062,7 @@ ggplot(data= db_teau_tair3[db_teau_tair3$id_sonde == 812,])+
   labs(
     x="Température de l'air (en °C)",
     y="Température de l'eau (en °C)")+
-  
+
   theme_minimal()+
   theme(legend.title = element_blank())
 
@@ -1952,7 +2084,7 @@ ggplot(data= db_teau_tair3[db_teau_tair3$id_sonde == 813,])+
   labs(
     x="Température de l'air (en °C)",
     y="Température de l'eau (en °C)")+
-  
+
   theme_minimal()+
   theme(legend.title = element_blank())
 
@@ -1974,7 +2106,7 @@ ggplot(data= db_teau_tair3[db_teau_tair3$id_sonde == 815,])+
   labs(
     x="Température de l'air (en °C)",
     y="Température de l'eau (en °C)")+
-  
+
   theme_minimal()+
   theme(legend.title = element_blank())
 
@@ -1996,14 +2128,16 @@ ggplot(data= db_teau_tair3[db_teau_tair3$id_sonde == 816,])+
   labs(
     x="Température de l'air (en °C)",
     y="Température de l'eau (en °C)")+
-  
+
   theme_minimal()+
   theme(legend.title = element_blank())
 
 dev.off()
 
 
-# Régression Selune -----
+#################
+# Régression Selune
+#################
 # Reg Selune 824
 
 png(paste0(path2,"Reg824.png"))
@@ -2017,7 +2151,7 @@ ggplot(data= db_teau_tair3[db_teau_tair3$id_sonde == 824,])+
   labs(
     x="Température de l'air (en °C)",
     y="Température de l'eau (en °C)")+
-  
+
   theme_minimal()+
   theme(legend.title = element_blank())
 
@@ -2036,7 +2170,7 @@ ggplot(data= db_teau_tair3[db_teau_tair3$id_sonde == 821,])+
   labs(
     x="Température de l'air (en °C)",
     y="Température de l'eau (en °C)")+
-  
+
   theme_minimal()+
   theme(legend.title = element_blank())
 
@@ -2056,7 +2190,7 @@ ggplot(data= db_teau_tair3[db_teau_tair3$id_sonde == 822,])+
   labs(
     x="Température de l'air (en °C)",
     y="Température de l'eau (en °C)")+
-  
+
   theme_minimal()+
   theme(legend.title = element_blank())
 
@@ -2076,7 +2210,7 @@ ggplot(data= db_teau_tair3[db_teau_tair3$id_sonde == 820,])+
   labs(
     x="Température de l'air (en °C)",
     y="Température de l'eau (en °C)")+
-  
+
   theme_minimal()+
   theme(legend.title = element_blank())
 
@@ -2098,7 +2232,7 @@ ggplot(data= db_teau_tair3[db_teau_tair3$id_sonde == 823,])+
   labs(
     x="Température de l'air (en °C)",
     y="Température de l'eau (en °C)")+
-  
+
   theme_minimal()+
   theme(legend.title = element_blank())
 
@@ -2115,7 +2249,6 @@ dev.off()
 
 
 
-# -------------------------- #  -----
 #                            ##############
 #                            # SAVE RDATA #
 #                            ##############
