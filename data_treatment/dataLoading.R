@@ -112,10 +112,14 @@ if(!require(ifa)){
   install.packages("ifa")
   library(ifa)
 }
+
 if(!require(readODS)){
   install.packages("readODS")
-  #library(readODS)
 }
+if(!require(rgdal)){
+  install.packages("rdal")
+}
+
 if(!require(stringr)){
   install.packages("stringr")
   library(stringr)
