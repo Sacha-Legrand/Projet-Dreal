@@ -965,13 +965,13 @@ dashboardPage(
                                               "Par ailleurs, un autre indicateur semble refléter le réchauffement des eaux de la Touques.
                                               Les moyennes annuelles des moyennes mensuelles des températures maximales montrent des
                                               augmentations de température des eaux, allant jusqu’à ",
-                                              str_sub(db_Touques_stats_MM30_An2[4,3],1,5),
+                                              str_sub(db_stats_evol_MM30_an_touques[4,3],1,5),
                                               " °C entre",
-                                              str_sub(db_Touques_stats_MM30_An2[4,2],1,4),
+                                              str_sub(db_stats_evol_MM30_an_touques[4,2],1,4),
                                               " et ",
-                                              str_sub(db_Touques_stats_MM30_An2[4,2],7,11),
+                                              str_sub(db_stats_evol_MM30_an_touques[4,2],7,11),
                                               " pour la sonde T6, ce qui représente une augmentation de ",
-                                              str_sub(db_Touques_stats_MM30_An2[4,3],11,17),
+                                              str_sub(db_stats_evol_MM30_an_touques[4,3],11,17),
                                               " sur la période considérée."),
 
 
