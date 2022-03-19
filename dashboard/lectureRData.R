@@ -118,7 +118,10 @@ if(!require(rsconnect)){
   install.packages("rsconnect")
   library(rsconnect)
 }
-
+if(!require(stringr)){
+  install.packages("stringr")
+  library(stringr)
+}
 
 
 ############## Working Directory -----
