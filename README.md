@@ -3,6 +3,7 @@
 
 - Dossier dashboard consiste en l'outil de data visualisation en R Shiny
 - Dossier data_treatment permet la lecture des différentes sources de données ainsi que la création, la manipulation et l'enregistrement des bases de données utiles pour l'application R Shiny. C’est dans ce dossier que s'effectuent les mises à jour.
+- Dossier Rmarkdown, contenant les analyses complémentaires réalisées par rapport à la classification, à l'Analyse Factorielle Indépendante (AFI) notamment.
 
 Pour activer l’application en local : 
 Se rendre dans le dossier dashboard 
