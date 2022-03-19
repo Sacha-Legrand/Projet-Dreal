@@ -112,14 +112,10 @@ if(!require(ifa)){
   install.packages("ifa")
   library(ifa)
 }
-
 if(!require(readODS)){
   install.packages("readODS")
+  #library(readODS)
 }
-if(!require(rgdal)){
-  install.packages("rdal")
-}
-
 if(!require(stringr)){
   install.packages("stringr")
   library(stringr)
@@ -131,8 +127,8 @@ if(!require(stringr)){
 ############## Working Directory -----
 
 # Path to working directory
-#path = "D:/Users/Desktop/Cours/M2stat/Projet2/Projet-Dreal-main/data_treatment/"
-path = "/Users/julien/Desktop/projetM2/GitHub/data_treatment/"
+path = "D:/Users/Desktop/Cours/M2stat/Projet3/Projet-Dreal-main/data_treatment/"
+#path = "/Users/julien/Desktop/projetM2/GitHub/data_treatment/"
 
 # Setting working Directory
 setwd(path)
@@ -325,34 +321,34 @@ for (i in 1:dim(coursEau2)[1]){
   D=vector()
   longitude2=vector()
   latitude2=vector()
-  
+
   Name = coursEau2$Name[i]
-  
+
   coord = coordinates(coursEau2[coursEau2@data$Name == Name,])
-  
+
   lng <- coord[[1]][[1]][,1]
   longitude = coord[[1]][[1]][,1]
   lat <- coord[[1]][[1]][,2]
   latitude=coord[[1]][[1]][,2]
-  
+
   longitude2 = longitude*(pi/180)
   latitude2 = latitude*(pi/180)
-  
+
   for (j in 1:length(latitude)){
     d= (2 * asin( sqrt(
       (sin((latitude2[j]-latitude2[j+1])/2))^2 + cos(latitude2[j])*cos(latitude2[j+1])* ( sin((longitude2[j]-longitude2[j+1])/2)) ^2
     )
-    
+
     ))*6366
-    
+
     D=append(D,d)
   }
-  
+
   taille= sum(D,na.rm=T)
   #print(taille)
   Taille = append(Taille,taille)
   name = append(name,Name)
-  
+
 }
 #Taille
 
@@ -393,22 +389,22 @@ for (i in 1:nrow(coord_sondes)){
   c_eau = coordinates(c_eau[c_eau@data$Name == as.character(coord_sondes$label[i]),])
   c_eau$d = NA
   c_eau$di = NA
-  
-  
+
+
   longitude = c_eau[[1]][[1]][,1]
   latitude = c_eau[[1]][[1]][,2]
-  
+
   longitude2 = longitude*(pi/180)
   latitude2 = latitude*(pi/180)
-  
+
   for (j in 1:length(latitude)){
-    
+
     c_eau$d[j]= (2 * asin( sqrt(
       (sin((latitude2[j]-latitude2[j+1])/2))^2 + cos(latitude2[j])*cos(latitude2[j+1])* ( sin((longitude2[j]-longitude2[j+1])/2)) ^2
     )
-    
+
     ))*6366
-    
+
     c_eau$di[j] = (2 * asin( sqrt(
       (sin((latitude2[j]-(coord_sondes$latitude[i]*(pi/180)))/2))^2 +
         cos(latitude2[j])*cos((coord_sondes$latitude[i]*(pi/180)))*
@@ -416,12 +412,12 @@ for (i in 1:nrow(coord_sondes)){
     )
     )
     )*6366
-    
+
   }
   dist = c_eau$d[1:which(c_eau$di== min(c_eau$di))]
   coord_sondes$dist[i]=sum(dist)
   #print(sum(dist))
-  
+
 }
 
 
