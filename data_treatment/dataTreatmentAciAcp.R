@@ -1,4 +1,12 @@
 rm(list=ls())
+############## Working Directory -----
+
+# Path to working directory
+path = "D:/Users/Desktop/Cours/M2stat/Projet4/Projet-Dreal-main/data_treatment/"
+#path = "/Users/julien/Desktop/projetM2/GitHub/data_treatment/"
+
+# Setting working Directory
+setwd(path)
 
 ############## Packages -----
 
@@ -132,14 +140,6 @@ if(!require(factoextra)){
   install.packages("factoextra")
   library(factoextra)
 }
-############## Working Directory -----
-
-# Path to working directory
-path = "D:/Users/Desktop/Cours/M2stat/Projet3/Projet-Dreal-main/data_treatment/"
-#path = "/Users/julien/Desktop/projetM2/GitHub/data_treatment/"
-
-# Setting working Directory
-setwd(path)
 
 
 ############## Chargement des données -----
