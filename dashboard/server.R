@@ -1224,7 +1224,7 @@ shinyServer(function(input,output,session){
     ################################
 
     # Tableau des droites de régressions
-    output$db_Touques_stats_MM30_An2= renderTable(db_Touques_stats_MM30_An2)
+    output$db_Touques_stats_MM30_An2= renderTable(db_stats_evol_MM30_an_touques)
 
 
     varSelecMM30 <- reactiveValues(
