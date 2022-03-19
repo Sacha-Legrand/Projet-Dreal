@@ -1,3 +1,29 @@
+
+##############################################################################
+#           ATTENTION
+##############################################################################
+# Les données nc (données E-OBS) ne sont pas présents sur le GitHub
+# Car trop lourds, il est donc nécessaire de les charger tels qu'indiqué
+# dans le README et de les stocker dans le fichier "nc_files" du
+# data_treatment
+
+############## Working Directory -----
+
+# Path to working directory
+# Path Lucie
+path = "D:/Users/Desktop/Cours/M2stat/Projet4/Projet-Dreal-main/data_treatment/"
+# Path Julien
+#path = "/Users/julien/Desktop/projetM2/GitHub/data_treatment/"
+
+# Setting working Directory
+setwd(path)
+
+############# Données nc_files pour mise à jour
+
+temp_air_moy = "nc_files/tg_ens_mean_0.1deg_reg_2011-2021_v24.0e.nc"
+pluvio = "nc_files/rr_ens_mean_0.1deg_reg_2011-2021_v24.0e.nc"
+soleil = "nc_files/qq_ens_mean_0.1deg_reg_2011-2021_v24.0e.nc"
+
 ############## Packages -----
 
 if(!require(leaflet)){
@@ -124,17 +150,10 @@ if(!require(stringr)){
 
 
 
-############## Working Directory -----
-
-# Path to working directory
-path = "D:/Users/Desktop/Cours/M2stat/Projet3/Projet-Dreal-main/data_treatment/"
-#path = "/Users/julien/Desktop/projetM2/GitHub/data_treatment/"
-
-# Setting working Directory
-setwd(path)
 
 
-# Fichier des desciptions de variables
+
+##############  Fichier des desciptions de variables ------
 Variables = readODS::read_ods(paste0(path,"/Description_Variables.ods"),sheet=1)
 save(Variables, file = "RData/Variables.RData")
 
@@ -476,7 +495,7 @@ sonde_coord = cbind(sonde_lon, sonde_lat)
 
 
 # Température moyenne de l'air
-nc_tair = raster::brick(paste0(path,"nc_files/tg_ens_mean_0.1deg_reg_2011-2021_v24.0e.nc"))
+nc_tair = raster::brick(paste0(path,temp_air_moy))
 
 
 db_Tair_moy = raster::extract(nc_tair, sonde_coord, method = "bilinear")
@@ -495,7 +514,7 @@ rm(db_Tair_moy_temp)
 
 
 # Pluviométrie
-nc_pluvio = raster::brick(paste0(path,"nc_files/rr_ens_mean_0.1deg_reg_2011-2021_v24.0e.nc"))
+nc_pluvio = raster::brick(paste0(path,pluvio))
 
 
 db_pluvio = raster::extract(nc_pluvio, sonde_coord, method = "bilinear")
@@ -552,7 +571,7 @@ rm(db_pluvio_temp)
 
 
 # Température éclaircissement
-nc_soleil = raster::brick(paste0(path,"nc_files/qq_ens_mean_0.1deg_reg_2011-2021_v24.0e.nc"))
+nc_soleil = raster::brick(paste0(path,soleil))
 
 
 db_soleil = raster::extract(nc_soleil, sonde_coord, method = "bilinear")
