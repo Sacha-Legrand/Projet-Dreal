@@ -127,7 +127,9 @@ if(!require(stringr)){
 ############## Working Directory -----
 
 # Path to working directory
+# Path Lucie
 #path = "D:/Users/Desktop/Cours/M2stat/Projet2/Projet-Dreal-main/dashboard/"
+# Path Julien
 path = "/Users/julien/Desktop/projetM2/GitHub/dashboard/"
 
 # Setting working Directory
